@@ -321,6 +321,15 @@
   .tre.reg { grid-template-columns:1.6fr 1fr .9fr; } .col2 { display:flex; flex-direction:column; gap:7px; align-items:stretch; } .vedi { display:flex; align-items:center; gap:7px; font-size:13px; } .vedi select { flex:1; }
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration:.32s; animation-timing-function:cubic-bezier(.22,1,.36,1); }
   @media (max-width:860px) { #chi { font-size:0; gap:0; } .tre.reg { grid-template-columns:minmax(0,1fr); } }
+
+  /* ============ documenti della pratica ============ */
+  .ptab { display:flex; gap:6px; margin:0 0 10px; } .ptab button { padding:6px 14px; border-radius:99px; background:#eef0f5; font-size:13px; font-weight:600; transition:background-color .25s var(--entra), color .25s; } .ptab button.on { background:var(--accent); color:#fff; } .ptab .n { background:rgba(0,0,0,.12); border-radius:99px; padding:0 7px; margin-left:3px; font-size:12px; } .ptab .on .n { background:rgba(255,255,255,.25); }
+  .dsum { color:var(--muted); font-size:13px; margin-bottom:8px; } .dgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:12px 18px; align-items:start; }
+  .dgr h4 { margin:0 0 5px; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:3px; } .dgr h4 span { color:var(--ink); }
+  .docv { display:grid; grid-template-columns:22px minmax(0,1fr) auto auto; gap:8px; align-items:center; width:100%; text-align:left; padding:6px 8px; border-radius:8px; font-size:13px; background:none; transition:background-color .2s var(--entra); } button.docv:hover { background:#f0f4fd; }
+  .docv .dn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .docv .dq { color:var(--muted); font-size:12px; white-space:nowrap; } .docv .ds { font-size:11.5px; font-weight:700; border-radius:6px; padding:1px 7px; background:#e2f5eb; color:var(--ok); white-space:nowrap; }
+  .docv.par .ds { background:#e8efff; color:var(--accent); } .docv.manca .ds { background:#fff3d6; color:#8a5a00; } .docv.manca .dn { color:var(--muted); font-style:italic; } .docv.no .ds { background:#fdeaea; color:#a12121; }
+  @media (max-width:860px) { .docv { grid-template-columns:22px minmax(0,1fr) auto; } .docv .dq { display:none; } }
 </style>
 <script type="importmap">
 { "imports": { "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -1026,13 +1035,14 @@ const ordina = r => { r.ord = r.sel; r.tr = 0; r.tm = Date.now(); nota(`Ordinato
 /* ---- foto del pezzo e dell'etichetta: disegni segnaposto (nessuna foto vera), verifica simulata ---- */
 const codPezzo = r => "RC-" + String(4000 + r.id * 37).padStart(5, "0");
 function disegno(tipo, testo, tinta = "#3b6cff") { const f = (tipo.split(" ")[0] || "").toLowerCase(); let g;
-  if (tipo === "etichetta") g = `<rect x="40" y="50" width="240" height="120" rx="8" fill="#fff" stroke="#999"/>${Array.from({ length:34 }, (_, i) => `<rect x="${56 + i * 5.6}" y="66" width="${i % 3 ? 2 : 4}" height="40" fill="#222"/>`).join("")}<text x="160" y="132" text-anchor="middle" font-size="20" font-family="monospace" font-weight="700" fill="#222">${esc(testo)}</text><text x="160" y="156" text-anchor="middle" font-size="11" font-family="sans-serif" fill="#777">ETICHETTA DI ESEMPIO</text>`;
+  if (tipo === "doc") g = `<rect x="95" y="14" width="130" height="178" rx="4" fill="#fff" stroke="#9aa3b5"/><rect x="108" y="28" width="70" height="9" rx="2" fill="#3b4a6b"/>${Array.from({ length:9 }, (_, i) => `<rect x="108" y="${50 + i * 13}" width="${i % 4 === 3 ? 60 : 104}" height="4" rx="2" fill="#c9cfdb"/>`).join("")}<rect x="108" y="172" width="44" height="10" rx="2" fill="#dbe3f7"/>`;
+  else if (tipo === "etichetta") g = `<rect x="40" y="50" width="240" height="120" rx="8" fill="#fff" stroke="#999"/>${Array.from({ length:34 }, (_, i) => `<rect x="${56 + i * 5.6}" y="66" width="${i % 3 ? 2 : 4}" height="40" fill="#222"/>`).join("")}<text x="160" y="132" text-anchor="middle" font-size="20" font-family="monospace" font-weight="700" fill="#222">${esc(testo)}</text><text x="160" y="156" text-anchor="middle" font-size="11" font-family="sans-serif" fill="#777">ETICHETTA DI ESEMPIO</text>`;
   else if (f === "faro") g = `<path d="M50 140 Q40 70 120 60 L270 80 Q290 110 260 150 Z" fill="#e8eef8" stroke="${tinta}" stroke-width="6"/><circle cx="120" cy="110" r="30" fill="#fff" stroke="#667" stroke-width="4"/><circle cx="200" cy="112" r="18" fill="#cfe0ff" stroke="#667" stroke-width="3"/>`;
   else if (f === "paraurti") g = `<path d="M20 120 Q160 60 300 120 L292 160 Q160 120 28 160 Z" fill="${tinta}" opacity=".85"/><rect x="120" y="125" width="80" height="14" rx="4" fill="#223"/>`;
   else if (f === "specchietto") g = `<path d="M70 70 Q150 40 240 80 Q260 120 230 150 Q150 170 80 140 Z" fill="${tinta}" opacity=".85"/><path d="M95 85 Q150 65 215 92 Q228 118 210 135 Q150 148 100 128 Z" fill="#dfe8f5"/>`;
   else if (f === "parafango") g = `<path d="M30 150 Q40 60 150 55 Q270 60 290 150 Z" fill="${tinta}" opacity=".85"/><circle cx="160" cy="150" r="46" fill="#f4f6fa"/>`;
   else g = `<path d="M45 70 L275 55 L285 150 L55 165 Z" fill="${tinta}" opacity=".85"/><circle cx="90" cy="110" r="8" fill="#fff"/><circle cx="240" cy="105" r="8" fill="#fff"/>`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 210"><rect width="320" height="210" fill="#f1f3f7"/>${g}<text x="160" y="196" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#556">${tipo === "etichetta" ? "" : esc(testo)}</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 210"><rect width="320" height="210" fill="#f1f3f7"/>${g}<text x="160" y="196" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#556">${tipo === "etichetta" ? "" : tipo === "doc" ? "" : esc(testo)}</text></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); }
 const FOTOPEZZO = r => disegno(r.pezzo, "Foto di esempio: " + r.pezzo.toLowerCase());
 const verifica = r => !r.fp || !r.fe ? null : r.fp.cod === r.fe.cod;     // stesso codice sulla foto del pezzo e sull'etichetta
@@ -1219,11 +1229,43 @@ function azioniPratica(a) { const r = RICH.find(x => x.t === a.t && x.ord == nul
 const SCHEDA = { manca:["no", "da compilare in accettazione"], fatta:["", "compilata, stampata e sulla macchina"] };
 const riga2 = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
 const coloreHtml = a => `<i class="pal" style="background:${a.col}"></i>${nomeColore(a.col)}`;
+let pTab = "dati";                                                   // dentro la pratica: dati dell'auto oppure documenti
+const giorniFa = n => new Date(Date.now() - n * 864e5).toLocaleDateString("it-IT", { day:"numeric", month:"short", timeZone:"Europe/Rome" });
+const GR_DOC = [["Accettazione", "Scheda di accettazione"], ["Preventivo e perizia", "Preventivo", "Perizia"], ["Foto del danno", "Foto danno"], ["Documenti del cliente", "Documento"], ["Ricambi", "Ricambio"], ["Fatture", "Fattura"]];
+// documenti veri (file caricati) + quelli già in pratica; i nomi e le date dei secondi sono inventati
+function documentiAuto(a) { const zi = COLONNE.findIndex(c => c[0] === a.z), n = norm(a.t), base = giorniOff(a), L = [];
+  const add = (tipo, nome, quando, stato, img, extra = {}) => L.push({ tipo, nome, quando, stato, img, ...extra });
+  const veri = FILES.filter(f => f.t === a.t && f.ok);
+  if (a.scheda === "fatta") add("Scheda di accettazione", `${n}_scheda_accettazione.pdf`, giorniFa(base), "Nella pratica", "doc"); else add("Scheda di accettazione", "Scheda da compilare in accettazione", "", "Manca", "");
+  [["Preventivo", "preventivo.pdf", .9], ["Perizia", "perizia.pdf", .5]].forEach(([t, nf, k]) => { const v = veri.filter(f => f.tipo === t);
+    if (a.docs[t] && !v.some(f => f.inviato)) add(t, `${n}_${nf}`, giorniFa(Math.round(base * k)), "Nella pratica", "doc");
+    v.forEach(f => add(t, f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "doc"));
+    if (!a.docs[t] && !v.length && (t === "Preventivo" || zi >= 1)) add(t, t === "Perizia" ? "Perizia non ancora arrivata" : "Preventivo non ancora arrivato", "", "Manca", ""); });
+  { const v = veri.filter(f => f.tipo === "Foto danno"); const n0 = a.docs["Foto danno"] ? 6 : 0;
+    for (let i = 1; i <= n0; i++) add("Foto danno", `${n}_foto_danno_${i}.jpg`, giorniFa(base), "Nella pratica", "foto");
+    v.forEach(f => add("Foto danno", f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "foto"));
+    if (!n0 && !v.length) add("Foto danno", "Foto del danno non ancora arrivate", "", "Manca", ""); }
+  veri.filter(f => f.tipo === "Documento").forEach(f => add("Documento", f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "doc"));
+  if (zi >= 1) { add("Documento", `${n}_libretto.pdf`, giorniFa(base), "Nella pratica", "doc"); add("Documento", `${n}_delega_riparazione.pdf`, giorniFa(base), "Nella pratica", "doc"); }
+  RICH.filter(r => r.t === a.t).forEach(r => { add("Ricambio", `${r.pezzo}: richiesta dell'officina`, r.ora === "adesso" ? "oggi" : r.ora, r.ord != null ? "Ordinato" : "Da ordinare", "doc");
+    if (r.fp) add("Ricambio", `Foto del pezzo (${r.pezzo.toLowerCase()})`, "oggi " + r.fp.ora, verifica(r) === false ? "Da controllare" : "Nella pratica", "pezzo", { rid:r.id, k:"fp" });
+    if (r.fe) add("Ricambio", `Foto dell'etichetta ${r.fe.cod}`, "oggi " + r.fe.ora, verifica(r) === false ? "Non corrisponde" : "Corrisponde", "etichetta", { rid:r.id, k:"fe" }); });
+  const fat = veri.filter(f => f.tipo === "Fattura"); if (a.docs["Fattura"] && !fat.some(f => f.inviato)) add("Fattura", `${n}_fattura.pdf`, giorniFa(1), "Nella pratica", "doc");
+  fat.forEach(f => add("Fattura", f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "doc"));
+  if (zi >= 5 && !a.docs["Fattura"] && !fat.length) add("Fattura", "Fattura non ancora fatta", "", "Manca", "");
+  L.forEach((d, i) => { d.i = i; }); return L; }
+const iconaDoc = img => ({ foto:"🖼️", pezzo:"🖼️", etichetta:"🏷️", doc:"📄" })[img] || "▫️";
+function htmlDocumenti(a) { const L = documentiAuto(a), dis = L.filter(d => d.stato !== "Manca").length;
+  const voce = d => `<${d.img ? "button" : "div"} class="docv ${d.stato === "Manca" ? "manca" : /Non|controllare/.test(d.stato) ? "no" : d.stato === "In partenza" ? "par" : ""}" data-k="d${d.i}" ${d.img ? `data-act="docApri" data-v="${a.t}|${d.i}"` : ""}><span class="di">${iconaDoc(d.img)}</span><span class="dn">${esc(d.nome)}</span><span class="dq">${esc(d.quando)}</span><span class="ds">${d.stato}</span></${d.img ? "button" : "div"}>`;
+  const gruppi = GR_DOC.map(([nome, ...tipi]) => { const v = L.filter(d => tipi.includes(d.tipo)); return v.length ? `<section class="dgr"><h4>${nome}<span>${v.filter(d => d.stato !== "Manca").length}</span></h4>${v.map(voce).join("")}</section>` : ""; }).join("");
+  return `<div class="docs"><div class="dsum">${dis} documenti in archivio, ordinati per tipo. Toccane uno per aprirlo.</div><div class="dgrid">${gruppi}</div></div>`; }
+const barraPratica = a => `<div class="ptab" role="tablist"><button data-act="ptab" data-v="dati" class="${pTab === "dati" ? "on" : ""}" role="tab">Dati e lavori</button><button data-act="ptab" data-v="doc" class="${pTab === "doc" ? "on" : ""}" role="tab">Documenti <span class="n">${documentiAuto(a).filter(d => d.stato !== "Manca").length}</span></button></div>`;
 function disPratica() { const a = selId == null ? null : AUTO[selId]; vedi($("chip"), !!a, { da:"scale(.85)", ms:260 });
   if (!a) { $("sPr").textContent = "Tocca un'auto nella tabella o sulla mappa"; $("tPr").textContent = "Nessuna auto scelta"; set("bPr", ""); return; }
   $("tPr").textContent = `${a.t} ${a.m}`; $("sPr").textContent = a.why || a.cli.n; $("chip").textContent = "✕ " + a.t;
+  if (pTab === "doc") return set("bPr", barraPratica(a) + htmlDocumenti(a));
   const zi = COLONNE.findIndex(c => c[0] === a.z), ric = RICH.filter(r => r.t === a.t), fl = FILES.filter(f => f.t === a.t && !f.inviato), [sc, st] = SCHEDA[a.scheda], d = a.dati;
-  set("bPr", `<div class="passi">${COLONNE.map(([z, n], i) => `<div class="${i < zi ? "f" : i === zi ? "o" : ""}">${n}</div>`).join("")}</div><div class="row" style="margin-bottom:8px">${azioniPratica(a) || `<span class="vuoto">${a.z === "acc" ? "Aspetta preventivo e foto: quando ci sono parte il pacco per il perito." : "Niente da fare adesso."}</span>`}</div>
+  set("bPr", barraPratica(a) + `<div class="passi">${COLONNE.map(([z, n], i) => `<div class="${i < zi ? "f" : i === zi ? "o" : ""}">${n}</div>`).join("")}</div><div class="row" style="margin-bottom:8px">${azioniPratica(a) || `<span class="vuoto">${a.z === "acc" ? "Aspetta preventivo e foto: quando ci sono parte il pacco per il perito." : "Niente da fare adesso."}</span>`}</div>
     <div class="tre qua"><div><div class="sotto">Cliente</div><dl class="kv2">${riga2("Nome", `<b>${a.cli.n}</b>`)}${riga2("Telefono", `<a href="tel:${a.cli.tel.replace(/\s/g, "")}">${a.cli.tel}</a>`)}${riga2("Email", `<a href="mailto:${a.cli.mail}">${a.cli.mail}</a>`)}${riga2("Assicurazione", d.ass)}${riga2("Sinistro", d.sin)}</dl></div>
     <div><div class="sotto">Auto</div><dl class="kv2">${riga2("Modello", `<b>${a.m}</b>`)}${riga2("Colore", coloreHtml(a))}${riga2("Anno", d.anno)}${riga2("Motore", d.carb)}${riga2("Km", d.km)}${riga2("Telaio", d.telaio)}</dl></div>
     <div><div class="sotto">Scheda e documenti</div><span class="doc ${sc}">scheda ${st}</span>${Object.entries(a.docs).filter(([n, ok]) => ok || !(n === "Fattura" && zi < 5) && !(n === "Perizia" && zi < 1)).map(([n, ok]) => `<span class="doc ${ok ? "" : "no"}">${ok ? "✓" : "manca"} ${n.toLowerCase()}</span>`).join("")}${fl.map(f => `<div style="font-size:12.5px;color:var(--muted);margin-top:5px">${esc(f.n)} in partenza</div>`).join("")}<div class="row" style="margin-top:9px"><button class="btn p sec" data-act="scheda" data-v="${a.t}">Apri la scheda</button><button class="btn p sec" data-act="caricaAuto" data-v="${a.t}">Aggiungi file</button></div></div>
@@ -1262,6 +1304,10 @@ const ATT = {
   rifoto:v => fai("", () => { const r = R(v); r.rifatta = true; r.fe = null; foto2(r, "fe"); return "Etichetta rifatta: corrisponde"; }),
   zoom:(v, el) => { const p = v.split("|"), r = R(p[0] === "o" ? p[1] : p[1]); const src = p[0] === "o" ? disegno(r.pezzo, r.opz[+p[2]].f.replace(" (esempio)", ""), TINTE[+p[2] % 3]) : p[0] === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod);
     $("lbBox").innerHTML = `<img alt="" src="${src}"><p>${p[0] === "o" ? esc(r.opz[+p[2]].f) + ", " + esc(r.pezzo.toLowerCase()) : p[0] === "fp" ? "Foto del pezzo" : "Etichetta"} · immagine di esempio, non una foto vera</p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; apriD($("lb"), el); }, chiudiZoom:() => chiudiD($("lb")),
+  ptab:v => { pTab = v; agg(); },
+  docApri:(v, el) => { const [t, i] = v.split("|"), a = A(t), d = documentiAuto(a)[+i]; if (!d) return; const r = d.rid ? R(d.rid) : null;
+    const src = d.img === "pezzo" ? FOTOPEZZO(r) : d.img === "etichetta" ? disegno("etichetta", r.fe.cod) : d.img === "foto" ? disegno("Paraurti", d.nome, a.col) : disegno("doc", d.nome);
+    $("lbBox").innerHTML = `<img alt="" src="${src}"><p><b>${esc(d.nome)}</b><br>${esc(a.t)} ${esc(a.m)} · ${esc(d.stato)}${d.quando ? " · " + esc(d.quando) : ""}<br><small>Documento di esempio: il contenuto vero arriva dal gestionale.</small></p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; apriD($("lb"), el); },
   ruolo:(v, e) => cambiaRuolo(e.value), regF:v => { regFiltro = v; agg(); },
   ricOff:v => ATT.ric(v),
   chiediOff:() => fai("", () => { const t = $("offAuto").value, p = $("offPezzo").value, r = creaRichiesta(t, p, "Officina"); ricSel = r.id; return `Chiesto: ${p.toLowerCase()} per ${t}. Ora le foto`; }),
