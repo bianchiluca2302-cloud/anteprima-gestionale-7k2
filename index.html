@@ -330,6 +330,30 @@
   .docv .dn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .docv .dq { color:var(--muted); font-size:12px; white-space:nowrap; } .docv .ds { font-size:11.5px; font-weight:700; border-radius:6px; padding:1px 7px; background:#e2f5eb; color:var(--ok); white-space:nowrap; }
   .docv.par .ds { background:#e8efff; color:var(--accent); } .docv.manca .ds { background:#fff3d6; color:#8a5a00; } .docv.manca .dn { color:var(--muted); font-style:italic; } .docv.no .ds { background:#fdeaea; color:#a12121; }
   @media (max-width:860px) { .docv { grid-template-columns:22px minmax(0,1fr) auto; } .docv .dq { display:none; } }
+
+  /* ============ notifiche, galleria, invii, squadra ============ */
+  .cas { position:relative; } .cas .ante { position:absolute; inset:0; z-index:2; background:#f3f7ff; padding:0 8px 0 14px; flex-wrap:nowrap; } .cas .ante .g { cursor:pointer; } .cas .ante b, .cas .ante small { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+  .cas .num.info { background:var(--accent); }
+  .xn { flex:none; width:26px; height:26px; border-radius:50%; background:none; color:var(--muted); font-size:18px; line-height:1; transition:background-color .2s var(--entra); } .xn:hover { background:#e3e8f2; color:var(--ink); }
+  .avv.nasc { opacity:.65; } .nascosti { display:block; width:100%; background:none; color:var(--muted); font-size:12.5px; padding:6px; }
+  #bSq, #bReg { flex:1; min-height:0; overflow-y:auto; padding:8px 16px 12px; scrollbar-width:thin; }
+  #pann { transition:height .42s var(--sposta); } #pann.alto { height:min(54vh,520px); }
+  .mini { position:relative; } .mini em { position:absolute; right:1px; bottom:1px; font-style:normal; font-size:10px; font-weight:700; line-height:14px; padding:0 4px; border-radius:5px; background:rgba(16,25,43,.78); color:#fff; }
+  .gal { position:relative; touch-action:pan-y; } .gal img { min-width:min(80vw,600px); background:#f1f3f7; user-select:none; } .frec { position:absolute; top:50%; translate:0 -50%; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.92); font-size:26px; line-height:1; box-shadow:0 3px 12px rgba(10,20,50,.25); transition:background-color .2s var(--entra); } .frec:hover { background:#fff; } .frec.sx { left:10px; } .frec.dx { right:10px; }
+  .galm { display:flex; gap:6px; margin-top:8px; overflow-x:auto; scrollbar-width:thin; } .galm button { flex:none; width:72px; height:48px; padding:0; border-radius:7px; overflow:hidden; border:2px solid transparent; opacity:.65; transition:opacity .25s, border-color .25s; } .galm .on { border-color:var(--accent); opacity:1; } #lb .galm img { width:100%; height:100%; object-fit:cover; border-radius:0; }
+  .galp { display:flex; align-items:center; gap:12px; } .galp p { flex:1; min-width:0; overflow-wrap:anywhere; } .galp small { color:var(--muted); }
+  .due2 { display:grid; grid-template-columns:minmax(0,1fr) minmax(290px,370px); gap:20px; } .dtop { display:flex; gap:8px; align-items:stretch; margin-bottom:8px; } .dtop .carica { flex:1; margin:0; } .dtop .btn { flex:none; } .carica.drop { border-color:var(--accent); background:#eef3ff; }
+  .due2 .dgrid { grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr)); } .docv { grid-template-columns:18px minmax(0,1fr) auto auto 26px; padding:4px 6px; } .docv input { width:16px; height:16px; margin:0; accent-color:var(--accent); } .docv button.dn { background:none; text-align:left; font-size:13px; padding:2px 0; } .docv button.dn:hover { color:var(--accent); } .docv.sel { background:#eef3ff; } .docv.manca2 .ds { background:#fff3d6; color:#8a5a00; } .cart { background:none; font-size:14px; border-radius:6px; padding:2px; } .cart:hover { background:#e3e8f2; }
+  .dgr h4 button { background:none; font:inherit; color:inherit; text-transform:inherit; letter-spacing:inherit; } .dgr h4 button:hover { color:var(--accent); }
+  .manda { border:1px solid var(--line); border-radius:10px; padding:9px 11px; margin-bottom:10px; } .manda small { color:var(--muted); font-size:12.5px; } .manda .chips { margin:5px 0 8px; } .manda .chip2 { padding:7px 12px; font-size:13px; }
+  .pia { display:flex; align-items:center; gap:7px; padding:6px 9px; border-radius:9px; background:#f6f7fa; margin-bottom:5px; } .pia .g { flex:1; min-width:0; } .pia b { font-size:13.5px; } .pia small { display:block; color:var(--muted); font-size:12px; } .pia .ps { font-size:12px; font-weight:700; color:var(--muted); text-align:right; } .pia.fatto .ps { color:var(--ok); } .pia.manca .ps { color:#8a5a00; } .pia.pronto, .pia.parte { background:#eef3ff; } .pia.poi { opacity:.7; }
+  .gia { font-size:12.5px; padding:4px 2px; border-bottom:1px solid #eef0f5; } .gia small { color:var(--muted); overflow-wrap:anywhere; }
+  .ctit { margin:4px 0 0; font-size:18px; } .clist { margin:4px 0 10px; padding-left:20px; font-size:13.5px; max-height:22vh; overflow-y:auto; } .ctrl { border:1px solid var(--line); border-radius:10px; padding:8px 11px; margin-bottom:7px; font-size:13.5px; min-width:min(80vw,440px); } .ctrl span { color:var(--muted); } .ctrl .warn { color:#8a5a00; margin-top:3px; } .ctrl .okk { color:var(--ok); margin-top:3px; }
+  .car .op { margin-left:7px; font-size:11px; font-weight:600; color:var(--muted); } .car .op.ora { color:var(--accent); }
+  .addetto { border:1px solid var(--line); border-radius:11px; padding:9px 11px; margin-bottom:9px; } .addetto .nome { display:flex; align-items:center; gap:8px; margin-bottom:7px; } .addetto .nome i { width:26px; height:26px; border-radius:50%; background:#e8efff; color:var(--accent); font-style:normal; font-weight:700; display:grid; place-items:center; font-size:13px; } .addetto .nome b { flex:1; font-size:14.5px; } .addetto .nome span { color:var(--muted); font-size:12.5px; }
+  .coda { display:flex; align-items:center; gap:8px; padding:3px 4px; } .coda > button:first-child { flex:1; text-align:left; background:none; font-size:13px; } .coda small { display:block; color:var(--muted); font-size:12px; }
+  @media (max-width:860px) { .due2 { grid-template-columns:minmax(0,1fr); } .docv { grid-template-columns:18px minmax(0,1fr) auto 26px; } .dtop { flex-direction:column; } .cas .ante { padding:0 4px 0 8px; } #ling { grid-auto-columns:1fr; } .cas .ante .xn { display:none; } }
+  @media (max-width:860px) { .car .op { display:none; } }
 </style>
 <script type="importmap">
 { "imports": { "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -348,10 +372,11 @@
   <div class="col-l">
     <div id="kpis"></div>
     <div class="riq" id="boardBox"><div class="board" id="board"></div></div>
-    <div id="dock" class="l0"><section class="riq" id="pann" hidden><header><b id="pTit"></b><button data-act="chiudi">Chiudi ✕</button></header><div id="bPr"></div><div id="bRic"></div><div id="bFile"></div><div id="bReg"></div></section><div id="ling">
+    <div id="dock" class="l0"><section class="riq" id="pann" hidden><header><b id="pTit"></b><button data-act="chiudi">Chiudi ✕</button></header><div id="bPr"></div><div id="bRic"></div><div id="bFile"></div><div id="bSq"></div><div id="bReg"></div></section><div id="ling">
       <section class="cas riq" id="cPratica"><button class="testa" data-act="cassetto" data-v="pratica"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5l2-5h14l2 5v5h-2M7 17h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span><span class="tt"><b id="tPr"></b><span id="sPr"></span></span><span class="fr">⌃</span></button><div class="ante" id="vbPr"></div></section>
       <section class="cas riq" id="cRic"><button class="testa" data-act="cassetto" data-v="ricambi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg></span><span class="tt"><b id="tRic">Richieste ricambi</b><span id="sRic"></span></span><span class="num" id="nRic"></span><span class="fr">⌃</span></button><div class="ante" id="vbRic"></div></section>
-      <section class="cas riq" id="cFile"><button class="testa" data-act="cassetto" data-v="file"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v4h16v-4"/></svg></span><span class="tt"><b id="tFile">Carica e smista</b><span id="sFile"></span></span><span class="num" id="nFile"></span><span class="fr">⌃</span></button><div class="ante" id="vbFile"></div></section>
+      <section class="cas riq" id="cFile"><button class="testa" data-act="cassetto" data-v="file"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v4h16v-4"/></svg></span><span class="tt"><b id="tFile">File in partenza</b><span id="sFile"></span></span><span class="num" id="nFile"></span><span class="fr">⌃</span></button><div class="ante" id="vbFile"></div></section>
+      <section class="cas riq" id="cSq"><button class="testa" data-act="cassetto" data-v="squadra"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-4 3-6 6-6s6 2 6 6M16 5a3 3 0 0 1 0 6M18 14c2 1 3 3 3 6"/></svg></span><span class="tt"><b id="tSq">Chi lavora a cosa</b><span id="sSq"></span></span><span class="num" id="nSq"></span><span class="fr">⌃</span></button><div class="ante" id="vbSq"></div></section>
       <section class="cas riq" id="cReg"><button class="testa" data-act="cassetto" data-v="registro"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/><circle cx="18" cy="18" r="3"/></svg></span><span class="tt"><b id="tReg">Registro e assistenza</b><span id="sReg"></span></span><span class="num" id="nReg"></span><span class="fr">⌃</span></button><div class="ante" id="vbReg"></div></section>
     </div></div>
   </div>
@@ -905,11 +930,11 @@ const ANT = {};
    Officina: chiede i pezzi e fa le foto. Ufficio: file, perizie, clienti, ordini in arrivo. Capo: decide e compra.
    Amministratore (Luca): vede tutto, registro completo, errori e strumenti per l'assistenza a distanza. */
 const RUOLI = { capo:"Capo", ufficio:"Ufficio", officina:"Officina", admin:"Amministratore" };
-const LINGUE = { capo:["pratica", "ricambi"], ufficio:["pratica", "ricambi", "file"], officina:["pratica", "ricambi"], admin:["pratica", "ricambi", "file", "registro"] };
+const LINGUE = { capo:["pratica", "ricambi", "file", "squadra"], ufficio:["pratica", "ricambi", "file"], officina:["pratica", "ricambi", "squadra"], admin:["pratica", "ricambi", "file", "squadra", "registro"] };
 const NEGA = {                                                      // azioni che quel ruolo non vede
-  capo:["foto", "rifoto", "chiediOff", "carica", "caricaAuto", "invia", "inviaTutti", "ferma", "conferma", "regola", "chiedi", "sollecita", "avvisa", "arrivato"],
-  ufficio:["ordina", "ordinaTutti", "siOrdina", "foto", "rifoto", "chiediOff", "proroga", "avanza"],
-  officina:["ordina", "ordinaTutti", "siOrdina", "scegli", "carica", "caricaAuto", "invia", "inviaTutti", "ferma", "conferma", "regola", "chiedi", "sollecita", "avvisa", "proroga", "arrivato"],
+  capo:["foto", "rifoto", "chiediOff", "arrivato"],
+  ufficio:["ordina", "ordinaTutti", "siOrdina", "foto", "rifoto", "chiediOff", "proroga", "avanza", "assegna", "lavora"],
+  officina:["ordina", "ordinaTutti", "siOrdina", "scegli", "carica", "caricaAuto", "invia", "inviaTutti", "ferma", "conferma", "regola", "chiedi", "sollecita", "avvisa", "avvisaStop", "proroga", "arrivato", "mandaDoc", "selDoc", "destDoc", "assegna", "cartella"],
   admin:[] };
 const QR = new URLSearchParams(location.search).get("ruolo");
 let ruolo = RUOLI[QR] ? QR : "capo", daSistema = false;
@@ -921,7 +946,7 @@ const REGISTRO = [];                                                // registro 
 addEventListener("error", e => { REGISTRO.unshift({ ora:ora2(), chi:"Errore", x:`${e.message} (${(e.filename || "").split("/").pop()}:${e.lineno})`, err:true }); });
 addEventListener("unhandledrejection", e => { REGISTRO.unshift({ ora:ora2(), chi:"Errore", x:String(e.reason?.message || e.reason), err:true }); });                                                     // anteprima dell'ultimo arrivo sulla linguetta: { fino, h, s, act, v, b }
 const TAPPE = ["Ordinato", "Affidato al corriere", "In viaggio", "In consegna", "Arrivato"], PASSO = 20;   // prova: una tappa ogni 20 secondi
-const REG = { perito:true, conti:true, pratica:true };              // cosa parte da solo
+const REG = { perito:true, conti:true, pratica:true, clienti:true };              // cosa parte da solo
 const ATTESA_INVIO = 15;                                            // secondi per fermare un invio automatico
 const COLONNE = [["acc", "Accettazione"], ["per", "Attesa perizia"], ["off", "Lamiera"], ["vern", "Verniciatura"], ["rif", "Montaggio"], ["park", "Pronta"]];
 const NOMEZ = Object.fromEntries(COLONNE), DOPO = { off:"vern", vern:"rif", rif:"park", park:"fuori" };
@@ -959,17 +984,42 @@ AUTO.forEach((a, i) => {
 let idRic = 1;
 RICH.forEach(r => { r.id = idRic++; r.ord = null; r.arr = false; r.tr = 0; delete r.rec; delete r.ordinata; delete r.aperta; });
 RICH.push({ id:idRic++, t:"FN 846 RS", pezzo:"Guarnizione portiera", da:"Luca", ora:"lunedì", compat:"", sel:0, ord:0, arr:false, tr:2, tm:Date.now(), opz:[{ f:"Ricambi Nord (esempio)", tipo:"Nuovo originale", tot:38, g:1, aff:4.8 }] });
-const FILES = [], PK = {};
+const FILES = [], PK = {}, BLOB = {}, HANDLE = {};              // BLOB e HANDLE: i file veri lasciati dal computer, solo finché la pagina è aperta
+/* ---- chi lavora a cosa: ogni addetto ha la sua specialità (nomi di esempio) ---- */
+const SQUADRA = [{ n:"Marco", sp:"off" }, { n:"Dario", sp:"off" }, { n:"Nicola", sp:"vern" }, { n:"Pietro", sp:"vern" }, { n:"Sandro", sp:"rif" }];
+const SPEC = { off:"Meccanica e lamiera", vern:"Verniciatura", rif:"Montaggio e rifinitura" };
+SQUADRA.forEach(x => { x.cur = null; });
+const addetti = z => SQUADRA.filter(x => x.sp === z), autoDi = x => dentro().filter(a => a.op === x.n && a.z === x.sp);
+// chi entra in un reparto va all'addetto con meno auto; ognuno lavora a un'auto sola, le ferme per un ricambio aspettano
+function assegna() { dentro().forEach(a => { const l = addetti(a.z); if (!l.length) { a.op = null; return; } if (!l.some(x => x.n === a.op)) a.op = l.map(x => [x, autoDi(x).length]).sort((p, q) => p[1] - q[1])[0][0].n; });
+  SQUADRA.forEach(x => { const l = autoDi(x), c = l.find(a => a.t === x.cur && a.a !== "ric"); x.cur = c ? c.t : l.filter(a => a.a !== "ric").sort((p, q) => q.g - p.g)[0]?.t || null; }); }
+/* ---- destinatari: cosa mandare, a chi, quando (indirizzi di esempio). Da confermare col capo ---- */
+const DEST = {
+  perito:         { nome:"Perito", mail:"perito@esempio.it", tipi:["Preventivo", "Foto danno"], da:0, quando:"appena ci sono preventivo e foto", auto:"perito" },
+  assicurazione:  { nome:"Assicurazione", mail:"sinistri@esempio.it", tipi:["Perizia", "Fattura"], da:5, quando:"a lavoro finito, con la fattura", auto:null },
+  cliente:        { nome:"Cliente", mail:"", tipi:["Fattura"], da:5, quando:"quando c'è la fattura", auto:"conti" },
+  commercialista: { nome:"Commercialista", mail:"commercialista@esempio.it", tipi:["Fattura"], da:5, quando:"quando c'è la fattura", auto:"conti" },
+};
+const DEST_GR = { perito:["perito"], conti:["commercialista", "cliente"], pratica:[] };
+const mailDi = (d, a) => d === "cliente" ? a.cli.mail : DEST[d].mail;
+const giaMandato = (a, d, nome, tipo, vero) => a.inviati.some(x => x.d === d && (x.nomi.includes(nome) || (x.prima && !vero && x.tipi.includes(tipo))));
+function registraInvio(a, d, docs) { a.inviati.unshift({ d, ora:"oggi " + ora2(), nomi:docs.map(x => x.nome), tipi:[...new Set(docs.map(x => x.tipo))] }); }
+AUTO.forEach(a => { a.inviati = []; a.avvStop = false; a.avvAt = null; const V = (d, tipi) => a.inviati.push({ d, ora:"nei giorni scorsi", nomi:[], tipi, prima:true });
+  if (a.docs["Fattura"]) { V("commercialista", ["Fattura"]); V("cliente", ["Fattura"]); } if (a.docs["Preventivo"]) V("perito", ["Preventivo", "Foto danno"]); });
+// auto pronta: il messaggio al cliente parte da solo, con il tempo per fermarlo
+const messaggio = a => `Buongiorno ${a.cli.n.split(" ")[0]}, la sua ${a.m} (${a.t}) è pronta per il ritiro. Nuova Carrozzeria Accademia`;
+function avvisaCliente(a) { a.avv = true; a.avvAt = null; a.inviati.unshift({ d:"cliente", ora:"oggi " + ora2(), nomi:["Avviso: auto pronta"], tipi:[], testo:messaggio(a) }); nota(`${a.t}: avviso "auto pronta" a ${a.cli.n} (${a.cli.tel})`); return `${a.t}: ${a.cli.n} avvisato che l'auto è pronta`; }
+function programmaClienti() { dentro().forEach(a => { const on = a.z === "park" && !a.avv && !a.avvStop && REG.clienti; if (on && !a.avvAt) a.avvAt = Date.now() + ATTESA_INVIO * 1000; if (!on) a.avvAt = null; }); }
 const aperteRic = () => RICH.filter(r => r.ord == null), inArrivo = () => RICH.filter(r => r.ord != null && !r.arr);
 const ora2 = () => new Date().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit", timeZone:"Europe/Rome" });
 function nota(x) { LOG.unshift(ora2() + " · " + x); REGISTRO.unshift({ ora:ora2(), chi:daSistema ? "Sistema" : RUOLI[ruolo], x }); }
 
 /* ---- annulla: fotografia dello stato prima dell'azione ---- */
-const CAMPI = ["z", "g", "avv", "docs", "sollecito", "prev", "slot", "lift", "chiestoFoto"];
-const foto = () => JSON.stringify({ a:AUTO.map(a => Object.fromEntries(CAMPI.map(k => [k, a[k]]))), r:RICH, f:FILES, p:PK, l:LOG });
+const CAMPI = ["z", "g", "avv", "docs", "sollecito", "prev", "slot", "lift", "chiestoFoto", "avvAt", "avvStop", "inviati", "op"];
+const foto = () => JSON.stringify({ a:AUTO.map(a => Object.fromEntries(CAMPI.map(k => [k, a[k]]))), r:RICH, f:FILES, p:PK, l:LOG, q:SQUADRA.map(x => x.cur) });
 let annullo = null;
 function ripristina() { if (!annullo) return; const s = JSON.parse(annullo); annullo = null;
-  AUTO.forEach((a, i) => { CAMPI.forEach(k => { a[k] = s.a[i][k]; }); posa(a); });
+  AUTO.forEach((a, i) => { CAMPI.forEach(k => { a[k] = s.a[i][k]; }); a.avvAt = null; if (!a.avv) a.avvStop = true; posa(a); }); s.q.forEach((c, i) => { SQUADRA[i].cur = c; });
   RICH.splice(0, RICH.length, ...s.r); FILES.splice(0, FILES.length, ...s.f); LOG.splice(0, LOG.length, ...s.l);
   Object.keys(PK).forEach(k => delete PK[k]); Object.assign(PK, s.p); Object.values(PK).forEach(p => { if (p.at) { p.at = null; p.ferma = true; } });
   toast("Annullato"); agg(); }
@@ -984,7 +1034,7 @@ const libero = z => POSTI[AREA[z]].findIndex((_, s) => !AUTO.some(b => b.z !== "
 function sposta(a, z) {
   if (z === "fuori") { a.z = z; a.mosso = Date.now(); return true; }
   if (AREA[z] !== AREA[a.z]) { const s = libero(z); if (s < 0) return false; a.slot = s; a.lift = 0; }
-  a.z = z; a.mosso = Date.now(); if (z === "vern") { a.g = 0; a.prev = 3; } if (z === "park") a.avv = false; posa(a); return true;
+  a.z = z; a.mosso = Date.now(); if (z === "vern") { a.g = 0; a.prev = 3; } if (z === "park") { a.avv = false; a.avvAt = null; a.avvStop = false; } a.op = null; posa(a); return true;
 }
 // chi ha la perizia entra in lamiera appena c'è un posto
 function code() { for (const a of AUTO) if (a.z === "per" && a.docs["Perizia"] && sposta(a, "off")) nota(`${a.t}: perizia arrivata e posto libero, passata in lamiera`); }
@@ -1006,9 +1056,11 @@ function riconosci(n) { const s = n.toLowerCase(), N = norm(n);
   const a = AUTO.find(x => x.z !== "fuori" && N.includes(norm(x.t)));
   const tipo = /prevent/.test(s) ? "Preventivo" : /fattur/.test(s) ? "Fattura" : /perizia/.test(s) ? "Perizia" : /\.(jpe?g|png|heic|webp)$/.test(s) ? "Foto danno" : /libretto|patente|delega|cai\b/.test(s) ? "Documento" : null;
   return { t:a ? a.t : null, tipo }; }
-function arrivaFile(nomi, extra = {}) {
-  nomi.forEach(n => { const r = { ...riconosci(n), ...extra }; const f = { id:++fileN, n, t:r.t, tipo:r.tipo, ok:!!(r.t && r.tipo), inviato:false, sT:extra.sT || null, sTipo:extra.sTipo || null, perche:extra.perche || "" };
-    if (!f.ok && !f.sT && !f.t && selId != null) { f.sT = AUTO[selId].t; f.perche = "è l'auto che stai guardando"; } FILES.push(f); });
+function arrivaFile(nomi, extra0 = {}, veri = []) {
+  nomi.forEach((n, i) => { let extra = extra0; const ric = riconosci(n);
+    if (extra.t && ric.t && ric.t !== extra.t) extra = { ...extra, t:null, sT:ric.t, perche:`nel nome c'è ${ric.t}, ma l'hai lasciato su ${extra.t}` };
+    const r = { ...ric, ...extra }; const f = { id:++fileN, n, t:r.t, tipo:r.tipo, ok:!!(r.t && r.tipo), inviato:false, sT:extra.sT || null, sTipo:extra.sTipo || null, perche:extra.perche || "" };
+    if (!f.ok && !f.sT && !f.t && selId != null) { f.sT = AUTO[selId].t; f.perche = "è l'auto che stai guardando"; } if (veri[i]) { BLOB[f.id] = veri[i].file; if (veri[i].handle) veri[i].handle.then(h => { HANDLE[f.id] = h; }, () => {}); } FILES.push(f); });
   const u = FILES[FILES.length - 1]; segnala("file", u.ok ? `${nomi.length === 1 ? u.tipo : nomi.length + " file"} per ${u.t}` : "File da confermare", u.n, "apri", "file", "Guarda"); }
 const daDecidere = () => FILES.filter(f => !f.ok && !f.inviato);
 function pacchi() { const m = {};
@@ -1018,6 +1070,7 @@ function programma() { const ps = pacchi();
   ps.forEach(p => { const s = PK[p.k] ||= { at:null, ferma:false }; const auto = REG[p.g] && !p.manca.length && !s.ferma; if (auto && !s.at) s.at = Date.now() + ATTESA_INVIO * 1000; if (!auto) s.at = null; });
   Object.keys(PK).forEach(k => { if (!ps.some(p => p.k === k)) delete PK[k]; }); }
 function invia(k, daSolo) { const p = pacchi().find(x => x.k === k); if (!p) return; const a = A(p.t), n = p.files.length;
+  DEST_GR[p.g].forEach(d => { const nuovi = p.files.filter(f => !giaMandato(a, d, f.n, f.tipo, true)); if (nuovi.length) registraInvio(a, d, nuovi.map(f => ({ nome:f.n, tipo:f.tipo }))); });
   p.files.forEach(f => { f.inviato = ora2(); a.docs[f.tipo] = true; }); delete PK[k];
   const esito = p.g === "pratica" ? `${p.t}: ${n === 1 ? p.files[0].tipo.toLowerCase() + " messa" : n + " file messi"} nella pratica` : `${p.t}: ${n} file a ${GRUPPI[p.g].nome.toLowerCase()}`;
   nota(esito + (daSolo ? " (da solo)" : ""));
@@ -1044,6 +1097,11 @@ function disegno(tipo, testo, tinta = "#3b6cff") { const f = (tipo.split(" ")[0]
   else g = `<path d="M45 70 L275 55 L285 150 L55 165 Z" fill="${tinta}" opacity=".85"/><circle cx="90" cy="110" r="8" fill="#fff"/><circle cx="240" cy="105" r="8" fill="#fff"/>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 210"><rect width="320" height="210" fill="#f1f3f7"/>${g}<text x="160" y="196" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#556">${tipo === "etichetta" ? "" : tipo === "doc" ? "" : esc(testo)}</text></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); }
+const cornice = (src, tit) => ({ src, tit });
+// le foto di un annuncio (disegni di esempio: quelle vere arriveranno dal sito del fornitore)
+function fotoAnnuncio(r, i) { const o = r.opz[i], f = o.f.replace(" (esempio)", ""), c = TINTE[i % 3], base = disegno(r.pezzo, f, c), dentroSvg = decodeURIComponent(base.split(",").slice(1).join(","));
+  const var2 = (da, a) => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(dentroSvg.replace(da, a));
+  return [cornice(base, "Davanti"), cornice(var2('<rect width="320" height="210" fill="#f1f3f7"/>', '<rect width="320" height="210" fill="#e6eaf2"/><g transform="translate(320 0) scale(-1 1)">').replace(encodeURIComponent("<text x=\"160\" y=\"196\""), encodeURIComponent("</g><text x=\"160\" y=\"196\"")), "Dietro"), cornice(var2('viewBox="0 0 320 210"', 'viewBox="85 60 140 92"'), "Dettaglio"), cornice(disegno("etichetta", "RC-" + String(4000 + r.id * 37).padStart(5, "0")), "Etichetta")].map(x => ({ ...x, sotto:`${f}, ${r.pezzo.toLowerCase()}, ${eur(o.tot)} · immagini di esempio` })); }
 const FOTOPEZZO = r => disegno(r.pezzo, "Foto di esempio: " + r.pezzo.toLowerCase());
 const verifica = r => !r.fp || !r.fe ? null : r.fp.cod === r.fe.cod;     // stesso codice sulla foto del pezzo e sull'etichetta
 function foto2(r, k) { if (k === "fp") r.fp = { cod:codPezzo(r), ora:ora2() };
@@ -1062,12 +1120,12 @@ function avvisi() { const L = [];
     if (r) L.push({ p:a.s === "bad" ? 0 : 1, c:a.s, t:a.t, h:`${a.t} · manca ${r.pezzo.toLowerCase()}`, s:a.g >= 7 ? `${a.m}, ferma da ${gg(a.g)}` : `${a.m}, chiesto da ${r.da}`, b:`Ordina ${eur(r.opz[r.sel].tot)}`, act:"ordina", v:r.id });
     else if (a.s === "warn" && a.z === "per" && !a.sollecito) L.push({ p:2, c:"warn", t:a.t, h:`${a.t} · perizia in ritardo`, s:`${a.m}, chiesta ${gg(a.g)} fa`, b:"Sollecita", act:"sollecita", v:a.t });
     else if (a.z === "vern" && a.s === "warn" && !a.a) L.push({ p:3, c:"warn", t:a.t, h:`${a.t} · verniciatura lunga`, s:`${a.m}, ${gg(a.g)} invece di ${a.prev}`, b:"Dai 2 giorni in più", act:"proroga", v:a.t });
-    else if (a.z === "park" && !a.avv) L.push({ p:2, c:"warn", t:a.t, h:`${a.t} · è pronta`, s:`${a.m}, il cliente non lo sa ancora`, b:"Avvisa cliente", act:"avvisa", v:a.t }); });
-  daDecidere().forEach(f => L.push({ p:1, c:"info", cas:"file", h:"Un file da confermare", s:f.n, b:"Guarda", act:"apri", v:"file" }));
+    else if (a.z === "park" && !a.avv) L.push({ p:2, c:"warn", t:a.t, h:`${a.t} · è pronta`, s:a.avvAt ? `${a.m}, il messaggio a ${a.cli.n} ` : `${a.m}, il cliente non lo sa ancora`, cd:a.avvAt ? "avv|" + a.t : null, b:a.avvAt ? "Adesso" : "Avvisa cliente", act:"avvisa", v:a.t, b2:a.avvAt ? "Ferma" : null, act2:"avvisaStop" }); });
+  daDecidere().forEach(f => L.push({ p:1, c:"info", cas:"file", h:"Un file da confermare", s:f.n, b:"Guarda", act:f.t || f.sT ? "docTab" : "apri", v:f.t || f.sT || "file", t:f.t || f.sT || undefined }));
   pacchi().filter(p => p.manca.length && !A(p.t).chiestoFoto).forEach(p => L.push({ p:2, c:"info", t:p.t, h:`${p.t} · pacco incompleto`, s:`Per il perito manca: ${p.manca.join(", ").toLowerCase()}`, b:"Chiedi al reparto", act:"chiedi", v:p.t }));
   // officina: le richieste senza foto sono lavoro suo
   aperteRic().filter(r => verifica(r) !== true).forEach(r => L.push({ p:1, c:verifica(r) === false ? "bad" : "info", t:r.t, h:`${r.t} · ${verifica(r) === false ? "etichetta da rifare" : "foto da fare"}`, s:`${r.pezzo}: ${r.fp ? "manca la foto dell'etichetta" : "foto del pezzo e dell'etichetta"}`, b:"Fotografa", act:"ricOff", v:r.id }));
-  return L.filter(x => puo(x.act) && (x.act !== "ricOff" || ruolo === "officina" || ruolo === "admin") && (x.act !== "apri" || LINGUE[ruolo].includes(x.v))).sort((a, b) => a.p - b.p); }
+  return L.filter(x => puo(x.act) && (x.act !== "ricOff" || ruolo === "officina" || ruolo === "admin") && (x.act !== "apri" || LINGUE[ruolo].includes(x.v)) && (ruolo !== "officina" || !["docTab"].includes(x.act))).sort((a, b) => a.p - b.p); }
 
 /* ================================================================== DISEGNO */
 const FILTRI = [
@@ -1103,19 +1161,19 @@ function flip(box, sel, ridisegna) { const chiave = e => e.dataset.k ?? e.datase
   const vivi = box.getClientRects().length > 0 && box._visto;
   if (vivi) box.querySelectorAll(sel).forEach(e => { const r = e.getBoundingClientRect(); if (r.width) prima.set(chiave(e), { e, r }); });
   ridisegna(); box._visto = true; if (!vivi) return;
-  const bb = box.getBoundingClientRect(), dentro = r => r.bottom > bb.top && r.top < bb.bottom && r.right > bb.left && r.left < bb.right;
+  const bb = box.getBoundingClientRect(), dentro = r => r.bottom > bb.top && r.top < bb.bottom && r.right > bb.left && r.left < bb.right, tutto = r => r.top >= bb.top - 2 && r.bottom <= bb.bottom + 2;
   const copia = (e, r) => { const c = e.cloneNode(true); Object.assign(c.style, { position:"fixed", left:r.left + "px", top:r.top + "px", width:r.width + "px", height:r.height + "px", margin:"0", zIndex:45, pointerEvents:"none", boxSizing:"border-box" }); c.removeAttribute("data-act"); document.body.append(c); box._voli.push(c); return c; };
   const ora = new Set();
   box.querySelectorAll(sel).forEach((e, n) => { const k = chiave(e), p = prima.get(k), r1 = e.getBoundingClientRect(); ora.add(k); if (!r1.width) return;
     if (!p) return void anima(e, [{ opacity:0, transform:"translateY(8px) scale(.97)" }, { opacity:1, transform:"none" }], 320, CURVA.entra, { delay:Math.min(n, 6) * 18 });
     const dx = p.r.left - r1.left, dy = p.r.top - r1.top; if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-    if (!dentro(p.r) && !dentro(r1)) return;                                         // fuori vista: niente volo
+    if (!tutto(p.r) || !tutto(r1)) return;                                           // anche solo in parte fuori dal riquadro: niente volo, uscirebbe dai bordi
     const ms = Math.min(620, 320 + Math.hypot(dx, dy) * .35), c = copia(e, r1);         // più lontano = un po' più lungo
     e.style.visibility = "hidden";
     const a = anima(c, [{ transform:`translate(${dx}px,${dy}px) scale(${p.r.width / r1.width},${p.r.height / r1.height})`, transformOrigin:"0 0", boxShadow:"0 0 0 rgba(0,0,0,0)" }, { offset:.5, boxShadow:"0 14px 30px rgba(20,30,60,.22)" }, { transform:"none", transformOrigin:"0 0", boxShadow:"0 0 0 rgba(0,0,0,0)" }], ms, CURVA.sposta);
     a.onfinish = a.oncancel = () => { c.remove(); e.style.visibility = ""; }; });
   // chi è sparito si dissolve dove stava
-  prima.forEach(({ e, r }, k) => { if (ora.has(k) || !dentro(r)) return; const c = copia(e, r); const a = anima(c, [{ opacity:1, transform:"none" }, { opacity:0, transform:"scale(.96)" }], 200, CURVA.esce, { fill:"forwards" }); a.onfinish = () => c.remove(); }); }
+  prima.forEach(({ e, r }, k) => { if (ora.has(k) || !tutto(r)) return; const c = copia(e, r); const a = anima(c, [{ opacity:1, transform:"none" }, { opacity:0, transform:"scale(.96)" }], 200, CURVA.esce, { fill:"forwards" }); a.onfinish = () => c.remove(); }); }
 // finestre (scheda, foto ingrandita, conferme): si aprono dal punto da cui vengono, si chiudono tornandoci
 function apriD(d, da) { d._da = da || null; d.classList.remove("via"); d.showModal(); const r1 = d.getBoundingClientRect(), r0 = da?.getBoundingClientRect?.();
   const t0 = r0 && r0.width ? `translate(${r0.left + r0.width / 2 - (r1.left + r1.width / 2)}px,${r0.top + r0.height / 2 - (r1.top + r1.height / 2)}px) scale(${Math.max(.08, r0.width / r1.width)})` : "translateY(14px) scale(.96)";
@@ -1124,14 +1182,23 @@ function chiudiD(d) { if (!d.open || d.classList.contains("via")) return; const 
   const t1 = r0 && r0.width ? `translate(${r0.left + r0.width / 2 - (r1.left + r1.width / 2)}px,${r0.top + r0.height / 2 - (r1.top + r1.height / 2)}px) scale(${Math.max(.08, r0.width / r1.width)})` : "translateY(10px) scale(.97)";
   d.classList.add("via"); d._a?.cancel(); const a = d._a = anima(d, [{ opacity:1, transform:"none" }, { opacity:0, transform:t1 }], r0 ? 300 : 190, r0 ? CURVA.sposta : CURVA.esce, { fill:"forwards" });
   a.onfinish = () => { d.close(); d.classList.remove("via"); a.cancel(); }; }
+// galleria: frecce, tastiera, dito, miniature
+let GAL = null;
+function galleria(l, i, da) { GAL = { l, i }; disGal(); apriD($("lb"), da); }
+function disGal(dir) { const { l, i } = GAL, x = l[i];
+  $("lbBox").innerHTML = `<div class="gal">${l.length > 1 ? `<button class="frec sx" data-act="galVai" data-v="-1" aria-label="Foto precedente">‹</button>` : ""}<img id="galImg" alt="${esc(x.tit)}" src="${x.src}" draggable="false">${l.length > 1 ? `<button class="frec dx" data-act="galVai" data-v="1" aria-label="Foto successiva">›</button>` : ""}</div>${l.length > 1 ? `<div class="galm">${l.map((y, k) => `<button class="${k === i ? "on" : ""}" data-act="galA" data-v="${k}" aria-label="${esc(y.tit)}"><img alt="" src="${y.src}"></button>`).join("")}</div>` : ""}<div class="galp"><p><b>${esc(x.tit)}</b>${l.length > 1 ? ` · ${i + 1} di ${l.length}` : ""}<br><small>${esc(x.sotto || "")}</small></p><button class="btn p" data-act="chiudiZoom">Chiudi</button></div>`;
+  if (dir) anima($("galImg"), [{ opacity:0, transform:`translateX(${dir * 46}px)` }, { opacity:1, transform:"none" }], 340, CURVA.entra); $("lbBox").querySelector(".galm .on")?.scrollIntoView({ block:"nearest", inline:"nearest" }); }
+const galPasso = d => { if (!GAL || GAL.l.length < 2) return; GAL.i = (GAL.i + d + GAL.l.length) % GAL.l.length; disGal(d); };
+$("lb").addEventListener("keydown", e => { if (!$("lbBox").querySelector(".gal")) return; if (e.key === "ArrowRight") galPasso(1); if (e.key === "ArrowLeft") galPasso(-1); });
+{ let x0 = null; $("lb").addEventListener("pointerdown", e => { x0 = e.target.id === "galImg" ? e.clientX : null; }); $("lb").addEventListener("pointerup", e => { if (x0 == null) return; const d = e.clientX - x0; x0 = null; if (Math.abs(d) > 40) galPasso(d < 0 ? 1 : -1); }); }
 ["scheda", "lb"].forEach(id => $(id).addEventListener("cancel", e => { e.preventDefault(); chiudiD($(id)); }));
-// il riquadro sotto le linguette (anteprima di un arrivo) cresce e si richiude, non compare di colpo
+// la notifica copre la sua linguetta, stessa altezza: entra dal basso, le altre non si muovono
 function setAnte(id, html) { const e = $(id); if (e._h === html) return; const pieno = !!e._h; e._a?.cancel();
-  if (html) { e.innerHTML = html; e._h = html; if (!pieno) { const h = e.scrollHeight; e._a = anima(e, [{ height:"0px", paddingTop:"0px", paddingBottom:"0px", opacity:0, overflow:"hidden" }, { height:h + "px", opacity:1, overflow:"hidden" }], 360, CURVA.entra); } return; }
-  e._h = ""; const h = e.offsetHeight, a = e._a = anima(e, [{ height:h + "px", opacity:1, overflow:"hidden" }, { height:"0px", paddingTop:"0px", paddingBottom:"0px", opacity:0, overflow:"hidden" }], 260, CURVA.sposta, { fill:"forwards" });
+  if (html) { e.innerHTML = html; e._h = html; if (!pieno) e._a = anima(e, [{ transform:"translateY(100%)", opacity:0 }, { transform:"none", opacity:1 }], 420, CURVA.entra); return; }
+  e._h = ""; const a = e._a = anima(e, [{ transform:"none", opacity:1 }, { transform:"translateY(100%)", opacity:0 }], 260, CURVA.esce, { fill:"forwards" });
   a.onfinish = () => { e.innerHTML = ""; a.cancel(); }; }
 // pannello in alto: sale dalle linguette, scende verso di loro; cambiando linguetta il contenuto arriva dal suo lato
-const CORPO = { pratica:"bPr", ricambi:"bRic", file:"bFile", registro:"bReg" }, ORDINE = ["pratica", "ricambi", "file", "registro"];
+const CORPO = { pratica:"bPr", ricambi:"bRic", file:"bFile", squadra:"bSq", registro:"bReg" }, ORDINE = ["pratica", "ricambi", "file", "squadra", "registro"];
 function cambiaPannello(da, a) { const p = $("pann"), corpo = k => $(CORPO[k]);
   let h0 = 0; if (p._a) { h0 = p.getBoundingClientRect().height; p._a.cancel(); p._a = null; }
   Object.keys(CORPO).forEach(k => { corpo(k).hidden = k !== (a || da); });
@@ -1149,29 +1216,35 @@ function voloFinestra(cambia) { const w = $("win"), r0 = w.getBoundingClientRect
   if (!r0.width || !r1.width) return; w._a?.cancel();
   w._a = anima(w, [{ transformOrigin:"0 0", transform:`translate(${r0.left - r1.left}px,${r0.top - r1.top}px) scale(${r0.width / r1.width},${r0.height / r1.height})` }, { transformOrigin:"0 0", transform:"none" }], 480, CURVA.sposta); }
 function agg() {
-  code(); AUTO.forEach(calcola); programma();
+  code(); AUTO.forEach(calcola); assegna(); programma(); programmaClienti();
   const F = FILTRI.find(x => x.id === filtro);
   if (selId != null && AUTO[selId].z === "fuori") { selId = null; vai("tutto"); } if (selId == null && aperto === "pratica") aperto = null;
   AUTO.forEach((a, i) => { const via = a.z === "fuori"; a.ghost = via || !F.f(a); a.car.visible = !via; ghost(a.car, a.ghost && !via); a.ring.visible = a.disco.visible = !a.ghost; a.ring.material.color.set(COL[a.s]); a.disco.material.color.set(COL[a.s]);
     etichette[i].style.setProperty("--c", COL[a.s]); etichette[i].querySelector("i").textContent = a.g + "g"; etichette[i].querySelector("em").style.display = RICH.some(r => r.t === a.t && r.ord == null) ? "" : "none"; });
   const k = FILTRI.map(f => `<button class="kpi ${f.cls}" data-act="filtro" data-v="${f.id}" aria-pressed="${filtro === f.id}"><b>${dentro().filter(f.f).length}</b><span>${f.nome}</span></button>`).join(""); set("kpis", k); set("kpis3d", k);
-  disBoard(); disAvvisi(); disRicambi(); disFile(); disPratica(); disInfo(); disRegistro(); disDock();
+  disBoard(); disAvvisi(); disRicambi(); disFile(); disPratica(); disInfo(); disSquadra(); disRegistro(); disDock();
 }
 function disBoard() {
   const fpt = t => FILES.filter(f => f.ok && !f.inviato && f.t === t).length;
   set("board", COLONNE.map(([z, n]) => { const l = AUTO.map((a, i) => [a, i]).filter(([a]) => a.z === z), posti = z === "acc" || z === "per" ? "" : "/" + POSTI[z].length;
     return `<div class="bcol"><h3>${n}<span>${l.length}${posti}</span></h3><div class="lista">${l.map(([a, i]) => { const nf = fpt(a.t), nr = RICH.some(r => r.t === a.t && r.ord == null);
-      return `<button class="car ${a.s === "ok" ? "" : a.s} ${selId === i ? "sel" : ""} ${a.ghost ? "dim" : ""} ${a.mosso && Date.now() - a.mosso < 2400 ? "mosso" : ""}" data-act="auto" data-v="${i}" data-i="${i}"><span class="gg">${a.g === 0 ? "oggi" : a.g + " g"}</span><div class="targa">${a.t}</div>${nf || nr ? `<span class="segni">${nr ? "<i>ricambio</i>" : ""}${nf ? `<i>${nf} file</i>` : ""}</span>` : ""}<div class="meta"><i class="pal" style="background:${a.col}"></i>${a.m} · ${a.cli.n}</div>${a.why ? `<span class="tag">${a.why}</span>` : ""}${a.scheda === "manca" ? `<span class="tag">Scheda da compilare</span>` : ""}</button>`; }).join("")}</div></div>`; }).join(""), ".car");
+      return `<button class="car ${a.s === "ok" ? "" : a.s} ${selId === i ? "sel" : ""} ${a.ghost ? "dim" : ""} ${a.mosso && Date.now() - a.mosso < 2400 ? "mosso" : ""}" data-act="auto" data-v="${i}" data-i="${i}"><span class="gg">${a.g === 0 ? "oggi" : a.g + " g"}</span><div class="targa">${a.t}${a.op ? `<span class="op ${SQUADRA.some(x => x.cur === a.t) ? "ora" : ""}">${a.op}</span>` : ""}</div>${nf || nr ? `<span class="segni">${nr ? "<i>ricambio</i>" : ""}${nf ? `<i>${nf} file</i>` : ""}</span>` : ""}<div class="meta"><i class="pal" style="background:${a.col}"></i>${a.m} · ${a.cli.n}</div>${a.why ? `<span class="tag">${a.why}</span>` : ""}${a.scheda === "manca" ? `<span class="tag">Scheda da compilare</span>` : ""}</button>`; }).join("")}</div></div>`; }).join(""), ".car");
 }
 const selT = () => selId == null ? null : AUTO[selId].t;
-function disAvvisi() { const L = avvisi(); $("nAvv").textContent = L.length; $("nAvv").className = "pill " + (L.some(x => x.c === "bad") ? "bad" : L.length ? "warn" : "ok");
-  set("avvisi", L.map(x => `<div class="avv ${x.c} ${x.t && x.t === selT() ? "rel" : ""}" data-k="${x.act}${x.v}" data-act="${x.t ? "vai" : "apri"}" data-v="${x.t || x.cas}"><div class="g">${esc(x.h)}<small>${esc(x.s)}</small></div><button class="btn p ${x.act === "apri" ? "sec" : ""}" data-act="${x.act}" data-v="${x.v}">${x.b}</button></div>`).join("") || `<div class="bene" data-k="bene">✓ Tutto a posto, non serve niente da te</div>`, "[data-k]");
+// voci nascoste a mano: restano nascoste anche riaprendo la pagina; se la voce peggiora (diventa rossa) torna
+const NASC = new Set((() => { try { return JSON.parse(localStorage.getItem("carr.nascosti") || "[]"); } catch { return []; } })()), chiaveAvv = x => `${ruolo}|${x.c}|${x.h}`;
+const salvaNasc = () => { try { localStorage.setItem("carr.nascosti", JSON.stringify([...NASC])); } catch {} };
+let mostraNasc = false;
+function disAvvisi() { const T = avvisi(), via = T.filter(x => NASC.has(chiaveAvv(x))), L = T.filter(x => !NASC.has(chiaveAvv(x))); if (!via.length) mostraNasc = false;
+  $("nAvv").textContent = L.length; $("nAvv").className = "pill " + (L.some(x => x.c === "bad") ? "bad" : L.length ? "warn" : "ok");
+  const voce = (x, nasc) => `<div class="avv ${x.c} ${nasc ? "nasc" : ""} ${x.t && x.t === selT() ? "rel" : ""}" data-k="${x.act}${x.v}" data-act="${x.t ? "vai" : "apri"}" data-v="${x.t || x.cas}"><div class="g">${esc(x.h)}<small>${esc(x.s)}${x.cd ? `<span class="cd" data-cd="${x.cd}"></span>` : ""}</small></div>${nasc ? `<button class="btn p sec" data-act="rimetti" data-v="${esc(chiaveAvv(x))}">Rimetti</button>` : `${x.b2 ? `<button class="btn p sec" data-act="${x.act2}" data-v="${x.v}">${x.b2}</button>` : ""}<button class="btn p ${x.act === "apri" ? "sec" : ""}" data-act="${x.act}" data-v="${x.v}">${x.b}</button><button class="xn" data-act="nascondi" data-v="${esc(chiaveAvv(x))}" title="Non mostrare più" aria-label="Non mostrare più">×</button>`}</div>`;
+  set("avvisi", (L.map(x => voce(x)).join("") || `<div class="bene" data-k="bene">✓ Tutto a posto, non serve niente da te</div>`) + (via.length ? `<button class="nascosti" data-k="nasc" data-act="mostraNasc">${via.length} ${via.length === 1 ? "nascosta" : "nascoste"} · ${mostraNasc ? "chiudi" : "vedi"}</button>${mostraNasc ? via.map(x => voce(x, true)).join("") : ""}` : ""), "[data-k]"); battito();
   set("logUlt", `<b>✓ Fatto:</b> ${esc(LOG[0])}`); set("log", LOG.map(l => `<li>${esc(l)}</li>`).join("")); }
 
 const testa = (k, num, cls, sub) => { const n = $("n" + k); n.textContent = num || "✓"; n.className = "num " + (num ? cls : "zero"); $("s" + k).textContent = sub; };
 function offerta(r, o, i) { const min = Math.min(...r.opz.map(x => x.tot)), vel = Math.min(...r.opz.map(x => x.g));
   const tag = (i === 0 ? `<span class="otag">Consigliato</span>` : "") + (o.tot === min ? `<span class="otag g">Costa meno</span>` : "") + (o.g === vel ? `<span class="otag">Arriva prima</span>` : "") + (o.aff < 4 ? `<span class="otag w">Meno affidabile</span>` : "");
-  return `<button class="offer ${i === r.sel ? "sel" : ""}" data-act="scegli" data-v="${r.id}|${i}"><span class="mini" data-act="zoom" data-v="o|${r.id}|${i}" title="Ingrandisci"><img alt="" src="${disegno(r.pezzo, o.f.replace(" (esempio)", ""), TINTE[i % 3])}"></span><div style="flex:1;min-width:0"><div class="nm">${o.f} ${tag}</div><div class="sub">${o.tipo} · arriva ${tra(o.g)} · <span class="stars">${stelle2(o.aff)}</span></div></div><div class="tot">${eur(o.tot)}</div></button>`; }
+  return `<button class="offer ${i === r.sel ? "sel" : ""}" data-act="scegli" data-v="${r.id}|${i}"><span class="mini" data-act="zoom" data-v="o|${r.id}|${i}" title="Guarda le foto"><em>4</em><img alt="" src="${disegno(r.pezzo, o.f.replace(" (esempio)", ""), TINTE[i % 3])}"></span><div style="flex:1;min-width:0"><div class="nm">${o.f} ${tag}</div><div class="sub">${o.tipo} · arriva ${tra(o.g)} · <span class="stars">${stelle2(o.aff)}</span></div></div><div class="tot">${eur(o.tot)}</div></button>`; }
 function tracking(r) { const o = r.opz[r.ord];
   if (!r.arr && !haTracking(r)) return `<div class="riga fatta" data-k="r${r.id}"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}</span><small>${o.f} non dà il tracking. Previsto ${tra(o.g)}.</small></div><button class="btn p sec" data-act="arrivato" data-v="${r.id}">È arrivato</button></div>`;
   return `<div class="riga ${ricSel === r.id ? "on" : ""}" data-k="r${r.id}"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}, ${o.f.replace(" (esempio)", "")}</span><span class="quando">${r.arr ? "arrivato alle " + r.ora2 : "arriva " + tra(o.g)}</span><div class="tappe">${TAPPE.map((t, i) => `<i class="${i < r.tr || r.arr ? "f" : i === r.tr ? "o" : ""}"><em>${t}</em></i>`).join("")}</div></div></div>`; }
@@ -1214,15 +1287,15 @@ function disFile() { const D = daDecidere(), P = pacchi(), I = FILES.filter(f =>
   testa("File", D.length + P.length, "", D.length ? `${D.length} da confermare${P.length ? `, ${P.length} ${P.length === 1 ? "pacco" : "pacchi"}` : ""}` : P.length ? `${pronti.length} pronti, ${P.length - pronti.length} incompleti` : "Trascina qui foto e documenti");
   const lista = D.map(dubbio).join("") + P.map(pacco).join("");
   const car = `<button class="carica" data-act="carica">Trascina i file dove vuoi nella pagina, anche sopra un'auto, o <b>scegli dal computer</b></button>`;
-  set("bFile", `<div class="due" style="grid-template-columns:1.7fr 1fr"><div>${car}${lista || `<div class="vuoto">Niente in attesa.</div>`}${pronti.length > 1 ? `<button class="btn" data-act="inviaTutti">Manda adesso i ${pronti.length} pacchi pronti</button>` : ""}</div><div><div class="sotto">Parte da solo dopo ${ATTESA_INVIO} secondi</div><div class="regole">${Object.entries(GRUPPI).map(([k, g]) => `<label><input type="checkbox" data-act="regola" data-v="${k}" ${REG[k] ? "checked" : ""}> ${g.regola}</label>`).join("")}</div><div class="sotto">Già andati oggi</div>${I.slice().reverse().map(f => `<div style="font-size:12.5px;color:var(--muted);margin:4px 0">${f.inviato} · <b style="color:var(--ink)">${f.t}</b> ${f.tipo}</div>`).join("") || `<div class="vuoto">Ancora nessuno.</div>`}</div></div>`, "[data-k]");
+  set("bFile", `<div class="due" style="grid-template-columns:1.7fr 1fr"><div>${car}${lista || `<div class="vuoto">Niente in attesa.</div>`}${pronti.length > 1 ? `<button class="btn" data-act="inviaTutti">Manda adesso i ${pronti.length} pacchi pronti</button>` : ""}</div><div><div class="sotto">Parte da solo dopo ${ATTESA_INVIO} secondi</div><div class="regole">${Object.entries(GRUPPI).map(([k, g]) => `<label><input type="checkbox" data-act="regola" data-v="${k}" ${REG[k] ? "checked" : ""}> ${g.regola}</label>`).join("")}<label><input type="checkbox" data-act="regola" data-v="clienti" ${REG.clienti ? "checked" : ""}> Messaggio al cliente quando l'auto è pronta</label></div><div class="sotto">Già andati oggi</div>${I.slice().reverse().map(f => `<div style="font-size:12.5px;color:var(--muted);margin:4px 0">${f.inviato} · <b style="color:var(--ink)">${f.t}</b> ${f.tipo} ${DEST_GR[gruppoDi(f.tipo)].map(d => "→ " + DEST[d].nome.toLowerCase()).join(" ") || "→ pratica"}</div>`).join("") || `<div class="vuoto">Ancora nessuno.</div>`}</div></div>`, "[data-k]");
   battito(); }
 function azioniPratica(a) { const r = RICH.find(x => x.t === a.t && x.ord == null), v = RICH.find(x => x.t === a.t && x.ord != null && !x.arr), p = pacchi().filter(x => x.t === a.t); let b = "";
   if (r) b += `<button class="btn p" data-act="ordina" data-v="${r.id}">Ordina ${r.pezzo.toLowerCase()}, ${eur(r.opz[r.sel].tot)}</button><button class="btn p sec" data-act="ric" data-v="${r.id}">Confronta offerte</button>`;
   if (v && !haTracking(v)) b += `<button class="btn p" data-act="arrivato" data-v="${v.id}">${v.pezzo} arrivato</button>`;
   if (a.z === "per" && !a.docs["Perizia"]) b += `<button class="btn p" data-act="sollecita" data-v="${a.t}" ${a.sollecito ? "disabled" : ""}>${a.sollecito ? "Sollecitata" : "Sollecita perizia"}</button>`;
-  p.forEach(x => { b += `<button class="btn p ${x.manca.length ? "sec" : ""}" data-act="${x.manca.length ? "apri" : "invia"}" data-v="${x.manca.length ? "file" : x.k}">${x.manca.length ? "Pacco incompleto" : x.g === "pratica" ? "Archivia i file" : "Manda i " + x.files.length + " file"}</button>`; });
+  p.forEach(x => { b += `<button class="btn p ${x.manca.length ? "sec" : ""}" data-act="${x.manca.length ? "docTab" : "invia"}" data-v="${x.manca.length ? a.t : x.k}">${x.manca.length ? "Pacco incompleto" : x.g === "pratica" ? "Archivia i file" : "Manda i " + x.files.length + " file"}</button>`; });
   if (a.z === "vern" && a.s === "warn" && !a.a) b += `<button class="btn p sec" data-act="proroga" data-v="${a.t}">Dai 2 giorni in più</button>`;
-  if (a.z === "park" && !a.avv) b += `<button class="btn p" data-act="avvisa" data-v="${a.t}">Avvisa il cliente</button>`;
+  if (a.z === "park" && !a.avv) b += `<button class="btn p" data-act="avvisa" data-v="${a.t}">Avvisa il cliente${a.avvAt ? " adesso" : ""}</button>`;
   if (DOPO[a.z] && !r && !v) b += `<button class="btn p sec" data-act="avanza" data-v="${a.t}">${a.z === "park" ? "Consegnata" : "Passa a " + NOMEZ[DOPO[a.z]].toLowerCase()}</button>`;
   return b; }
 const SCHEDA = { manca:["no", "da compilare in accettazione"], fatta:["", "compilata, stampata e sulla macchina"] };
@@ -1233,56 +1306,94 @@ const giorniFa = n => new Date(Date.now() - n * 864e5).toLocaleDateString("it-IT
 const GR_DOC = [["Accettazione", "Scheda di accettazione"], ["Preventivo e perizia", "Preventivo", "Perizia"], ["Foto del danno", "Foto danno"], ["Documenti del cliente", "Documento"], ["Ricambi", "Ricambio"], ["Fatture", "Fattura"]];
 // documenti veri (file caricati) + quelli già in pratica; i nomi e le date dei secondi sono inventati
 function documentiAuto(a) { const zi = COLONNE.findIndex(c => c[0] === a.z), n = norm(a.t), base = giorniOff(a), L = [];
+  const veroSt = f => { if (f.inviato) return "Mandato"; const k = f.t + "|" + gruppoDi(f.tipo), p = pacchi().find(x => x.k === k); return p?.manca.length ? "Aspetta altri" : PK[k]?.at ? "In partenza" : "Da mandare"; };
   const add = (tipo, nome, quando, stato, img, extra = {}) => L.push({ tipo, nome, quando, stato, img, ...extra });
   const veri = FILES.filter(f => f.t === a.t && f.ok);
   if (a.scheda === "fatta") add("Scheda di accettazione", `${n}_scheda_accettazione.pdf`, giorniFa(base), "Nella pratica", "doc"); else add("Scheda di accettazione", "Scheda da compilare in accettazione", "", "Manca", "");
   [["Preventivo", "preventivo.pdf", .9], ["Perizia", "perizia.pdf", .5]].forEach(([t, nf, k]) => { const v = veri.filter(f => f.tipo === t);
     if (a.docs[t] && !v.some(f => f.inviato)) add(t, `${n}_${nf}`, giorniFa(Math.round(base * k)), "Nella pratica", "doc");
-    v.forEach(f => add(t, f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "doc"));
+    v.forEach(f => add(t, f.n, f.inviato ? "oggi " + f.inviato : "nuovo", veroSt(f), "doc", { fid:f.id }));
     if (!a.docs[t] && !v.length && (t === "Preventivo" || zi >= 1)) add(t, t === "Perizia" ? "Perizia non ancora arrivata" : "Preventivo non ancora arrivato", "", "Manca", ""); });
   { const v = veri.filter(f => f.tipo === "Foto danno"); const n0 = a.docs["Foto danno"] ? 6 : 0;
     for (let i = 1; i <= n0; i++) add("Foto danno", `${n}_foto_danno_${i}.jpg`, giorniFa(base), "Nella pratica", "foto");
-    v.forEach(f => add("Foto danno", f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "foto"));
+    v.forEach(f => add("Foto danno", f.n, f.inviato ? "oggi " + f.inviato : "nuovo", veroSt(f), "foto", { fid:f.id }));
     if (!n0 && !v.length) add("Foto danno", "Foto del danno non ancora arrivate", "", "Manca", ""); }
-  veri.filter(f => f.tipo === "Documento").forEach(f => add("Documento", f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "doc"));
+  veri.filter(f => f.tipo === "Documento").forEach(f => add("Documento", f.n, f.inviato ? "oggi " + f.inviato : "nuovo", veroSt(f), "doc", { fid:f.id }));
   if (zi >= 1) { add("Documento", `${n}_libretto.pdf`, giorniFa(base), "Nella pratica", "doc"); add("Documento", `${n}_delega_riparazione.pdf`, giorniFa(base), "Nella pratica", "doc"); }
   RICH.filter(r => r.t === a.t).forEach(r => { add("Ricambio", `${r.pezzo}: richiesta dell'officina`, r.ora === "adesso" ? "oggi" : r.ora, r.ord != null ? "Ordinato" : "Da ordinare", "doc");
     if (r.fp) add("Ricambio", `Foto del pezzo (${r.pezzo.toLowerCase()})`, "oggi " + r.fp.ora, verifica(r) === false ? "Da controllare" : "Nella pratica", "pezzo", { rid:r.id, k:"fp" });
     if (r.fe) add("Ricambio", `Foto dell'etichetta ${r.fe.cod}`, "oggi " + r.fe.ora, verifica(r) === false ? "Non corrisponde" : "Corrisponde", "etichetta", { rid:r.id, k:"fe" }); });
   const fat = veri.filter(f => f.tipo === "Fattura"); if (a.docs["Fattura"] && !fat.some(f => f.inviato)) add("Fattura", `${n}_fattura.pdf`, giorniFa(1), "Nella pratica", "doc");
-  fat.forEach(f => add("Fattura", f.n, f.inviato ? "oggi " + f.inviato : "in arrivo", f.inviato ? "Nella pratica" : "In partenza", "doc"));
+  fat.forEach(f => add("Fattura", f.n, f.inviato ? "oggi " + f.inviato : "nuovo", veroSt(f), "doc", { fid:f.id }));
   if (zi >= 5 && !a.docs["Fattura"] && !fat.length) add("Fattura", "Fattura non ancora fatta", "", "Manca", "");
-  L.forEach((d, i) => { d.i = i; }); return L; }
+  L.forEach((d, i) => { d.i = i; d.k = d.fid ? "f" + d.fid : d.nome; d.a = d.stato === "Manca" ? [] : Object.keys(DEST).filter(x => giaMandato(a, x, d.nome, d.tipo, !!d.fid)); }); return L; }
+/* ---- invio dalla pratica: si scelgono i documenti, poi a chi. Prima di partire un controllo ---- */
+let docT = null, docSel = new Set(), destSel = new Set(), destToccato = false;
+const CARTELLA = "\\\\SERVER\\Pratiche\\2026\\", percorso = (a, tipo) => CARTELLA + norm(a.t) + (tipo ? "\\" + (GR_DOC.find(g => g.slice(1).includes(tipo))?.[0] || "Altro") : "");
+const consigliati = tipi => Object.keys(DEST).filter(d => tipi.length && tipi.every(t => DEST[d].tipi.includes(t)));
+// cosa deve ancora partire per quest'auto, destinatario per destinatario
+function pianoInvii(a, L) { const zi = COLONNE.findIndex(c => c[0] === a.z);
+  return Object.entries(DEST).map(([d, D]) => { const ha = D.tipi.filter(t => L.some(x => x.tipo === t && x.stato !== "Manca")), manca = D.tipi.filter(t => !ha.includes(t)), dati = D.tipi.filter(t => { const v = L.filter(x => x.tipo === t && x.stato !== "Manca"); return v.length && v.every(x => x.a.includes(d)); });
+    const pk = D.auto && pacchi().find(p => p.t === a.t && p.g === D.auto), ult = a.inviati.find(x => x.d === d && !x.testo);
+    const st = !manca.length && dati.length === D.tipi.length ? "fatto" : zi < D.da ? "poi" : manca.length ? "manca" : pk && PK[pk.k]?.at ? "parte" : "pronto";
+    return { d, D, st, manca, pk, ult }; }); }
 const iconaDoc = img => ({ foto:"🖼️", pezzo:"🖼️", etichetta:"🏷️", doc:"📄" })[img] || "▫️";
-function htmlDocumenti(a) { const L = documentiAuto(a), dis = L.filter(d => d.stato !== "Manca").length;
-  const voce = d => `<${d.img ? "button" : "div"} class="docv ${d.stato === "Manca" ? "manca" : /Non|controllare/.test(d.stato) ? "no" : d.stato === "In partenza" ? "par" : ""}" data-k="d${d.i}" ${d.img ? `data-act="docApri" data-v="${a.t}|${d.i}"` : ""}><span class="di">${iconaDoc(d.img)}</span><span class="dn">${esc(d.nome)}</span><span class="dq">${esc(d.quando)}</span><span class="ds">${d.stato}</span></${d.img ? "button" : "div"}>`;
-  const gruppi = GR_DOC.map(([nome, ...tipi]) => { const v = L.filter(d => tipi.includes(d.tipo)); return v.length ? `<section class="dgr"><h4>${nome}<span>${v.filter(d => d.stato !== "Manca").length}</span></h4>${v.map(voce).join("")}</section>` : ""; }).join("");
-  return `<div class="docs"><div class="dsum">${dis} documenti in archivio, ordinati per tipo. Toccane uno per aprirlo.</div><div class="dgrid">${gruppi}</div></div>`; }
+function htmlDocumenti(a) { if (docT !== a.t) { docT = a.t; docSel = new Set(); destSel = new Set(); destToccato = false; }
+  const L = documentiAuto(a), dis = L.filter(d => d.stato !== "Manca"), manda = puo("mandaDoc"), sel = dis.filter(d => docSel.has(d.k)), tipi = [...new Set(sel.map(d => d.tipo))], cons = consigliati(tipi); if (!destToccato) destSel = new Set(cons);
+  const cls = d => d.stato === "Manca" ? "manca" : /Non|controllare/.test(d.stato) ? "no" : /partenza/.test(d.stato) ? "par" : /Aspetta|Da mandare|Da ordinare/.test(d.stato) ? "manca2" : "";
+  const voce = d => `<div class="docv ${cls(d)} ${docSel.has(d.k) ? "sel" : ""}">${d.stato !== "Manca" && manda ? `<input type="checkbox" data-act="selDoc" data-v="${a.t}|${d.i}" ${docSel.has(d.k) ? "checked" : ""} aria-label="Scegli ${esc(d.nome)}">` : "<span></span>"}${d.img ? `<button class="dn" data-act="docApri" data-v="${a.t}|${d.i}" title="Apri">${iconaDoc(d.img)} ${esc(d.nome)}</button>` : `<span class="dn">${iconaDoc(d.img)} ${esc(d.nome)}</span>`}<span class="dq">${esc(d.quando)}</span><span class="ds">${d.a.length ? "→ " + d.a.map(x => DEST[x].nome).join(", ") : d.stato}</span>${d.img && d.tipo !== "Ricambio" ? `<button class="cart" data-act="cartella" data-v="${a.t}|${d.i}" title="Apri la cartella di questo file" aria-label="Apri la cartella">📁</button>` : "<span></span>"}</div>`;
+  const gruppi = GR_DOC.map(([nome, ...tp]) => { const v = L.filter(d => tp.includes(d.tipo)); return v.length ? `<section class="dgr"><h4>${manda && v.some(d => d.stato !== "Manca") ? `<button data-act="selGruppo" data-v="${a.t}|${nome}" title="Scegli tutto il gruppo">${nome}</button>` : `<b>${nome}</b>`}<span>${v.filter(d => d.stato !== "Manca").length}</span></h4>${v.map(voce).join("")}</section>` : ""; }).join("");
+  const dub = daDecidere().filter(f => (f.t || f.sT) === a.t), P = pianoInvii(a, L);
+  const riga = ({ d, D, st, manca, pk, ult }) => `<div class="pia ${st}"><div class="g"><b>${D.nome}</b><small>${D.tipi.join(" + ").toLowerCase()}${st === "poi" ? ", " + D.quando : ""}</small></div>${st === "fatto" ? `<span class="ps">✓ ${ult?.ora || ""}</span>` : st === "manca" ? `<span class="ps">manca ${manca.join(", ").toLowerCase()}</span>` : st === "poi" ? `<span class="ps">più avanti</span>` : st === "parte" ? `<span class="cd" data-cd="${pk.k}"></span>${manda ? `<button class="btn p sec" data-act="ferma" data-v="${pk.k}">Ferma</button><button class="btn p" data-act="invia" data-v="${pk.k}">Adesso</button>` : ""}` : `<span class="ps">pronto</span>${manda ? `<button class="btn p" data-act="preparaInvio" data-v="${a.t}|${d}">Prepara</button>` : ""}`}</div>`;
+  const avv = a.z === "park" ? `<div class="pia ${a.avv ? "fatto" : "parte"}"><div class="g"><b>Cliente</b><small>messaggio "auto pronta"</small></div>${a.avv ? `<span class="ps">✓ avvisato</span>` : `${a.avvAt ? `<span class="cd" data-cd="avv|${a.t}"></span><button class="btn p sec" data-act="avvisaStop" data-v="${a.t}">Ferma</button>` : ""}<button class="btn p" data-act="avvisa" data-v="${a.t}">${a.avvAt ? "Adesso" : "Avvisa"}</button>`}</div>` : "";
+  return `<div class="docs due2"><div><div class="dtop">${puo("caricaAuto") ? `<button class="carica" data-drop="${a.t}" data-act="caricaAuto" data-v="${a.t}">Lascia qui un file di <b>${a.t}</b>: si smista da solo. Oppure <b>scegli dal computer</b></button>` : ""}<button class="btn p sec" data-act="cartella" data-v="${a.t}">📁 Cartella dell'auto</button></div>${dub.map(dubbio).join("")}<div class="dgrid">${gruppi}</div></div>
+    <div class="lato">${manda ? `<div class="sotto">Manda ${sel.length ? `${sel.length} ${sel.length === 1 ? "documento" : "documenti"}` : ""}</div><div class="manda">${sel.length ? `<small>A chi?</small><div class="chips">${Object.entries(DEST).map(([k, D]) => `<button class="chip2 ${destSel.has(k) ? "on" : ""}" data-act="destDoc" data-v="${k}">${D.nome}${cons.includes(k) ? " ★" : ""}</button>`).join("")}</div>${destSel.size ? `<button class="btn p" data-act="mandaDoc" data-v="${a.t}">Controlla e manda</button>` : `<small>Scegli almeno un destinatario.</small>`}` : `<small>Spunta i documenti a sinistra, poi scegli a chi mandarli. Il nome del gruppo li spunta tutti.</small>`}</div>` : ""}
+    <div class="sotto">In partenza</div>${avv}${P.map(riga).join("")}${a.inviati.length ? `<div class="sotto">Già mandati</div>${a.inviati.map(x => `<div class="gia"><b>${DEST[x.d].nome}</b> ${esc(x.ora)}<br><small>${esc(x.testo || (x.nomi.length ? x.nomi.join(", ") : x.tipi.join(", ").toLowerCase()))}</small></div>`).join("")}` : ""}</div></div>`; }
+// il controllo prima dell'invio: a chi, dove, cosa, e tutto quello che non torna
+let invioPronto = null;
+function controllaInvio(t) { const a = A(t), L = documentiAuto(a), sel = L.filter(d => d.stato !== "Manca" && docSel.has(d.k)), dd = [...destSel]; if (!sel.length || !dd.length) return; invioPronto = { t, sel, dd };
+  const blocco = d => { const D = DEST[d], w = [], strani = sel.filter(x => !D.tipi.includes(x.tipo)), gia = sel.filter(x => x.a.includes(d)), ma = D.tipi.filter(tp => !sel.some(x => x.tipo === tp) && !L.some(x => x.tipo === tp && x.a.includes(d)));
+    if (strani.length) w.push(`Di solito non va a ${D.nome.toLowerCase()}: ${[...new Set(strani.map(x => x.tipo.toLowerCase()))].join(", ")}`); if (gia.length) w.push(`Già mandato: ${gia.map(x => x.nome).join(", ")}`); if (ma.length) w.push(`Manca per completare: ${ma.join(", ").toLowerCase()}`);
+    const alt = sel.filter(x => { const r = riconosci(x.nome).t; return r && r !== t; }); if (alt.length) w.push(`Nel nome c'è un'altra targa: ${alt.map(x => x.nome).join(", ")}`);
+    return `<div class="ctrl"><b>${D.nome}</b> <span>${esc(d === "cliente" ? a.cli.n + ", " : "")}${esc(mailDi(d, a))}</span>${w.length ? w.map(x => `<div class="warn">⚠ ${esc(x)}</div>`).join("") : `<div class="okk">✓ Tutto torna</div>`}</div>`; };
+  $("lbBox").innerHTML = `<h3 class="ctit">Controlla prima di mandare</h3><p>${esc(a.t)} ${esc(a.m)}, ${esc(a.cli.n)}</p><ul class="clist">${sel.map(x => `<li>${esc(x.nome)}</li>`).join("")}</ul>${dd.map(blocco).join("")}<small class="nota">Bozza: non parte nessuna mail vera.</small><div class="row" style="margin-top:10px"><button class="btn p sec" data-act="chiudiZoom">Torna indietro</button><button class="btn p" data-act="siManda">Manda</button></div>`; apriD($("lb")); }
+function mandaAdesso() { const { t, sel, dd } = invioPronto, a = A(t); invioPronto = null; annullo = null;
+  dd.forEach(d => registraInvio(a, d, sel));
+  // un file nuovo esce da "in partenza" solo quando l'hanno avuto tutti i suoi destinatari
+  sel.filter(x => x.fid).forEach(x => { const f = Fi(x.fid); if (f && !f.inviato && DEST_GR[gruppoDi(f.tipo)].length && DEST_GR[gruppoDi(f.tipo)].every(d => giaMandato(a, d, f.n, f.tipo, true))) { f.inviato = ora2(); a.docs[f.tipo] = true; } });
+  nota(`${t}: ${sel.length} ${sel.length === 1 ? "documento" : "documenti"} a ${dd.map(d => DEST[d].nome.toLowerCase()).join(" e ")}`);
+  if (dd.includes("perito") && a.z === "acc" && a.docs["Preventivo"] && a.docs["Foto danno"]) { a.g = 0; sposta(a, "per"); nota(`${t}: passata in attesa di perizia`); }
+  docSel = new Set(); destToccato = false; agg(); toast(`Mandato a ${dd.map(d => DEST[d].nome.toLowerCase()).join(" e ")}`); }
+// chi lavora a cosa
+function disSquadra() { if (!LINGUE[ruolo].includes("squadra")) return; const lav = SQUADRA.filter(x => x.cur).length;
+  testa("Sq", lav, "info", `${lav} al lavoro, ${SQUADRA.length - lav} liberi`);
+  set("bSq", `<div class="tre">${Object.entries(SPEC).map(([z, n]) => `<div><div class="sotto">${n}</div>${addetti(z).map(x => { const l = autoDi(x), c = l.find(a => a.t === x.cur), q = l.filter(a => a !== c);
+    return `<div class="addetto" data-k="p${x.n}"><div class="nome"><i>${x.n[0]}</i><b>${x.n}</b><span>${l.length} ${l.length === 1 ? "auto" : "auto"}</span></div>${c ? `<button class="riga on" data-k="s${c.t}" data-act="vai" data-v="${c.t}"><div class="g"><b>${c.t}</b> <span class="sc">${c.m}</span><small>Ci sta lavorando · ${c.g === 0 ? "da oggi" : "da " + gg(c.g)}</small></div></button>` : `<div class="vuoto" style="padding:4px 2px">Libero</div>`}${q.map(a => `<div class="coda" data-k="s${a.t}"><button data-act="vai" data-v="${a.t}"><b>${a.t}</b> ${a.m}<small>${a.a === "ric" ? "ferma, aspetta un ricambio" : "in coda"}</small></button>${a.a === "ric" ? "" : `<button class="btn p sec" data-act="lavora" data-v="${a.t}">Ora questa</button>`}</div>`).join("")}</div>`; }).join("")}</div>`).join("")}</div><small class="nota">Nomi di esempio. Nel sistema vero ogni addetto segna dalla sua postazione a quale auto sta lavorando.</small>`, "[data-k]"); }
 const barraPratica = a => `<div class="ptab" role="tablist"><button data-act="ptab" data-v="dati" class="${pTab === "dati" ? "on" : ""}" role="tab">Dati e lavori</button><button data-act="ptab" data-v="doc" class="${pTab === "doc" ? "on" : ""}" role="tab">Documenti <span class="n">${documentiAuto(a).filter(d => d.stato !== "Manca").length}</span></button></div>`;
 function disPratica() { const a = selId == null ? null : AUTO[selId]; vedi($("chip"), !!a, { da:"scale(.85)", ms:260 });
   if (!a) { $("sPr").textContent = "Tocca un'auto nella tabella o sulla mappa"; $("tPr").textContent = "Nessuna auto scelta"; set("bPr", ""); return; }
   $("tPr").textContent = `${a.t} ${a.m}`; $("sPr").textContent = a.why || a.cli.n; $("chip").textContent = "✕ " + a.t;
-  if (pTab === "doc") return set("bPr", barraPratica(a) + htmlDocumenti(a));
+  if (pTab === "doc") { set("bPr", barraPratica(a) + htmlDocumenti(a)); return battito(); }
   const zi = COLONNE.findIndex(c => c[0] === a.z), ric = RICH.filter(r => r.t === a.t), fl = FILES.filter(f => f.t === a.t && !f.inviato), [sc, st] = SCHEDA[a.scheda], d = a.dati;
   set("bPr", barraPratica(a) + `<div class="passi">${COLONNE.map(([z, n], i) => `<div class="${i < zi ? "f" : i === zi ? "o" : ""}">${n}</div>`).join("")}</div><div class="row" style="margin-bottom:8px">${azioniPratica(a) || `<span class="vuoto">${a.z === "acc" ? "Aspetta preventivo e foto: quando ci sono parte il pacco per il perito." : "Niente da fare adesso."}</span>`}</div>
-    <div class="tre qua"><div><div class="sotto">Cliente</div><dl class="kv2">${riga2("Nome", `<b>${a.cli.n}</b>`)}${riga2("Telefono", `<a href="tel:${a.cli.tel.replace(/\s/g, "")}">${a.cli.tel}</a>`)}${riga2("Email", `<a href="mailto:${a.cli.mail}">${a.cli.mail}</a>`)}${riga2("Assicurazione", d.ass)}${riga2("Sinistro", d.sin)}</dl></div>
+    <div class="tre qua"><div><div class="sotto">Cliente</div><dl class="kv2">${riga2("Nome", `<b>${a.cli.n}</b>`)}${riga2("Telefono", `<a href="tel:${a.cli.tel.replace(/\s/g, "")}">${a.cli.tel}</a>`)}${riga2("Email", `<a href="mailto:${a.cli.mail}">${a.cli.mail}</a>`)}${riga2("Assicurazione", d.ass)}${riga2("Sinistro", d.sin)}${addetti(a.z).length ? riga2("Ci lavora", puo("assegna") ? `<select data-act="assegna" data-v="${a.t}" aria-label="Chi ci lavora">${addetti(a.z).map(x => `<option ${x.n === a.op ? "selected" : ""}>${x.n}</option>`).join("")}</select>` : `<b>${a.op}</b>`) : ""}</dl></div>
     <div><div class="sotto">Auto</div><dl class="kv2">${riga2("Modello", `<b>${a.m}</b>`)}${riga2("Colore", coloreHtml(a))}${riga2("Anno", d.anno)}${riga2("Motore", d.carb)}${riga2("Km", d.km)}${riga2("Telaio", d.telaio)}</dl></div>
     <div><div class="sotto">Scheda e documenti</div><span class="doc ${sc}">scheda ${st}</span>${Object.entries(a.docs).filter(([n, ok]) => ok || !(n === "Fattura" && zi < 5) && !(n === "Perizia" && zi < 1)).map(([n, ok]) => `<span class="doc ${ok ? "" : "no"}">${ok ? "✓" : "manca"} ${n.toLowerCase()}</span>`).join("")}${fl.map(f => `<div style="font-size:12.5px;color:var(--muted);margin-top:5px">${esc(f.n)} in partenza</div>`).join("")}<div class="row" style="margin-top:9px"><button class="btn p sec" data-act="scheda" data-v="${a.t}">Apri la scheda</button><button class="btn p sec" data-act="caricaAuto" data-v="${a.t}">Aggiungi file</button></div></div>
-    <div><div class="sotto">Ricambi</div>${ric.map(r => r.ord != null ? tracking(r) : `<div class="riga"><div class="g"><b>${r.pezzo}</b><small>da ordinare</small></div></div>`).join("") || `<div class="vuoto" style="padding:2px 0">Nessuno</div>`}${a.z === "park" ? "" : `<div class="row"><select id="pezzo" aria-label="Pezzo"><option>Faro anteriore</option><option>Paraurti posteriore</option><option>Specchietto destro</option><option>Parafango sinistro</option></select><button class="btn p sec" data-act="chiediPezzo" data-v="${a.t}">Chiedi</button></div>`}</div></div>`); }
+    <div><div class="sotto">Ricambi</div>${ric.map(r => r.ord != null ? tracking(r) : `<div class="riga"><div class="g"><b>${r.pezzo}</b><small>da ordinare</small></div></div>`).join("") || `<div class="vuoto" style="padding:2px 0">Nessuno</div>`}</div></div>`); }
 function apriScheda(t) { const a = A(t), r = (k, v) => `<tr><th>${k}</th><td>${v || "&nbsp;"}</td></tr>`, vuota = a.scheda === "manca";
   $("schedaBox").innerHTML = `<button class="x" data-act="chiudiScheda" aria-label="Chiudi la scheda">×</button><h3>Scheda di accettazione</h3><p>Modello provvisorio: va rifatto uguale alla scheda vera quando arriva la foto.</p><table>${r("Targa", a.t)}${r("Auto", a.m)}${r("Colore", coloreHtml(a))}${r("Cliente", a.cli.n)}${r("Telefono", a.cli.tel)}${r("Lavori da fare", "")}${r("Note", "")}</table><span class="doc ${SCHEDA[a.scheda][0]}">scheda ${SCHEDA[a.scheda][1]}</span>`; apriD($("scheda"), document.querySelector(`[data-act="scheda"][data-v="${t}"]`)); }
 function disInfo() { const b = $("info"), vis = { da:"translateY(12px)", ms:300, mostra:() => { b.style.display = "block"; }, nascondi:() => { b.style.display = "none"; } }; if (selId == null) return vedi(b, false, vis); const a = AUTO[selId];
   set("info", `<button class="x" data-act="desel" aria-label="Chiudi">×</button><span class="plate">${a.t}</span><div class="mod">${a.m} <span class="pill ${a.s}">${STATO[a.s]}</span></div><div class="kv">${a.cli.n} · ${a.cli.tel}<br>${NOMEZ[a.z]} · ${a.g === 0 ? "da oggi" : "da " + gg(a.g)}</div>${a.why ? `<div class="why">${a.why}</div>` : ""}<div class="row" style="margin-top:8px">${azioniPratica(a)}</div>`); vedi(b, true, vis); }
-function disDock() { $("dock").className = aperto ? "l2" : "l0"; const p = $("pann"); if ((p._k ?? null) !== aperto) { cambiaPannello(p._k ?? null, aperto); p._k = aperto; } if (aperto) $("pTit").textContent = { pratica:selId == null ? "" : `${selT()} · ${AUTO[selId].m} · ${AUTO[selId].cli.n}`, ricambi:$("tRic").textContent, file:"Carica e smista", registro:"Registro e assistenza" }[aperto];
+function disDock() { $("dock").className = aperto ? "l2" : "l0"; const p = $("pann"); if (aperto) p.classList.toggle("alto", aperto === "pratica" && pTab === "doc" || aperto === "squadra"); if ((p._k ?? null) !== aperto) { cambiaPannello(p._k ?? null, aperto); p._k = aperto; } if (aperto) $("pTit").textContent = { pratica:selId == null ? "" : `${selT()} · ${AUTO[selId].m} · ${AUTO[selId].cli.n}`, ricambi:$("tRic").textContent, file:"File in partenza", squadra:"Chi lavora a cosa", registro:"Registro e assistenza" }[aperto];
   const LG = LINGUE[ruolo]; $("ling").style.gridTemplateColumns = `repeat(${LG.length},minmax(0,1fr))`; $("ruolo").value = ruolo;
   $("tRic").textContent = { capo:"Ricambi da comprare", officina:"Ricambi: chiedi e fotografa", ufficio:"Ordini ricambi", admin:"Richieste ricambi" }[ruolo];
-  [["cPratica", "pratica", "Pr"], ["cRic", "ricambi", "Ric"], ["cFile", "file", "File"], ["cReg", "registro", "Reg"]].forEach(([id, k, b]) => { $(id).hidden = !LG.includes(k); if (ANT[k] && (ANT[k].fino < Date.now() || aperto === k)) delete ANT[k]; const n = ANT[k], t = $(id).querySelector(".testa");
+  [["cPratica", "pratica", "Pr"], ["cRic", "ricambi", "Ric"], ["cFile", "file", "File"], ["cSq", "squadra", "Sq"], ["cReg", "registro", "Reg"]].forEach(([id, k, b]) => { $(id).hidden = !LG.includes(k); if (ANT[k] && (ANT[k].fino < Date.now() || aperto === k)) delete ANT[k]; const n = ANT[k], t = $(id).querySelector(".testa");
     $(id).className = `cas riq ${aperto === k ? "attivo" : ""} ${n ? "arrivo" : ""}`; t.setAttribute("aria-expanded", aperto === k); t.disabled = k === "pratica" && selId == null;
-    setAnte("vb" + b, n ? `<div class="g"><b>${esc(n.h)}</b><small>${esc(n.s)}</small></div><button class="btn p" data-act="${n.act}" data-v="${n.v}">${n.b}</button>` : ""); }); }
+    setAnte("vb" + b, n ? `<div class="g" data-act="cassetto" data-v="${k}"><b>${esc(n.h)}</b><small>${esc(n.s)}</small></div><button class="btn p" data-act="${n.act}" data-v="${n.v}">${n.b}</button><button class="xn" data-act="antVia" data-v="${k}" aria-label="Chiudi la notifica">×</button>` : ""); }); }
 function apriP(k) { aperto = k; agg(); }
 function chiudiP() { if (aperto === "pratica") return deseleziona(); aperto = null; agg(); }
-function battito() { document.querySelectorAll("[data-cd]").forEach(e => { const s = PK[e.dataset.cd]; e.textContent = s?.at ? `parte tra ${Math.max(0, Math.ceil((s.at - Date.now()) / 1000))} s` : ""; }); }
-setInterval(() => { const ora = Date.now(), sc = Object.keys(PK).filter(k => PK[k].at && PK[k].at <= ora); if (sc.length) automatico(() => toast(sc.map(k => invia(k, true)).filter(Boolean).join(" · "))); battito(); avanzaTracking(false); disDock(); }, 1000);
+function battito() { document.querySelectorAll("[data-cd]").forEach(e => { const s = PK[e.dataset.cd]; if (e.dataset.cd.startsWith("avv|")) { const a = A(e.dataset.cd.slice(4)); e.textContent = a?.avvAt ? `parte tra ${Math.max(0, Math.ceil((a.avvAt - Date.now()) / 1000))} s` : ""; return; } e.textContent = s?.at ? `parte tra ${Math.max(0, Math.ceil((s.at - Date.now()) / 1000))} s` : ""; }); }
+setInterval(() => { const ora = Date.now(), sc = Object.keys(PK).filter(k => PK[k].at && PK[k].at <= ora); if (sc.length) automatico(() => toast(sc.map(k => invia(k, true)).filter(Boolean).join(" · "))); const cl = dentro().filter(a => a.avvAt && a.avvAt <= ora); if (cl.length) automatico(() => toast(cl.map(avvisaCliente).join(" · "))); battito(); avanzaTracking(false); disDock(); }, 1000);
 
 /* ================================================================== AZIONI (un solo punto per tutta la pagina) */
 // se l'etichetta non corrisponde al pezzo si chiede conferma prima di ordinare
@@ -1301,12 +1412,29 @@ const ATT = {
     if (i >= 0 && AUTO[i].z !== "fuori" && r.ord == null) { if (AUTO[i].ghost) filtro = "tutte"; selId = i; aperto = "ricambi"; agg(); inquadra(AUTO[i]); } else apriP("ricambi"); },
   foto:v => { const [k, id] = v.split("|"); fai("", () => { const r = R(id); foto2(r, k); return verifica(r) === false ? "L'etichetta non corrisponde al pezzo" : k === "fe" ? "Etichetta verificata: corrisponde" : "Foto del pezzo salvata"; }); },
   rifoto:v => fai("", () => { const r = R(v); r.rifatta = true; r.fe = null; foto2(r, "fe"); return "Etichetta rifatta: corrisponde"; }),
-  zoom:(v, el) => { const p = v.split("|"), r = R(p[0] === "o" ? p[1] : p[1]); const src = p[0] === "o" ? disegno(r.pezzo, r.opz[+p[2]].f.replace(" (esempio)", ""), TINTE[+p[2] % 3]) : p[0] === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod);
-    $("lbBox").innerHTML = `<img alt="" src="${src}"><p>${p[0] === "o" ? esc(r.opz[+p[2]].f) + ", " + esc(r.pezzo.toLowerCase()) : p[0] === "fp" ? "Foto del pezzo" : "Etichetta"} · immagine di esempio, non una foto vera</p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; apriD($("lb"), el); }, chiudiZoom:() => chiudiD($("lb")),
+  zoom:(v, el) => { const p = v.split("|"), r = R(p[1]); if (p[0] === "o") return galleria(fotoAnnuncio(r, +p[2]), 0, el);
+    const l = [r.fp && { src:FOTOPEZZO(r), tit:"Foto del pezzo", sotto:r.pezzo + " · immagine di esempio" }, r.fe && { src:disegno("etichetta", r.fe.cod), tit:"Etichetta", sotto:r.fe.cod + " · immagine di esempio" }].filter(Boolean); galleria(l, p[0] === "fe" && r.fp ? 1 : 0, el); }, chiudiZoom:() => chiudiD($("lb")),
+  galVai:v => galPasso(+v), galA:v => { const d = Math.sign(+v - GAL.i); if (d) { GAL.i = +v; disGal(d); } },
   ptab:v => { pTab = v; agg(); },
-  docApri:(v, el) => { const [t, i] = v.split("|"), a = A(t), d = documentiAuto(a)[+i]; if (!d) return; const r = d.rid ? R(d.rid) : null;
-    const src = d.img === "pezzo" ? FOTOPEZZO(r) : d.img === "etichetta" ? disegno("etichetta", r.fe.cod) : d.img === "foto" ? disegno("Paraurti", d.nome, a.col) : disegno("doc", d.nome);
-    $("lbBox").innerHTML = `<img alt="" src="${src}"><p><b>${esc(d.nome)}</b><br>${esc(a.t)} ${esc(a.m)} · ${esc(d.stato)}${d.quando ? " · " + esc(d.quando) : ""}<br><small>Documento di esempio: il contenuto vero arriva dal gestionale.</small></p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; apriD($("lb"), el); },
+  docTab:v => { pTab = "doc"; seleziona(AUTO.indexOf(A(v)), true); },
+  docApri:(v, el) => { const [t, i] = v.split("|"), a = A(t), L = documentiAuto(a), d = L[+i]; if (!d) return; const bl = d.fid && BLOB[d.fid];
+    if (bl && !/^image\//.test(bl.type)) { const u = URL.createObjectURL(bl); open(u, "_blank"); return setTimeout(() => URL.revokeObjectURL(u), 60000); }
+    const src = x => { const r = x.rid ? R(x.rid) : null, b = x.fid && BLOB[x.fid]; return b ? (b._u ||= URL.createObjectURL(b)) : x.img === "pezzo" ? FOTOPEZZO(r) : x.img === "etichetta" ? disegno("etichetta", r.fe.cod) : x.img === "foto" ? disegno("Paraurti", x.nome, a.col) : disegno("doc", x.nome); };
+    const l = d.img === "doc" ? [d] : L.filter(x => x.img === d.img && x.tipo === d.tipo && !(x.fid && BLOB[x.fid] && !/^image\//.test(BLOB[x.fid].type)));
+    galleria(l.map(x => ({ src:src(x), tit:x.nome, sotto:`${a.t} ${a.m}${x.quando ? " · " + x.quando : ""}${x.fid && BLOB[x.fid] ? "" : " · esempio, il contenuto vero arriva dal gestionale"}` })), l.indexOf(d), el); },
+  selDoc:(v, e) => { const [t, i] = v.split("|"), d = documentiAuto(A(t))[+i]; if (!d) return; e.checked ? docSel.add(d.k) : docSel.delete(d.k); destToccato = false; agg(); },
+  selGruppo:v => { const [t, g] = v.split("|"), tp = GR_DOC.find(x => x[0] === g).slice(1), l = documentiAuto(A(t)).filter(d => tp.includes(d.tipo) && d.stato !== "Manca"), tutti = l.every(d => docSel.has(d.k)); l.forEach(d => tutti ? docSel.delete(d.k) : docSel.add(d.k)); destToccato = false; agg(); },
+  destDoc:v => { destToccato = true; destSel.has(v) ? destSel.delete(v) : destSel.add(v); agg(); },
+  preparaInvio:v => { const [t, d] = v.split("|"); docT = t; docSel = new Set(documentiAuto(A(t)).filter(x => x.stato !== "Manca" && DEST[d].tipi.includes(x.tipo) && !x.a.includes(d)).map(x => x.k)); destSel = new Set([d]); destToccato = true; agg(); controllaInvio(t); },
+  mandaDoc:v => controllaInvio(v), siManda:() => { chiudiD($("lb")); if (invioPronto) mandaAdesso(); },
+  // un sito non può aprire Esplora file da solo: con un file appena lasciato Chrome apre la sua cartella, altrimenti si copia il percorso
+  cartella:v => { const [t, i] = v.split("|"), a = A(t), d = i == null ? null : documentiAuto(a)[+i], h = d?.fid && HANDLE[d.fid];
+    if (h && window.showOpenFilePicker) return void showOpenFilePicker({ startIn:h }).catch(() => {});
+    const p = percorso(a, d?.tipo); (navigator.clipboard?.writeText(p) || Promise.reject()).then(() => toast(`Percorso copiato: ${p}`), () => toast(p)); },
+  nascondi:v => { NASC.add(v); salvaNasc(); nota(`Nascosto dalle attenzioni: ${v.split("|").slice(2).join("|")}`); agg(); }, rimetti:v => { NASC.delete(v); salvaNasc(); agg(); }, mostraNasc:() => { mostraNasc = !mostraNasc; agg(); },
+  antVia:v => { delete ANT[v]; disDock(); },
+  assegna:(v, e) => fai("", () => { const a = A(v); SQUADRA.forEach(x => { if (x.cur === v) x.cur = null; }); a.op = e.value; nota(`${v}: ci lavora ${e.value}`); return `${v}: ci lavora ${e.value}`; }),
+  lavora:v => fai("", () => { const x = SQUADRA.find(y => y.n === A(v).op); x.cur = v; nota(`${x.n} passa a ${v}`); return `${x.n} ora lavora a ${v}`; }),
   ruolo:(v, e) => cambiaRuolo(e.value), regF:v => { regFiltro = v; agg(); },
   ricOff:v => ATT.ric(v),
   chiediOff:() => fai("", () => { const t = $("offAuto").value, p = $("offPezzo").value, r = creaRichiesta(t, p, "Officina"); ricSel = r.id; return `Chiesto: ${p.toLowerCase()} per ${t}. Ora le foto`; }),
@@ -1321,7 +1449,7 @@ const ATT = {
   arrivato:v => fai("", () => { const r = R(v); arrivato(r); return `${r.t} può ripartire`; }),
   sollecita:v => fai("", () => { A(v).sollecito = true; nota(`${v}: perizia sollecitata`); return `Sollecito preparato per ${v}`; }),
   proroga:v => fai("", () => { const a = A(v); a.prev = a.g + 2; nota(`${v}: verniciatura allungata di 2 giorni`); return `${v}: nuova data, ${tra(2)}`; }),
-  avvisa:v => fai("", () => { A(v).avv = true; nota(`${v}: cliente avvisato che l'auto è pronta`); return `${v}: cliente avvisato`; }),
+  avvisa:v => fai("", () => avvisaCliente(A(v))), avvisaStop:v => { const a = A(v); a.avvStop = true; a.avvAt = null; nota(`${v}: messaggio al cliente fermato`); agg(); },
   chiedi:v => fai("", () => { A(v).chiestoFoto = true; nota(`${v}: chiesto al reparto quello che manca`); return `${v}: chiesto al reparto`; }),
   avanza:v => { const a = A(v), z = DOPO[a.z]; if (z !== "fuori" && libero(z) < 0) return toast(`${NOMEZ[z]} è piena: prima libera un posto`); fai("", () => { sposta(a, z); nota(z === "fuori" ? `${v}: consegnata` : `${v}: passata a ${NOMEZ[z].toLowerCase()}`); return z === "fuori" ? `${v} consegnata` : `${v} ora è in ${NOMEZ[z].toLowerCase()}`; }); if (z !== "fuori") inquadra(a); },
   invia:v => fai("", () => invia(v)), ferma:v => { PK[v].ferma = true; PK[v].at = null; agg(); },
@@ -1329,7 +1457,6 @@ const ATT = {
   regola:(v, e) => { REG[v] = e.checked; agg(); }, dubT:(v, e) => { const f = Fi(v); f.t = e.value || null; if (!f.t) f.sT = null; agg(); }, dubTipo:(v, e) => { const f = Fi(v); f.tipo = e.value || null; if (!f.tipo) f.sTipo = null; agg(); },
   conferma:v => fai("", () => { const f = Fi(v); f.t = f.t || f.sT; f.tipo = f.tipo || f.sTipo; f.ok = true; return `Ok: ${f.tipo.toLowerCase()} per ${f.t}`; }),
   carica:() => { targaCarica = null; $("fileIn").click(); }, caricaAuto:v => { targaCarica = v; $("fileIn").click(); },
-  chiediPezzo:v => fai("", () => { const p = $("pezzo").value; creaRichiesta(v, p, "Ufficio"); return `Offerte trovate per ${p.toLowerCase()}`; }),
   log:() => { const b = $("logBox"), on = !b.classList.contains("on"); vedi($("log"), on, { altezza:true, da:"none", ms:320, mostra:() => b.classList.add("on"), nascondi:() => b.classList.remove("on") }); },
   evMenu:() => menuProva(!$("evMenu")._on),
   evRic:() => automatico(() => { const a = dentro().find(x => ["off", "rif", "vern"].includes(x.z) && !RICH.some(r => r.t === x.t && !r.arr)); if (!a) return toast("Tutte le auto hanno già un ricambio richiesto"); const r = creaRichiesta(a.t, "Specchietto destro", "Marco"); toast(`Nuova richiesta: ${r.pezzo.toLowerCase()} per ${a.t}`); }),
@@ -1341,20 +1468,23 @@ const ATT = {
 document.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!e.target.closest("#evMenu, #provaEv") || b?.closest("#evMenu")) menuProva(false);
   if (!b || b.disabled || b.tagName === "SELECT" || b.tagName === "INPUT") return; ATT[b.dataset.act]?.(b.dataset.v, b); });
 document.addEventListener("change", e => { const b = e.target.closest("select[data-act], input[data-act]"); if (b) ATT[b.dataset.act](b.dataset.v, b); });
-$("fileIn").onchange = e => { const n = [...e.target.files].map(f => f.name), t = targaCarica; e.target.value = ""; if (n.length) automatico(() => arrivaFile(n, t ? { t } : {})); };
+$("fileIn").onchange = e => { const fs = [...e.target.files], n = fs.map(f => f.name), t = targaCarica; e.target.value = ""; if (n.length) automatico(() => arrivaFile(n, t ? { t } : {}, fs.map(file => ({ file })))); };
 $("board").addEventListener("mouseover", e => { const c = e.target.closest(".car"); hoverId = c ? +c.dataset.i : null; }); $("board").addEventListener("mouseleave", () => { hoverId = null; });
 // i file si lasciano ovunque; sopra un'auto vanno direttamente alla sua pratica
 let cardDrop = null; const pulisci = () => { $("velo").classList.remove("on"); cardDrop?.classList.remove("drop"); cardDrop = null; };
-addEventListener("dragover", e => { if (![...e.dataTransfer.types].includes("Files")) return; e.preventDefault(); $("velo").classList.add("on"); const c = e.target.closest?.(".car"); if (c !== cardDrop) { cardDrop?.classList.remove("drop"); c?.classList.add("drop"); cardDrop = c; } });
+const dove = e => e.target.closest?.(".car, [data-drop]"), targaDi = c => c?.dataset.drop || (c ? AUTO[+c.dataset.i].t : null);
+addEventListener("dragover", e => { if (![...e.dataTransfer.types].includes("Files")) return; e.preventDefault(); $("velo").classList.add("on"); const c = dove(e); if (c !== cardDrop) { cardDrop?.classList.remove("drop"); c?.classList.add("drop"); cardDrop = c; } });
 addEventListener("dragleave", e => { if (!e.relatedTarget) pulisci(); });
-addEventListener("drop", e => { e.preventDefault(); const c = e.target.closest?.(".car"), n = [...e.dataTransfer.files].map(f => f.name); pulisci(); if (n.length) automatico(() => arrivaFile(n, c ? { t:AUTO[+c.dataset.i].t } : {})); });
+addEventListener("drop", e => { e.preventDefault(); const t = targaDi(dove(e)), it = [...e.dataTransfer.items].filter(x => x.kind === "file"), fs = [...e.dataTransfer.files], veri = fs.map((file, i) => ({ file, handle:it[i]?.getAsFileSystemHandle?.() })), n = fs.map(f => f.name); pulisci();
+  if (n.length) automatico(() => { arrivaFile(n, t ? { t } : {}, veri); if (t) toast(`${n.length === 1 ? "File messo" : n.length + " file messi"} in ${t}`); }); });
 
 /* ---- selezione: foglio, mappa e cassetti insieme ---- */
 function inquadra(a) { vistaAttiva = null; $("vTutto").classList.remove("on"); $("vAlto").classList.remove("on"); const d = FORME[a.k].L, dir = new THREE.Vector3(.35, 0, 1).normalize(); volaA(new THREE.Vector3(a.tx, 0, a.tz).addScaledVector(dir, 15 + d).add(new THREE.Vector3(0, 11, 0)), new THREE.Vector3(a.tx, 1, a.tz)); }
 // un secondo clic sulla stessa auto la chiude; forza = resta scelta (avvisi, ricerca)
 function seleziona(id, forza) { if (id < 0 || AUTO[id].z === "fuori") return; if (selId === id && !forza && (aperto === "pratica" || grande)) return deseleziona(); if (AUTO[id].ghost) filtro = "tutte"; selId = id; aperto = "pratica"; agg(); inquadra(AUTO[id]); document.querySelector(".car.sel")?.scrollIntoView({ block:"nearest", inline:"nearest" }); }
 function deseleziona() { selId = null; if (aperto === "pratica") aperto = null; agg(); vai("tutto"); }
-$("boardBox").addEventListener("click", e => { if (selId != null && !e.target.closest(".car")) deseleziona(); });
+// clic sul vuoto della tabella: si chiude il pannello, si lascia l'auto e si torna a vedere tutte
+$("boardBox").addEventListener("click", e => { if (e.target.closest(".car")) return; if (selId == null && !aperto && filtro === "tutte") return; filtro = "tutte"; aperto = null; selId != null ? deseleziona() : agg(); });
 addEventListener("keydown", e => { if (e.key !== "Escape" || $("scheda").open || e.target.matches("input, select")) return; if (grande) return setGrande(false); if (aperto) return chiudiP(); if (selId != null) deseleziona(); });
 
 // etichette HTML che seguono le auto, dentro la finestra
