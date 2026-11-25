@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head><meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrozzeria — gestionale (bozza)</title>
+<style>
+  :root {
+    --bg:#f4f5f7; --card:#fff; --ink:#1d2330; --muted:#6b7385; --line:#e3e6ec;
+    --accent:#1f5eff; --ok:#1a9d5b; --warn:#d98a00; --bad:#d33a3a;
+    /* tema scuro della finestra 3D */
+    --ink3:#eef2fa; --mut3:#9aa6bf; --glass:rgba(14,20,33,.86); --line3:rgba(255,255,255,.14);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+  body.fullscreen { overflow:hidden; }
+  button { font:inherit; border:0; cursor:pointer; color:inherit; }
+
+  header.top { background:var(--ink); color:#fff; padding:12px 24px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  header.top h1 { font-size:18px; margin:0; font-weight:600; }
+  header.top .sub { color:#aab2c5; font-size:13px; }
+  #search { position:relative; flex:0 1 320px; margin-left:12px; }
+  #search input { width:100%; height:42px; border-radius:10px; padding:0 14px 0 40px; border:1px solid #3a4258; background:#262d3e; color:#fff; font:inherit; outline:none; }
+  #search input:focus { border-color:var(--accent); }
+  #search::before { content:"⌕"; position:absolute; left:13px; top:6px; font-size:21px; color:#aab2c5; }
+  #sugg { position:absolute; top:48px; left:0; right:0; padding:6px; display:none; background:#fff; color:var(--ink); border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.22); z-index:30; }
+  #sugg button { display:flex; width:100%; justify-content:space-between; background:none; padding:9px 10px; border-radius:8px; text-align:left; }
+  #sugg button:hover { background:#eef1f7; } #sugg small { color:var(--muted); }
+  header.top .sync { margin-left:auto; font-size:13px; color:#aab2c5; display:flex; align-items:center; gap:8px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--ok); display:inline-block; }
+  .banner { background:#fff7e0; border-bottom:1px solid #f0dca0; color:#7a5a00; padding:8px 24px; font-size:13px; }
+
+  main { max-width:1520px; margin:0 auto; padding:18px 24px 48px; display:grid; grid-template-columns:minmax(0,1fr) 460px; gap:18px; align-items:start; }
+  .col-l, .col-r { display:grid; gap:18px; min-width:0; }
+  .col-r { position:sticky; top:12px; }
+  @media (max-width:1100px) { main { grid-template-columns:1fr; } .col-r { position:static; order:-1; } }
+  @media (max-width:640px) { main { padding:12px; } header.top { padding:12px; } #search { margin-left:0; flex-basis:100%; } }
+
+  section.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  section.card h2 { margin:0 0 4px; font-size:16px; display:flex; align-items:center; gap:10px; }
+  section.card .hint { margin:0 0 12px; color:var(--muted); font-size:13px; }
+  .step { display:inline-block; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); background:#e8efff; border-radius:99px; padding:2px 9px; margin-bottom:6px; }
+  .pill { font-size:12px; font-weight:700; padding:2px 10px; border-radius:99px; }
+  .pill.ok { background:#e2f5eb; color:var(--ok); } .pill.warn { background:#fff3d6; color:#8a5a00; } .pill.bad { background:#fdecec; color:var(--bad); }
+
+  /* contatori = filtri */
+  #kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .kpi { text-align:left; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 14px; display:block; }
+  .kpi b { display:block; font-size:28px; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .kpi span { color:var(--muted); font-size:13px; }
+  .kpi.warn b { color:var(--warn); } .kpi.bad b { color:var(--bad); } .kpi.ok b { color:var(--ok); }
+  .kpi:hover { border-color:#b9c3da; }
+  .kpi[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 0 2px #cfdcff; background:#f3f7ff; }
+
+  /* bacheca */
+  .board { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .bcol { background:var(--bg); border-radius:10px; padding:10px; min-height:90px; }
+  .bcol h3 { margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:flex; justify-content:space-between; }
+  .car { background:#fff; border:1px solid var(--line); border-left:4px solid var(--ok); border-radius:8px; padding:7px 10px; margin-bottom:7px; font-size:13px; cursor:pointer; transition:opacity .15s, box-shadow .15s; }
+  .car.warn { border-left-color:var(--warn); } .car.bad { border-left-color:var(--bad); }
+  .car:hover { box-shadow:0 2px 10px rgba(30,40,70,.14); }
+  .car.sel { box-shadow:0 0 0 2px var(--accent); }
+  .car.dim { opacity:.25; }
+  .car .targa { font-weight:700; letter-spacing:.04em; }
+  .car .meta { color:var(--muted); font-size:12px; }
+  .car .tag { display:block; margin-top:4px; font-size:11px; line-height:1.3; padding:2px 7px; border-radius:7px; background:#fff3d6; color:#8a5a00; }
+  .car.bad .tag { background:#fdecec; color:var(--bad); }
+
+  .btn { background:var(--accent); color:#fff; font-weight:600; border-radius:10px; padding:10px 16px; min-height:42px; }
+  .btn:hover { filter:brightness(1.1); } .btn.sec { background:#eef0f5; color:var(--ink); } .btn.grow { flex:1; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+
+  /* richieste ricambi */
+  .task { border:1px solid var(--line); border-left:5px solid var(--warn); border-radius:12px; padding:12px 14px; margin-bottom:10px; background:#fff; }
+  .task.bad { border-left-color:var(--bad); } .task.info { border-left-color:var(--accent); } .task.done { border-left-color:var(--ok); background:#f6fbf8; }
+  .task h3 { margin:0 0 2px; font-size:15.5px; } .task p { margin:0 0 10px; color:var(--muted); font-size:13.5px; }
+  .task .ok-line { color:var(--ok); font-weight:600; margin:0; }
+  .offer { display:flex; gap:10px; align-items:center; border:1px solid var(--line); border-radius:10px; padding:9px 12px; margin-top:8px; cursor:pointer; background:#fafbfd; }
+  .offer.sel { border-color:var(--accent); background:#eef3ff; }
+  .offer .nm { font-weight:700; font-size:14px; } .offer .sub { color:var(--muted); font-size:12.5px; }
+  .offer .tot { margin-left:auto; font-size:18px; font-weight:800; white-space:nowrap; }
+  .stars { color:#e0a100; letter-spacing:1px; }
+  .otag { font-size:11px; font-weight:700; border-radius:99px; padding:1px 8px; background:#e8efff; color:var(--accent); margin-right:4px; display:inline-block; }
+  .otag.g { background:#e2f5eb; color:var(--ok); } .otag.w { background:#fff3d6; color:#8a5a00; }
+
+  /* invio file */
+  .drop { border:2px dashed #b9c3da; border-radius:12px; padding:20px; text-align:center; color:var(--muted); background:#fafbfd; cursor:pointer; }
+  .drop.over { border-color:var(--accent); background:#eef3ff; } .drop b { color:var(--ink); }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
+  th { text-align:left; color:var(--muted); font-weight:500; padding:6px 8px; border-bottom:1px solid var(--line); }
+  td { padding:8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  .chip { display:inline-block; padding:2px 9px; border-radius:99px; font-size:12px; background:#e8efff; color:var(--accent); }
+  .chip.ok { background:#e2f5eb; color:var(--ok); } .chip.w { background:#fff3d6; color:#8a5a00; }
+  td .mini-btn { padding:4px 10px; border-radius:8px; font-size:12px; background:#eef0f5; margin-right:4px; } td .mini-btn:hover { background:#dfe5f3; }
+
+  /* avvisi */
+  ul.alerts { list-style:none; margin:0; padding:0; }
+  ul.alerts li { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  ul.alerts li:last-child { border-bottom:0; }
+  ul.alerts .ico { width:22px; height:22px; border-radius:50%; flex:none; color:#fff; font-size:13px; text-align:center; line-height:22px; background:var(--warn); }
+  ul.alerts .ico.bad { background:var(--bad); } ul.alerts .ico.okk { background:var(--ok); }
+  ul.alerts small { display:block; color:var(--muted); }
+  ul.alerts button { margin-left:auto; padding:6px 11px; font-size:12.5px; white-space:nowrap; border-radius:8px; background:var(--accent); color:#fff; }
+  ul.alerts button.ghost { background:#eef0f5; color:var(--ink); }
+  ul.alerts li.fatto { opacity:.7; }
+  details.auto summary { cursor:pointer; color:var(--ok); font-weight:600; font-size:14px; }
+  details.auto li { color:var(--muted); font-size:13.5px; margin:5px 0; }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding-bottom:20px; }
+
+  /* ============ finestra 3D ============ */
+  #win { background:#0c1018; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 4px 18px rgba(30,40,70,.12); display:flex; flex-direction:column; }
+  #win .bar { display:flex; align-items:center; gap:8px; padding:8px 10px 8px 14px; background:var(--ink); color:#fff; font-size:14px; font-weight:600; }
+  #win .bar .grow { flex:1; }
+  #win .bar button { background:rgba(255,255,255,.12); border-radius:8px; padding:6px 12px; font-size:13px; font-weight:600; color:#fff; }
+  #win .bar button:hover { background:rgba(255,255,255,.22); }
+  #stage { position:relative; height:330px; background:#0c1018; overflow:hidden; }
+  #stage canvas { position:absolute; inset:0; width:100%; height:100%; display:block; outline:none; }
+  #labels { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:2; }
+  .glass { background:var(--glass); backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3); border:1px solid var(--line3); border-radius:14px; color:var(--ink3); }
+
+  #meteo { position:absolute; left:10px; top:10px; z-index:5; padding:5px 12px 5px 10px; display:flex; align-items:center; gap:9px; cursor:default; }
+  #meteo .ico { font-size:22px; line-height:1; } #meteo b { font-size:15px; display:block; line-height:1.1; } #meteo span { color:var(--mut3); font-size:11.5px; }
+  #ora { display:none; font-variant-numeric:tabular-nums; font-size:14px; color:var(--mut3); padding-left:10px; border-left:1px solid var(--line3); }
+  #prova { position:absolute; left:10px; top:58px; z-index:5; font-size:12px; color:var(--mut3); background:rgba(0,0,0,.4); border-radius:99px; padding:5px 12px; display:none; }
+  #provaMenu { position:absolute; left:10px; top:92px; z-index:6; padding:6px; display:none; }
+  #provaMenu button { display:block; width:100%; text-align:left; background:none; padding:7px 12px; border-radius:8px; font-size:14px; color:var(--ink3); }
+  #provaMenu button:hover, #provaMenu button.on { background:rgba(255,255,255,.14); }
+
+  #cam { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:4px; padding:4px; z-index:5; }
+  #cam button { background:none; padding:8px 14px; border-radius:10px; font-weight:600; font-size:13.5px; color:var(--ink3); white-space:nowrap; }
+  #cam button:hover { background:rgba(255,255,255,.12); } #cam button.on { background:var(--accent); }
+  #kpis3d { position:absolute; right:10px; top:10px; z-index:5; display:none; gap:6px; flex-wrap:wrap; justify-content:flex-end; max-width:60%; }
+  #kpis3d .kpi { display:flex; align-items:center; gap:8px; border-radius:99px; padding:6px 14px; background:var(--glass); border:1px solid var(--line3); color:var(--ink3); backdrop-filter:blur(14px); }
+  #kpis3d .kpi b { font-size:17px; } #kpis3d .kpi span { color:var(--mut3); font-size:13px; }
+  #kpis3d .kpi[aria-pressed="true"] { border-color:var(--accent); background:#1f3a78; box-shadow:none; }
+  #kpis3d .kpi.bad b { color:#ff7a7a; } #kpis3d .kpi.ok b { color:#6be5a4; } #kpis3d .kpi.warn b { color:#ffc96a; }
+
+  #info { position:absolute; left:10px; bottom:58px; z-index:6; width:min(330px, calc(100% - 20px)); padding:12px 14px; display:none; }
+  #info .x { position:absolute; right:8px; top:6px; background:none; font-size:20px; color:var(--mut3); }
+  .plate { display:inline-block; background:#fff; color:#111; font-weight:800; letter-spacing:.07em; font-size:19px; padding:2px 12px 2px 30px; border-radius:6px; border:2px solid #111; position:relative; }
+  .plate::before { content:"I"; position:absolute; left:0; top:0; bottom:0; width:20px; background:#1c3f94; color:#fff; font-size:10px; display:grid; place-items:end center; padding-bottom:2px; }
+  #info .mod { font-weight:600; margin:6px 0 2px; } #info .kv { color:var(--mut3); font-size:13px; } #info .why { font-size:13px; margin-top:6px; background:rgba(255,255,255,.08); border-radius:9px; padding:6px 9px; }
+  #info .pill.ok { background:rgba(52,196,124,.2); color:#6be5a4; } #info .pill.warn { background:rgba(242,168,29,.2); color:#ffc96a; } #info .pill.bad { background:rgba(255,90,90,.22); color:#ff9a9a; }
+  #info .go { margin-top:8px; background:rgba(255,255,255,.14); border-radius:9px; padding:6px 12px; font-size:13px; font-weight:600; }
+
+  body:not(.fullscreen) #info { padding:8px 12px; bottom:50px; } body:not(.fullscreen) #info .why, body:not(.fullscreen) #info .go { display:none; } body:not(.fullscreen) #info .plate { font-size:15px; }
+  /* etichette sulle auto */
+  .lbl { position:absolute; left:0; top:0; will-change:transform; display:flex; align-items:center; gap:6px; background:rgba(14,20,32,.85); border:2px solid var(--c); border-radius:9px; padding:1px 7px 1px 6px; font-size:12px; font-weight:800; letter-spacing:.04em; white-space:nowrap; color:#fff; box-shadow:0 3px 10px rgba(0,0,0,.4); transition:opacity .2s; }
+  .lbl i { font-style:normal; font-weight:700; color:var(--c); } .lbl em { font-style:normal; background:var(--accent); color:#fff; border-radius:5px; padding:0 5px; font-size:11px; }
+  .lbl.mini { padding:0; width:15px; height:15px; border-radius:50%; background:var(--c); justify-content:center; border:2px solid #fff; }
+  .lbl.mini b, .lbl.mini em, .lbl.mini i { display:none; }
+  .big .lbl.mini { width:22px; height:22px; } .big .lbl.mini i { display:block; color:#fff; font-size:11.5px; }
+  .lbl.sel { z-index:3; box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 3px 16px rgba(0,0,0,.5); }
+  .lbl.hide { opacity:0; }
+
+  /* espanso a tutto schermo */
+  #scrim { position:fixed; inset:0; background:rgba(10,14,24,.6); z-index:40; display:none; }
+  body.fullscreen #scrim { display:block; } body.fullscreen .col-r { z-index:60; }
+  body.fullscreen #win { position:fixed; inset:12px; z-index:50; border-radius:16px; }
+  body.fullscreen #stage { flex:1; height:auto; }
+  body.fullscreen #ora, body.fullscreen #prova, body.fullscreen #kpis3d { display:flex; }
+  body.fullscreen #prova { display:block; } body.fullscreen #meteo { top:12px; left:12px; padding:8px 16px; } body.fullscreen #meteo .ico { font-size:28px; } body.fullscreen #meteo b { font-size:18px; }
+  body.fullscreen #prova { top:70px; left:12px; } body.fullscreen #provaMenu { top:104px; left:12px; }
+  body.fullscreen #cam button { padding:11px 20px; font-size:15px; } body.fullscreen #cam { bottom:16px; }
+  body.fullscreen #info { bottom:76px; left:12px; width:340px; }
+  @media (max-width:640px) { body.fullscreen #win { inset:0; border-radius:0; } body.fullscreen #kpis3d { max-width:100%; top:auto; bottom:68px; right:auto; left:8px; } body.fullscreen #info { bottom:116px; } #stage { height:280px; } }
+
+  #toast { position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(14px); background:#10192b; color:#fff; border:1px solid var(--line3); padding:12px 20px; border-radius:12px; opacity:0; transition:.25s; z-index:100; pointer-events:none; }
+  #toast.on { opacity:1; transform:translateX(-50%); }
+  #fallback { position:absolute; inset:0; display:none; place-items:center; text-align:center; padding:20px; z-index:30; background:#0c1018; color:#fff; font-size:13.5px; }
+
+  [hidden] { display:none !important; }
+  /* ============ schermata unica: niente scorrimento di pagina ============ */
+  html, body { height:100%; overflow:hidden; }
+  body { display:grid; grid-template-rows:54px minmax(0,1fr); height:100dvh; background:#eceff4; }
+  header.top { padding:0 16px; flex-wrap:nowrap; gap:14px; }
+  header.top h1 { font-size:16.5px; white-space:nowrap; } header.top .sub { font-size:12px; white-space:nowrap; }
+  #search { flex:0 1 270px; margin:0; } #search input { height:36px; } #search::before { top:3px; }
+  .bozza { background:#4a3c10; color:#ffd97a; font-size:12px; font-weight:600; border-radius:99px; padding:4px 11px; white-space:nowrap; }
+  #provaEv { background:#323a50; color:#fff; border-radius:9px; padding:8px 13px; font-size:13px; font-weight:600; white-space:nowrap; } #provaEv:hover { background:#414b66; }
+  #evMenu { position:absolute; right:12px; top:50px; z-index:90; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 14px 40px rgba(10,20,50,.25); padding:6px; display:none; }
+  #evMenu.on { display:block; } #evMenu button { display:block; width:100%; text-align:left; background:none; padding:10px 14px; border-radius:8px; font-size:14px; color:var(--ink); } #evMenu button:hover { background:#eef1f7; }
+  main { max-width:none; width:100%; margin:0; padding:10px; gap:10px; grid-template-columns:minmax(0,1fr) clamp(330px,27vw,470px); align-items:stretch; min-height:0; }
+  .col-l, .col-r { display:flex; flex-direction:column; gap:10px; min-height:0; position:static; }
+  .riq { background:#fff; border:1px solid var(--line); border-radius:13px; min-height:0; overflow:hidden; }
+
+  #kpis { display:flex; gap:8px; flex:none; }
+  #kpis .kpi { flex:1; display:flex; align-items:center; gap:9px; padding:6px 14px; min-width:0; }
+  #kpis .kpi b { font-size:22px; } #kpis .kpi span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* bacheca: occupa quello che resta e si compatta da sola */
+  #boardBox { flex:1; container-type:size; padding:8px; }
+  .board { height:100%; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:7px; }
+  .bcol { padding:8px 7px 4px; display:flex; flex-direction:column; min-height:0; }
+  .bcol h3 { margin:0 2px 6px; font-size:11.5px; flex:none; } .bcol h3 span { color:var(--ink); }
+  .bcol .lista { overflow-y:auto; min-height:0; scrollbar-width:thin; padding:2px; }
+  .car { margin-bottom:6px; padding:6px 8px; position:relative; width:100%; text-align:left; display:block; }
+  .car .targa { font-size:13.5px; } .car .gg { float:right; font-size:11.5px; color:var(--muted); font-weight:600; }
+  .car .meta { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .car .segni { display:flex; gap:4px; float:right; } .car .segni i { font-style:normal; font-size:10.5px; font-weight:700; border-radius:5px; padding:0 5px; background:#e8efff; color:var(--accent); line-height:16px; }
+  .car.drop { outline:2px dashed var(--accent); background:#eef3ff; }
+  .car.mosso { animation:mosso 2.4s ease-out; } @keyframes mosso { 0%,40% { background:#dff5e8; box-shadow:0 0 0 2px var(--ok); } 100% { background:#fff; } }
+  @container (max-height:470px) { .car .tag { display:none; } }
+  @container (max-height:380px) { .car { padding:3px 7px; margin-bottom:4px; } .car .meta { font-size:11.5px; line-height:1.25; } .car .targa { font-size:12.5px; line-height:1.3; } }
+
+  /* ============ cassetti in basso ============ */
+  #dock { flex:none; display:flex; gap:10px; height:62px; transition:height .22s cubic-bezier(.2,.8,.2,1); }
+  #dock.l1 { height:190px; } #dock.l2 { height:min(54%,430px); }
+  .cas { flex:1 1 0; display:flex; flex-direction:column; min-width:0; transition:flex-grow .22s cubic-bezier(.2,.8,.2,1); }
+  .cas.l2 { flex-grow:2.3; } .cas.arrivo { border-color:var(--accent); box-shadow:0 0 0 3px #cfdcff; }
+  .cas > .testa { flex:none; height:60px; display:flex; align-items:center; gap:11px; padding:0 14px; background:none; width:100%; text-align:left; }
+  .cas > .testa:hover { background:#f6f8fc; } .cas .ic { width:36px; height:36px; border-radius:10px; background:#e8efff; color:var(--accent); display:grid; place-items:center; flex:none; } .cas .ic svg { width:20px; height:20px; }
+  .cas .tt { min-width:0; flex:1; } .cas .tt b { display:block; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cas .tt span { display:block; color:var(--muted); font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cas .fr { color:var(--muted); transition:transform .2s; font-size:17px; } .cas.l2 .fr { transform:rotate(180deg); }
+  .cas .num { background:var(--warn); color:#fff; font-weight:700; font-size:13px; border-radius:99px; min-width:24px; height:24px; line-height:24px; text-align:center; padding:0 7px; flex:none; } .cas .num.bad { background:var(--bad); } .cas .num.zero { background:#e2f5eb; color:var(--ok); }
+  .cas .corpo { flex:1; min-height:0; overflow-y:auto; padding:0 14px 12px; scrollbar-width:thin; }
+  #dock.l0 .corpo { visibility:hidden; }
+  .btn { min-height:38px; padding:8px 14px; font-size:14px; } .btn.p { min-height:32px; padding:5px 12px; font-size:13px; border-radius:8px; } .btn[disabled] { opacity:.45; cursor:default; }
+  .riga { display:flex; align-items:center; gap:9px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; margin-bottom:7px; background:#fff; } .riga.rel { border-color:var(--accent); background:#f3f7ff; } .riga .g { flex:1; min-width:0; } .riga b { font-size:13.5px; } .riga small { display:block; color:var(--muted); font-size:12.5px; } .riga.fatta { background:#f6fbf8; }
+  .riga.on { border-color:var(--accent); box-shadow:0 0 0 2px #cfdcff; }
+  button.riga { width:100%; text-align:left; } .due { display:grid; grid-template-columns:minmax(150px,.75fr) 1.4fr; gap:12px; }
+  .offer { padding:7px 11px; margin:0 0 6px; width:100%; text-align:left; } .offer .tot { font-size:16px; }
+  .vuoto { color:var(--muted); font-size:13.5px; padding:10px 2px; }
+  .sotto { font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:8px 0 6px; }
+  .regole { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin:4px 0 8px; } .regole label { display:flex; gap:6px; align-items:center; cursor:pointer; }
+  .doc { display:inline-block; font-size:11.5px; font-weight:600; border-radius:6px; padding:1px 7px; margin:3px 4px 0 0; background:#e2f5eb; color:var(--ok); } .doc.no { background:#fff3d6; color:#8a5a00; }
+  select { font:inherit; font-size:13px; padding:6px 8px; border:1px solid #cdd4e2; border-radius:8px; background:#fff; max-width:100%; }
+  .cd { font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700; font-size:12.5px; white-space:nowrap; }
+  .carica { border:2px dashed #b9c3da; border-radius:10px; padding:9px; text-align:center; width:100%; background:#fafbfd; color:var(--muted); font-size:13.5px; margin-bottom:8px; }
+  #velo { position:fixed; inset:8px; border:3px dashed var(--accent); border-radius:16px; background:rgba(31,95,255,.08); z-index:80; pointer-events:none; display:none; } #velo.on { display:block; }
+  .passi { display:flex; margin:2px 0 10px; } .passi div { flex:1; font-size:11.5px; color:var(--muted); text-align:center; position:relative; padding-top:17px; min-width:0; } .passi div::before { content:""; position:absolute; left:50%; top:2px; width:11px; height:11px; border-radius:50%; background:#d5dbe7; transform:translateX(-50%); z-index:1; } .passi div::after { content:""; position:absolute; left:-50%; top:7px; width:100%; height:2px; background:#d5dbe7; } .passi div:first-child::after { display:none; }
+  .passi .f::before, .passi .f::after, .passi .o::after { background:var(--ok); } .passi .o::before { background:var(--accent); box-shadow:0 0 0 4px #cfdcff; } .passi .o { color:var(--ink); font-weight:700; }
+  #cPratica .plate { font-size:14px; padding:1px 8px 1px 23px; } #cPratica .plate::before { width:16px; font-size:8px; }
+
+  /* colonna destra */
+  #win { flex:0 0 42%; min-height:0; } #stage { flex:1; height:auto; min-height:0; } #win .bar { padding:5px 8px 5px 13px; }
+  #cam button { padding:6px 11px; font-size:12.5px; }
+  #att { flex:1; display:flex; flex-direction:column; } #att h2 { margin:0; padding:11px 14px 7px; font-size:15.5px; display:flex; gap:9px; align-items:center; flex:none; }
+  #avvisi { flex:1; overflow-y:auto; padding:0 12px 6px; min-height:0; scrollbar-width:thin; }
+  .avv { display:flex; align-items:center; gap:9px; border-left:4px solid var(--warn); background:#fafbfd; border-radius:9px; padding:7px 9px 7px 11px; margin-bottom:6px; cursor:pointer; } .avv.bad { border-left-color:var(--bad); } .avv.info { border-left-color:var(--accent); } .avv.rel { background:#eaf1ff; } .avv .g { flex:1; min-width:0; font-size:13.5px; font-weight:600; } .avv small { display:block; font-weight:400; color:var(--muted); font-size:12.5px; } .avv .btn { flex:none; }
+  .bene { text-align:center; padding:26px 10px; color:var(--ok); font-weight:600; }
+  #logBox { flex:none; border-top:1px solid var(--line); } #logBox > button { width:100%; text-align:left; background:none; padding:9px 14px; font-size:12.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } #logBox b { color:var(--ok); } #log { display:none; margin:0; padding:0 14px 10px 30px; max-height:170px; overflow-y:auto; font-size:12.5px; color:var(--muted); } #logBox.on #log { display:block; } #log li { margin:3px 0; }
+  #toast { display:flex; gap:14px; align-items:center; max-width:calc(100vw - 24px); } #toast button { background:rgba(255,255,255,.16); border-radius:8px; padding:5px 12px; font-weight:700; } #toast.on { pointer-events:auto; }
+  body:not(.fullscreen) #info { display:none !important; }
+  button:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  @media (prefers-reduced-motion:reduce) { #dock, .cas, .car { transition:none; animation:none; } }
+  @media (max-width:1240px) { .bozza { display:none; } header.top .sync { display:none; } #search { margin-left:auto; } }
+  /* telefono: mappa in alto, tabella sempre al centro, cassetti in basso */
+  @media (max-width:860px) {
+    main { display:flex; flex-direction:column; padding:6px; gap:6px; } .col-l, .col-r { gap:6px; } .col-l { display:contents; } .col-r { display:contents; }
+    header.top { padding:0 10px; } header.top .sub { display:none; } header.top h1 { font-size:14px; overflow:hidden; text-overflow:ellipsis; } #search { flex:1 1 90px; min-width:90px; }
+    #kpis { order:1; } #kpis .kpi { flex-direction:column; gap:0; padding:3px 4px; align-items:center; } #kpis .kpi b { font-size:17px; } #kpis .kpi span { font-size:10.5px; }
+    #win { order:2; flex:0 0 21%; min-height:110px; } #win .bar { position:absolute; right:0; z-index:7; background:none; } #win .bar > span { display:none; } #win { position:relative; } #cam { display:none; } body.fullscreen #cam { display:flex; } body.fullscreen #win { position:fixed; }
+    #boardBox { order:3; padding:5px; } .board { grid-template-columns:repeat(6,128px); overflow-x:auto; }
+    #att { order:4; flex:0 0 128px; } #att h2 { padding:6px 10px 4px; font-size:14px; } #logBox { display:none; }
+    #dock { order:5; gap:6px; height:52px; } #dock.l1 { height:150px; } #dock.l2 { height:46%; } .cas > .testa { height:50px; padding:0 8px; gap:7px; } .cas .ic, .cas .fr { display:none; } .cas .tt b { font-size:13px; } .cas .tt span { font-size:11px; } .cas .corpo { padding:0 8px 8px; }
+    #dock.l2 .cas:not(.l2) { display:none; } .due { grid-template-columns:1fr; }
+    body:has(#dock.l2) #win, body:has(#dock.l2) #att { display:none; }
+    body.fullscreen:has(#dock.l2) #win { display:flex; }
+  }
+
+  .cas .tt .plate { display:inline-block; color:#111; overflow:visible; line-height:1.35; }
+  #cPratica { container-type:inline-size; } @container (max-width:430px) { .passi div { font-size:0; padding-top:22px; } .passi div.o { font-size:11.5px; overflow:visible; white-space:nowrap; padding-top:18px; } }
+  body { grid-template-columns:minmax(0,1fr); } .car .targa { white-space:nowrap; } header.top > div:first-child { min-width:0; }
+  @container (max-height:255px) { .car { padding:1px 7px; margin-bottom:3px; } .car .meta { display:none; } .car .segni i { font-size:0; padding:0; width:8px; height:8px; border-radius:50%; background:var(--accent); display:block; } .car .segni { position:absolute; right:44px; top:7px; } .bcol { padding-top:5px; } .bcol h3 { margin-bottom:3px; } }
+  @media (max-width:860px) { header.top > div:first-child { flex:0 1 130px; } header.top h1 { white-space:nowrap; } main > *, .col-l > *, .col-r > * { min-width:0; } }
+  @container (max-height:255px) { .car .segni { right:2px; top:2px; } }
+  @media (max-width:860px) { .board { grid-template-columns:repeat(6,150px); } .cas .due { grid-template-columns:minmax(0,1fr) !important; } }
+
+  /* ============ v3: tre linguette fisse, un pannello solo ============ */
+  #dock, #dock.l0, #dock.l2 { height:auto; flex-direction:column; gap:8px; transition:none; }
+  #ling { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; align-items:end; }
+  .cas, #dock.l2 .cas:not(.l2) { display:block; } .cas.attivo { border-color:var(--accent); background:#f3f7ff; } .cas .testa[disabled] { cursor:default; opacity:.6; background:none; } .cas.attivo .fr { transform:rotate(180deg); }
+  .ante { display:flex; align-items:center; gap:10px; padding:4px 14px 12px; } .ante:empty { display:none; } .ante .g { flex:1; min-width:0; } .ante b { font-size:14px; } .ante small { display:block; color:var(--muted); font-size:12.5px; }
+  #pann { height:min(42vh,370px); display:flex; flex-direction:column; animation:sale .18s ease-out; } @keyframes sale { from { transform:translateY(14px); opacity:.3; } }
+  #pann header { flex:none; display:flex; align-items:center; padding:8px 10px 6px 16px; border-bottom:1px solid var(--line); } #pann header b { flex:1; font-size:15.5px; } #pann header button { background:#eef0f5; border-radius:8px; padding:7px 13px; font-size:13.5px; font-weight:600; } #pann header button:hover { background:#dfe5f3; }
+  #bPr, #bRic, #bFile { flex:1; min-height:0; overflow-y:auto; padding:8px 16px 12px; scrollbar-width:thin; }
+  .tre { display:grid; grid-template-columns:.8fr 1.25fr 1.1fr; gap:18px; } .tre.qua { grid-template-columns:1.1fr 1fr 1fr 1.25fr; } .tre.solo { grid-template-columns:1fr; } .tre > div { min-width:0; } .tre .sotto { margin-top:2px; }
+  .kv2 { display:grid; grid-template-columns:auto minmax(0,1fr); gap:3px 10px; margin:0; font-size:13.5px; } .kv2 dt { color:var(--muted); } .kv2 dd { margin:0; overflow-wrap:anywhere; } .kv2 a { color:var(--accent); }
+  .pal { display:inline-block; width:11px; height:11px; border-radius:50%; border:1px solid rgba(0,0,0,.3); margin-right:5px; vertical-align:-1px; }
+  .sc { font-size:12.5px; color:var(--muted); } .quando { float:right; font-size:12.5px; font-weight:700; color:var(--ok); }
+  .tappe { display:flex; margin-top:9px; clear:both; } .tappe i { flex:1; font-style:normal; position:relative; text-align:center; padding-top:15px; min-width:0; } .tappe i::before { content:""; position:absolute; top:0; left:50%; width:10px; height:10px; border-radius:50%; background:#d5dbe7; transform:translateX(-50%); z-index:1; } .tappe i::after { content:""; position:absolute; top:4px; left:-50%; width:100%; height:2px; background:#d5dbe7; } .tappe i:first-child::after { display:none; } .tappe .f::before, .tappe .f::after, .tappe .o::after { background:var(--ok); } .tappe .o::before { background:var(--accent); box-shadow:0 0 0 4px #cfdcff; } .tappe em { font-style:normal; font-size:11px; color:var(--muted); line-height:1.15; display:block; } .tappe .o em { color:var(--ink); font-weight:700; }
+  .qua .tappe em { display:none; } .qua .tappe .o em { display:block; white-space:nowrap; }
+  #chip { position:absolute; right:10px; top:10px; z-index:6; background:#fff; color:var(--ink); font-weight:700; font-size:13px; border-radius:99px; padding:7px 14px; box-shadow:0 3px 12px rgba(0,0,0,.35); } #chip:hover { background:#e8efff; } body.fullscreen #chip { display:none; }
+  #scheda { border:0; border-radius:10px; padding:0; width:min(560px,92vw); box-shadow:0 20px 60px rgba(10,20,50,.4); } #scheda::backdrop { background:rgba(10,14,24,.55); } #schedaBox { padding:22px 26px; position:relative; } #schedaBox .x { position:absolute; right:12px; top:8px; background:none; font-size:26px; } #schedaBox h3 { margin:0; font-size:20px; } #schedaBox p { margin:2px 0 4px; color:#8a5a00; font-size:13px; } #schedaBox th { width:140px; border:1px solid var(--line); } #schedaBox td { border:1px solid var(--line); height:38px; font-weight:600; } #schedaBox table { margin-bottom:10px; }
+  #search { flex-basis:330px; }
+  @media (max-width:860px) { #ling { gap:5px; } #pann { height:46vh; } .tre, .tre.qua { grid-template-columns:minmax(0,1fr); } .ante { flex-wrap:wrap; padding:2px 8px 8px; } #chip { top:auto; bottom:8px; } }
+
+  #toast { bottom:auto; top:62px; transform:translateX(-50%) translateY(-14px); }
+  @container (max-height:255px) { .car .segni { right:auto; left:0; top:0; } .car .segni i { width:6px; height:6px; } }
+  .offer { display:flex; align-items:center; gap:9px; } .mini { flex:none; width:54px; height:36px; border-radius:6px; overflow:hidden; border:1px solid var(--line); cursor:zoom-in; display:block; } .mini img, .fslot img { width:100%; height:100%; object-fit:cover; display:block; }
+  .focus { padding:6px 9px; border-radius:9px; background:#f3f7ff; border:1px solid #cfdcff; margin-bottom:7px; font-size:13.5px; } .focus small { display:block; color:var(--muted); font-size:12.5px; }
+  .fverif { margin-bottom:8px; } .fr { display:flex; gap:7px; align-items:stretch; } .fslot { position:relative; width:84px; height:62px; border-radius:8px; border:1px solid var(--line); overflow:hidden; cursor:zoom-in; flex:none; padding:0; background:#fff; } .fslot em { position:absolute; left:0; right:0; bottom:0; font-style:normal; font-size:10.5px; background:rgba(255,255,255,.88); padding:1px 3px; text-align:center; }
+  .fslot.vuota { border-style:dashed; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; } .fslot.vuota em { position:static; background:none; } .fslot.vuota b { font-size:13px; color:var(--accent); } .fslot[disabled] { opacity:.45; cursor:default; }
+  .esito { flex:1; font-size:13px; padding:5px 8px; border-radius:8px; background:#f4f5f8; color:var(--muted); display:flex; flex-direction:column; justify-content:center; gap:2px; } .esito small { font-size:11.5px; } .esito.si { background:#e8f6ee; color:#176b3a; font-weight:700; } .esito.no { background:#fdeaea; color:#a12121; font-weight:700; } .esito .btn { margin-top:3px; align-self:flex-start; }
+  .nota { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+  #lb { border:0; border-radius:14px; padding:12px; max-width:min(92vw,720px); } #lb::backdrop { background:rgba(10,15,30,.6); } #lb img { width:100%; max-height:70vh; object-fit:contain; border-radius:8px; display:block; } #lb p { font-size:13.5px; margin:8px 0; }
+</style>
+<script type="importmap">
+{ "imports": { "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<header class="top">
+  <div><h1>Nuova Carrozzeria Accademia</h1><div class="sub" id="data"></div></div>
+  <div id="search"><input id="q" placeholder="Cerca targa, auto o cliente" aria-label="Cerca targa, auto o cliente" autocomplete="off"><div id="sugg"></div></div>
+  <span class="bozza">Bozza: dati inventati, nessun invio reale</span>
+  <div class="sync"><span class="dot"></span> Esempio di lettura WinCar <span id="sync"></span></div>
+  <button id="provaEv" data-act="evMenu">Prova un arrivo</button>
+</header>
+<div id="evMenu"><button data-act="evRic">Un reparto chiede un ricambio</button><button data-act="evFoto">Arrivano le foto di un'auto</button><button data-act="evPer">Arriva una perizia</button><button data-act="evTrack">Avanza le consegne di una tappa</button><button data-act="evStrano">Arriva un file non chiaro</button></div>
+<main>
+  <div class="col-l">
+    <div id="kpis"></div>
+    <div class="riq" id="boardBox"><div class="board" id="board"></div></div>
+    <div id="dock" class="l0"><section class="riq" id="pann" hidden><header><b id="pTit"></b><button data-act="chiudi">Chiudi ✕</button></header><div id="bPr"></div><div id="bRic"></div><div id="bFile"></div></section><div id="ling">
+      <section class="cas riq" id="cPratica"><button class="testa" data-act="cassetto" data-v="pratica"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5l2-5h14l2 5v5h-2M7 17h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span><span class="tt"><b id="tPr"></b><span id="sPr"></span></span><span class="fr">⌃</span></button><div class="ante" id="vbPr"></div></section>
+      <section class="cas riq" id="cRic"><button class="testa" data-act="cassetto" data-v="ricambi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg></span><span class="tt"><b id="tRic">Richieste ricambi</b><span id="sRic"></span></span><span class="num" id="nRic"></span><span class="fr">⌃</span></button><div class="ante" id="vbRic"></div></section>
+      <section class="cas riq" id="cFile"><button class="testa" data-act="cassetto" data-v="file"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v4h16v-4"/></svg></span><span class="tt"><b id="tFile">Carica e smista</b><span id="sFile"></span></span><span class="num" id="nFile"></span><span class="fr">⌃</span></button><div class="ante" id="vbFile"></div></section>
+    </div></div>
+  </div>
+  <div class="col-r">
+    <div id="win"><div class="bar"><span>Mappa dell'officina</span><span class="grow"></span><button id="espandi">Ingrandisci ⤢</button></div>
+      <div id="stage">
+        <canvas id="c" tabindex="0"></canvas>
+        <div id="labels"></div>
+        <div id="meteo" class="glass"><span class="ico" id="mIco">⛅</span><div><b id="mTemp">--°</b><span id="mTxt">Livorno · carico il meteo…</span></div><div id="ora"></div></div>
+        <button id="prova" class="glass">Prova il meteo</button>
+        <div id="provaMenu" class="glass"></div>
+        <div id="kpis3d"></div>
+        <div id="info" class="glass"></div>
+        <button id="chip" data-act="desel" hidden></button><div id="cam" class="glass"><button id="vTutto" class="on">Tutta l'officina</button><button id="vAlto">Dall'alto</button><button id="vTetto">Tetto</button></div>
+        <div id="fallback"><div><b>Non riesco a disegnare la mappa 3D</b><br>Serve un browser recente con WebGL e la connessione a internet (per caricare la libreria 3D).</div></div>
+      </div>
+    </div>
+    <section class="riq" id="att"><h2>Cosa richiede attenzione <span class="pill" id="nAvv"></span></h2><div id="avvisi"></div><div id="logBox"><button id="logUlt" data-act="log"></button><ul id="log"></ul></div></section>
+  </div>
+</main>
+<input type="file" id="fileIn" multiple hidden><dialog id="scheda"><div id="schedaBox"></div></dialog><dialog id="lb"><div id="lbBox"></div></dialog><div id="velo"></div><div id="scrim"></div><div id="toast" role="status"></div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const $ = id => document.getElementById(id);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const Q = new URLSearchParams(location.search);
+const rnd = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();   // casuale ripetibile
+
+/* ================================================================== DATI (inventati) */
+// k = forma della carrozzeria. z = zona. s = stato (ok/warn/bad). a = in attesa di (ass/ric)
+const AUTO = [
+  { t:"FK 482 ZA", m:"Fiat Panda",     k:"city",  z:"acc",  g:0, s:"ok",   col:"#c9d3df" },
+  { t:"GB 117 LM", m:"Audi A3",        k:"sedan", z:"acc",  g:1, s:"ok",   col:"#2c3446" },
+  { t:"GH 905 WE", m:"Citroën C3",     k:"city",  z:"acc",  g:0, s:"ok",   col:"#d86a3a" },
+  { t:"EX 903 TR", m:"VW Golf",        k:"hatch", z:"per",  g:4, s:"warn", a:"ass", why:"Perizia richiesta 4 giorni fa, nessuna risposta.", col:"#8a93a6" },
+  { t:"FP 221 CD", m:"Renault Clio",   k:"hatch", z:"per",  g:1, s:"ok",   a:"ass", col:"#b3322f" },
+  { t:"FG 774 YT", m:"Dacia Sandero",  k:"hatch", z:"per",  g:2, s:"ok",   a:"ass", col:"#4a6fa5" },
+  { t:"FB 218 HN", m:"Hyundai i20",    k:"hatch", z:"per",  g:3, s:"ok",   a:"ass", col:"#e9e9ee" },
+  { t:"ER 560 CV", m:"Jeep Renegade",  k:"suv",   z:"per",  g:5, s:"warn", a:"ass", why:"L'assicurazione non ha ancora approvato il preventivo.", col:"#5f7f4a" },
+  { t:"FL 092 QZ", m:"Kia Sportage",   k:"suv",   z:"per",  g:1, s:"ok",   a:"ass", col:"#222733" },
+  { t:"DY 668 PQ", m:"Mercedes GLA",   k:"suv",   z:"off",  g:9, s:"bad",  a:"ric", why:"Manca il paraurti: l'ordine del 16/11 non è mai arrivato. Auto ferma da 9 giorni.", col:"#eceef2" },
+  { t:"FM 054 AB", m:"Ford Fiesta",    k:"hatch", z:"off",  g:2, s:"ok",   col:"#2f5dab" },
+  { t:"FJ 447 AS", m:"Seat Ibiza",     k:"hatch", z:"off",  g:3, s:"warn", a:"ric", why:"Faro ordinato, arriva venerdì.", col:"#c0392b", lift:1.5 },
+  { t:"FA 613 DR", m:"Lancia Ypsilon", k:"city",  z:"off",  g:4, s:"ok",   col:"#9b6b9e" },
+  { t:"EV 275 SN", m:"Volvo XC40",     k:"suv",   z:"off",  g:2, s:"ok",   col:"#4b5568" },
+  { t:"FH 730 NN", m:"BMW Serie 1",    k:"hatch", z:"vern", g:1, s:"ok",   col:"#d6dae2" },
+  { t:"EZ 315 GG", m:"Toyota Yaris",   k:"city",  z:"vern", g:6, s:"warn", why:"In verniciatura da 6 giorni, ne erano previsti 3.", col:"#b8bcc6" },
+  { t:"FE 359 MC", m:"Mazda 3",        k:"sedan", z:"vern", g:2, s:"ok",   col:"#a62a3a" },
+  { t:"FQ 126 TV", m:"Skoda Octavia",  k:"wagon", z:"vern", g:1, s:"ok",   col:"#1f2a3d" },
+  { t:"FN 846 RS", m:"Opel Corsa",     k:"hatch", z:"rif",  g:1, s:"warn", a:"ric", why:"Manca una guarnizione, arriva domani.", col:"#e3b23c" },
+  { t:"FC 509 HT", m:"Fiat 500",       k:"city",  z:"park", g:5, s:"ok",   pronta:true, avv:true,  col:"#9cc3c9" },
+  { t:"EW 172 KL", m:"Peugeot 208",    k:"hatch", z:"park", g:6, s:"warn", pronta:true, avv:false, why:"È pronta, ma il cliente non è ancora stato avvisato.", col:"#d9d4c7" },
+  { t:"FT 288 UB", m:"Nissan Qashqai", k:"suv",   z:"park", g:4, s:"ok",   pronta:true, avv:true,  col:"#2e3a4f" },
+  { t:"FD 641 MK", m:"Mini Cooper",    k:"city",  z:"park", g:3, s:"ok",   pronta:true, avv:true,  col:"#2c8a6b" },
+];
+const FASE = { acc:"Piazzale, appena entrata", per:"Piazzale, in attesa di perizia", off:"Officina", vern:"Verniciatura", rif:"Rifinitura e montaggio", park:"Parcheggio, pronta da consegnare" };
+const STATO = { ok:"Tutto bene", warn:"Sta tardando", bad:"Ferma" };
+const COL = { ok:"#34c47c", warn:"#f2a81d", bad:"#ff5a5a" };
+
+// posti [x, z, vertical?] in metri. Centro del capannone = (0,0), fronte verso +z, parcheggio a sinistra
+const POSTI = {
+  park:[[-48.25,-3.75],[-41.5,-3.75],[-34.75,-3.75],[-48.25,4.5],[-41.5,4.5],[-34.75,4.5]],
+  off: [[-28,-3.75],[-21,-3.75],[-14,-3.75],[-24.5,4.5],[-17.5,4.5]],
+  vern:[[-5,-3.5],[5,-3.5],[-6,4.5],[6,4.5]],
+  rif: [[15,-3.75],[21.5,-3.75],[28,-3.75],[18.25,4.5],[24.75,4.5]],
+  acc: [[-47.5,14],[-38.25,14],[-29,14]],
+  per: [[-16.5,14],[-8,14],[0.5,14],[9,14],[17.5,14],[26,14]],
+};
+
+const RICH = [
+  { t:"DY 668 PQ", pezzo:"Paraurti anteriore", da:"Marco", ora:"oggi alle 09:12", compat:"Compatibile con Mercedes GLA 2020+ (verificato sul catalogo)",
+    opz:[
+      { f:"Ricambi Nord (esempio)",    tipo:"Nuovo originale",        p:412, s:0,  g:3, aff:4.8, nota:"Reso gratuito 14 giorni. 14 vostri ordini, tutti arrivati." },
+      { f:"AutoPezzi Web (esempio)",   tipo:"Aftermarket certificato",p:268, s:18, g:5, aff:4.4, nota:"Certificato, non originale. Va bene per la vernice." },
+      { f:"Demolizioni Sud (esempio)", tipo:"Usato smontato",         p:190, s:35, g:8, aff:3.9, nota:"Stato da verificare all'arrivo. Nessun reso." },
+      { f:"Express Ricambi (esempio)", tipo:"Nuovo originale",        p:389, s:12, g:2, aff:4.1, nota:"Poche recensioni, consegna rapida." },
+    ] },
+  { t:"FJ 447 AS", pezzo:"Faro anteriore sinistro", da:"Luca", ora:"ieri alle 16:40", compat:"Compatibile con Seat Ibiza 2017+ (verificato sul catalogo)",
+    opz:[
+      { f:"AutoPezzi Web (esempio)",   tipo:"Aftermarket omologato", p:96,  s:9,  g:2, aff:4.5, nota:"Stesso attacco dell'originale." },
+      { f:"Ricambi Nord (esempio)",    tipo:"Nuovo originale",       p:214, s:0,  g:3, aff:4.8, nota:"Reso gratuito 14 giorni." },
+      { f:"Demolizioni Sud (esempio)", tipo:"Usato smontato",        p:60,  s:15, g:4, aff:3.8, nota:"Da controllare, può avere graffi." },
+    ] },
+];
+// il sistema ordina le offerte da solo: totale 40%, tempi 30%, affidabilità 30%
+RICH.forEach(r => {
+  const tot = r.opz.map(o => o.p + o.s), gg = r.opz.map(o => o.g);
+  const [t0, t1, g0, g1] = [Math.min(...tot), Math.max(...tot), Math.min(...gg), Math.max(...gg)];
+  r.opz.forEach((o, i) => { o.tot = tot[i]; o.score = .4 * (t1 === t0 ? 1 : 1 - (tot[i] - t0) / (t1 - t0)) + .3 * (g1 === g0 ? 1 : 1 - (gg[i] - g0) / (g1 - g0)) + .3 * ((o.aff - 1) / 4); });
+  r.opz.sort((a, b) => b.score - a.score); r.rec = r.opz[0]; r.sel = 0; r.ordinata = null; r.aperta = false;
+});
+const LOG = [
+  "08:02 · Avvisati 3 clienti: la loro auto è pronta (Fiat 500, Nissan Qashqai, Mini Cooper)",
+  "09:30 · Mandati 5 file ai periti, ognuno a quello giusto",
+  "11:10 · Fattura della Ford Fiesta spedita a commercialista e cliente",
+  "12:00 · Letto WinCar: 23 auto, nessuna chiusa e dimenticata",
+];
+
+/* ================================================================== RENDERER E SCENA */
+const stage = $("stage"); let VW = Math.max(stage.clientWidth, 300), VH = Math.max(stage.clientHeight, 200);
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas:$("c"), antialias:true, powerPreference:"high-performance" }); }
+catch (e) { $("fallback").style.display = "grid"; throw e; }
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(VW, VH, false);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, VW / VH, 0.5, 1400);
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environment = envTex;
+const envMats = [];            // materiali con riflessi: l'intensità segue il meteo
+const std = (o, env = 1) => { const m = new THREE.MeshStandardMaterial(o); m.envMapIntensity = env; m._env = env; envMats.push(m); return m; };
+const phys = (o, env = 1) => { const m = new THREE.MeshPhysicalMaterial(o); m.envMapIntensity = env; m._env = env; envMats.push(m); return m; };
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = .07;
+controls.minDistance = 6; controls.maxDistance = 140; controls.maxPolarAngle = Math.PI * .485;
+controls.screenSpacePanning = false;
+const VISTE = {
+  tutto: { p:new THREE.Vector3(-12, 66, 88), t:new THREE.Vector3(-10, 0, 4) },
+  alto:  { p:new THREE.Vector3(-10, 124, 20), t:new THREE.Vector3(-10, 0, 4) },
+};
+camera.position.copy(VISTE.tutto.p); controls.target.copy(VISTE.tutto.t);
+let fly = null;
+function volaA(p, t, dur = 1.15) { fly = { p0:camera.position.clone(), t0:controls.target.clone(), p1:p, t1:t, k:0, dur }; }
+renderer.domElement.addEventListener("pointerdown", () => { fly = null; $("vTutto").classList.remove("on"); $("vAlto").classList.remove("on"); });
+
+/* ================================================================== TEXTURE (disegnate al volo) */
+function canvasTex(w, h, draw, repeat) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...repeat); } return t;
+}
+const noise = (g, w, h, base, amp, n) => { g.fillStyle = base; g.fillRect(0, 0, w, h); for (let i = 0; i < n; i++) { const v = (rnd() - .5) * amp; g.fillStyle = `rgba(${v > 0 ? 255 : 0},${v > 0 ? 255 : 0},${v > 0 ? 255 : 0},${Math.abs(v) / 255})`; g.fillRect(rnd() * w, rnd() * h, 1 + rnd() * 3, 1 + rnd() * 3); } };
+const texAsfalto = canvasTex(512, 512, (g, w, h) => noise(g, w, h, "#4a4d55", 70, 9000), [30, 18]);
+const texErba = canvasTex(512, 512, (g, w, h) => { noise(g, w, h, "#5d7f45", 60, 7000); }, [60, 40]);
+const texCemento = canvasTex(512, 512, (g, w, h) => { noise(g, w, h, "#9a9da3", 40, 6000); g.strokeStyle = "rgba(0,0,0,.22)"; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2); }, [3, 2.5]);
+const texLamiera = canvasTex(256, 256, (g, w, h) => { g.fillStyle = "#cfd3d9"; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 16) { g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(x, 0, 3, h); g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(x + 3, 0, 2, h); } }, [26, 1]);
+const texGlow = canvasTex(128, 128, (g, w, h) => { const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.35, "rgba(255,255,255,.45)"); r.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = r; g.fillRect(0, 0, w, h); });
+const texNuvola = canvasTex(256, 256, (g, w, h) => { for (let i = 0; i < 26; i++) { const x = 70 + rnd() * 116, y = 90 + rnd() * 76, r = 28 + rnd() * 40; const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, "rgba(255,255,255,.55)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, w, h); } });
+const scritta = (txt, col, w = 512, h = 128, font = "800 84px system-ui") => canvasTex(w, h, (g) => { g.clearRect(0, 0, w, h); g.font = font; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = col; g.fillText(txt, w / 2, h / 2 + 4); });
+function texTarga(txt) {
+  return canvasTex(256, 56, (g, w, h) => { g.fillStyle = "#f4f4f2"; g.fillRect(0, 0, w, h); g.fillStyle = "#1c3f94"; g.fillRect(0, 0, 30, h); g.fillStyle = "#fff"; g.font = "700 14px system-ui"; g.textAlign = "center"; g.fillText("I", 15, 42); g.fillStyle = "#16181d"; g.font = "800 40px system-ui"; g.fillText(txt, 143, 42); g.strokeStyle = "#16181d"; g.lineWidth = 3; g.strokeRect(1.5, 1.5, w - 3, h - 3); });
+}
+
+/* ================================================================== CIELO, LUCI, METEO (oggetti) */
+const skyMat = new THREE.ShaderMaterial({
+  side:THREE.BackSide, depthWrite:false, fog:false,
+  uniforms:{ uTop:{ value:new THREE.Color() }, uHor:{ value:new THREE.Color() }, uGround:{ value:new THREE.Color() }, uSunDir:{ value:new THREE.Vector3(0, 1, 0) }, uSunCol:{ value:new THREE.Color(1, .9, .7) }, uSunAmt:{ value:1 } },
+  vertexShader:`varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader:`uniform vec3 uTop,uHor,uGround,uSunDir,uSunCol; uniform float uSunAmt; varying vec3 vDir;
+    void main(){ float h = vDir.y; vec3 c = h > 0.0 ? mix(uHor, uTop, pow(h, .55)) : mix(uHor, uGround, smoothstep(0.0,.25,-h));
+      float s = max(dot(normalize(vDir), uSunDir), 0.0); c += uSunCol * (pow(s,900.0)*3.0 + pow(s,14.0)*.35) * uSunAmt;
+      gl_FragColor = vec4(c,1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`,
+});
+const sky = new THREE.Mesh(new THREE.SphereGeometry(900, 32, 16), skyMat); sky.renderOrder = -10; scene.add(sky);
+
+const stelle = (() => { const n = 900, p = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const a = rnd() * 6.283, b = Math.acos(rnd() * .95 + .05), r = 820; p.set([r * Math.sin(b) * Math.cos(a), r * Math.cos(b), r * Math.sin(b) * Math.sin(a)], i * 3); }
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(p, 3));
+  const pts = new THREE.Points(g, new THREE.PointsMaterial({ color:0xffffff, size:2.4, sizeAttenuation:false, transparent:true, opacity:0, fog:false, depthWrite:false })); scene.add(pts); return pts; })();
+
+const hemi = new THREE.HemisphereLight(0xdfeaff, 0x4a4f55, .8); scene.add(hemi);
+const sole = new THREE.DirectionalLight(0xfff1dc, 2.4); sole.castShadow = true;
+sole.shadow.mapSize.set(2048, 2048); sole.shadow.bias = -.0004; sole.shadow.normalBias = .06;
+Object.assign(sole.shadow.camera, { left:-75, right:70, top:55, bottom:-45, near:10, far:420 });
+scene.add(sole, sole.target); sole.target.position.set(-10, 0, 2);
+const bagliore = new THREE.Sprite(new THREE.SpriteMaterial({ map:texGlow, color:0xffd9a0, blending:THREE.AdditiveBlending, transparent:true, depthWrite:false, fog:false })); bagliore.scale.set(260, 260, 1); scene.add(bagliore);
+const luciInterne = [-20, 0, 21].map(x => { const l = new THREE.PointLight(0xfff0dc, 0, 42, 1.6); l.position.set(x, 5.2, 0); scene.add(l); return l; });
+const luciPiazzale = [-34, 4].map(x => { const l = new THREE.PointLight(0xffd9a0, 0, 36, 1.5); l.position.set(x, 7, 21); scene.add(l); return l; });
+const lampo = new THREE.PointLight(0xcfe0ff, 0, 160, 1.2); scene.add(lampo);
+
+// nuvole: sprite morbidi che scorrono col vento. La quantità segue la copertura del cielo
+const nuvole = []; { const mat0 = new THREE.SpriteMaterial({ map:texNuvola, transparent:true, depthWrite:false, fog:false });
+  for (let i = 0; i < 46; i++) { const s = new THREE.Sprite(mat0.clone()); const a = rnd() * 6.283, d = 80 + rnd() * 520;
+    s.position.set(Math.cos(a) * d - 10, 95 + rnd() * 70, Math.sin(a) * d * .75 - 40); const sz = 160 + rnd() * 230; s.scale.set(sz, sz * .55, 1); s.userData = { soglia:rnd(), v:.6 + rnd() * .8 }; scene.add(s); nuvole.push(s); } }
+
+// pioggia: righe disegnate sulla GPU (nessun calcolo per goccia in JS)
+const BOX = { c:new THREE.Vector3(-10, 0, 4), s:new THREE.Vector3(190, 52, 130) };
+function pioggiaGeo(n) { const g = new THREE.BufferGeometry(), p = new Float32Array(n * 6), r = new Float32Array(n * 2), e = new Float32Array(n * 2);
+  for (let i = 0; i < n; i++) { const x = rnd(), y = rnd(), z = rnd(), q = rnd(); p.set([x, y, z, x, y, z], i * 6); r[i * 2] = r[i * 2 + 1] = q; e[i * 2] = 0; e[i * 2 + 1] = 1; }
+  g.setAttribute("position", new THREE.BufferAttribute(p, 3)); g.setAttribute("aRand", new THREE.BufferAttribute(r, 1)); g.setAttribute("aEnd", new THREE.BufferAttribute(e, 1)); return g; }
+const uPioggia = { uTime:{ value:0 }, uAmount:{ value:0 }, uWind:{ value:new THREE.Vector2(0, 0) }, uCol:{ value:new THREE.Color(0xbcd0e6) }, uOp:{ value:.5 }, uC:{ value:BOX.c }, uS:{ value:BOX.s } };
+const pioggia = new THREE.LineSegments(pioggiaGeo(11000), new THREE.ShaderMaterial({ transparent:true, depthWrite:false, uniforms:uPioggia,
+  vertexShader:`attribute float aRand, aEnd; uniform float uTime, uAmount, uOp; uniform vec2 uWind; uniform vec3 uC, uS; varying float vA;
+    void main(){ vec3 p = position; float sp = (26.0 + aRand * 14.0) / uS.y; float y = fract(p.y - uTime * sp);
+      vec3 w = uC + vec3((p.x - .5) * uS.x, y * uS.y, (p.z - .5) * uS.z); w.xz += uWind * (y * uS.y) * .06;
+      vec3 tr = normalize(vec3(-uWind.x * .06, 1.0, -uWind.y * .06)); w += tr * aEnd * (1.1 + aRand * .9);
+      vA = (1.0 - aEnd * .85) * uOp * step(aRand, uAmount); gl_Position = projectionMatrix * viewMatrix * vec4(w, 1.0); }`,
+  fragmentShader:`uniform vec3 uCol; varying float vA; void main(){ if (vA < .01) discard; gl_FragColor = vec4(uCol, vA); }` }));
+pioggia.frustumCulled = false; scene.add(pioggia);
+
+// neve: fiocchi tondi con un po' di vento che li fa ondeggiare
+const nevi = (() => { const n = 7000, g = new THREE.BufferGeometry(), p = new Float32Array(n * 3), r = new Float32Array(n);
+  for (let i = 0; i < n; i++) { p.set([rnd(), rnd(), rnd()], i * 3); r[i] = rnd(); }
+  g.setAttribute("position", new THREE.BufferAttribute(p, 3)); g.setAttribute("aRand", new THREE.BufferAttribute(r, 1));
+  const u = { uTime:uPioggia.uTime, uAmount:{ value:0 }, uWind:uPioggia.uWind, uC:{ value:BOX.c }, uS:{ value:new THREE.Vector3(150, 46, 110) }, uPx:{ value:VH } };
+  const m = new THREE.ShaderMaterial({ transparent:true, depthWrite:false, uniforms:u,
+    vertexShader:`attribute float aRand; uniform float uTime, uAmount, uPx; uniform vec2 uWind; uniform vec3 uC, uS; varying float vA;
+      void main(){ vec3 p = position; float y = fract(p.y - uTime * (2.2 + aRand * 1.8) / uS.y);
+        vec3 w = uC + vec3((p.x-.5)*uS.x, y*uS.y, (p.z-.5)*uS.z); w.x += sin(uTime*.7 + aRand*40.0)*1.6 + uWind.x*y*uS.y*.05; w.z += cos(uTime*.55 + aRand*30.0)*1.2;
+        vec4 mv = viewMatrix * vec4(w,1.0); vA = step(aRand, uAmount); gl_PointSize = (.38 + aRand*.5) * uPx * 1.1 / max(-mv.z, 1.0); gl_Position = projectionMatrix * mv; }`,
+    fragmentShader:`varying float vA; void main(){ float d = length(gl_PointCoord - .5); if (vA < .5 || d > .5) discard; gl_FragColor = vec4(1.0,1.0,1.0, smoothstep(.5,.15,d)*.9); }` });
+  const pts = new THREE.Points(g, m); pts.frustumCulled = false; scene.add(pts); return pts; })();
+
+// fulmine: tubo spezzato, con rami, acceso per pochi istanti
+const fulmine = new THREE.Group(); fulmine.visible = false; scene.add(fulmine);
+const matFulmine = new THREE.MeshBasicMaterial({ color:0xeaf2ff, fog:false });
+function creaFulmine() {
+  fulmine.clear();
+  const bx = (rnd() - .5) * 120 - 10, bz = -26 - rnd() * 34, pts = [];
+  let x = bx, z = bz; for (let y = 120; y >= 0; y -= 6 + rnd() * 6) { x += (rnd() - .5) * 11; z += (rnd() - .5) * 11; pts.push(new THREE.Vector3(x, y, z)); }
+  const tubo = (arr, r) => { const t = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arr, false, "catmullrom", .15), arr.length * 3, r, 5), matFulmine); fulmine.add(t); };
+  tubo(pts, .55);
+  for (let b = 0; b < 3; b++) { const i = 2 + Math.floor(rnd() * (pts.length - 6)), arr = [pts[i].clone()]; let q = pts[i].clone(); const dir = (rnd() < .5 ? -1 : 1);
+    for (let k = 0; k < 5; k++) { q = q.clone().add(new THREE.Vector3(dir * (3 + rnd() * 5), -(5 + rnd() * 6), (rnd() - .5) * 8)); arr.push(q); } tubo(arr, .25); }
+  lampo.position.set(bx, 22, bz);
+}
+
+/* ================================================================== MONDO: terreno, strade, edifici */
+const mondo = new THREE.Group(); scene.add(mondo);
+function box(w, h, d, mat, x, y, z, p = mondo, ombra = true) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.castShadow = ombra; m.receiveShadow = true; p.add(m); return m; }
+function piano(w, d, mat, x, y, z, p = mondo) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat); m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.receiveShadow = true; p.add(m); return m; }
+const matErba = std({ map:texErba, roughness:.95 }, .25), matAsf = std({ map:texAsfalto, roughness:.92 }, .6), matCem = std({ map:texCemento, roughness:.85 }, .5);
+const matBianco = std({ color:0xe9ecef, roughness:.6 }), matGrigio = std({ color:0x6f7580, roughness:.55, metalness:.3 }, 1), matScuro = std({ color:0x23262d, roughness:.6 });
+const matLinea = std({ color:0xf1f1ee, roughness:.8 }, .3), matGiallo = std({ color:0xe2b522, roughness:.7 }, .3);
+const matLegno = std({ color:0x8a5a2b, roughness:.8 }), matCartone = std({ color:0xb5895a, roughness:.9 });
+const emi = (c, i = 1) => new THREE.MeshStandardMaterial({ color:0x111111, emissive:c, emissiveIntensity:i });
+const matLampada = emi(0xfff1d6, 1.2); const matNeon = emi(0xf4faff, 1.4);
+
+piano(1400, 1400, matErba, 0, 0, 0).material = matErba;
+const piazzale = piano(92, 22, matAsf, -9.5, .02, 14.5);
+piano(24, 21, matAsf, -41.5, .02, 0);               // parcheggio pronte
+piano(8, 20, matAsf, 38, .02, -4);                  // passaggio laterale
+piano(140, 7, matAsf, -10, .02, 27);                // strada
+for (let i = -70; i < 60; i += 8) piano(4, .22, matLinea, i, .03, 27);
+piano(140, .25, matLinea, -10, .03, 23.6); piano(140, .25, matLinea, -10, .03, 30.4);
+piano(130, 3, matCem, -10, .05, 21.4);              // marciapiede
+// strisce dei posti sul piazzale e nel parcheggio
+for (let i = 0; i <= 9; i++) piano(.14, 5, matLinea, -50 + i * 8.5, .035, 14);
+for (let i = 0; i <= 6; i++) for (const zz of [-3.75, 4.5]) piano(.14, 5.4, matLinea, -51 + i * 6.75, .035, zz);
+// recinzione dietro, alberi, edifici vicini
+for (let x = -62; x < 40; x += 3) { box(.08, 1.8, .08, matGrigio, x, .9, -12.5, mondo, false); }
+box(104, .06, .06, matGrigio, -11, 1.7, -12.5, mondo, false); box(104, .06, .06, matGrigio, -11, .5, -12.5, mondo, false);
+function albero(x, z, s = 1) { const g = new THREE.Group(); g.position.set(x, 0, z); box(.35 * s, 3 * s, .35 * s, matLegno, 0, 1.5 * s, 0, g);
+  const verde = std({ color:new THREE.Color().setHSL(.27 + rnd() * .05, .45, .26 + rnd() * .08), roughness:.9 }, .3);
+  for (const [dx, dy, dz, r] of [[0, 4.2, 0, 2.3], [1.3, 3.5, .6, 1.7], [-1.2, 3.7, -.5, 1.8], [.2, 5.4, .2, 1.5]]) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r * s, 1), verde); m.position.set(dx * s, dy * s, dz * s); m.castShadow = true; g.add(m); }
+  mondo.add(g); }
+for (let x = -64; x < 44; x += 7.5) albero(x + rnd() * 2, -15 - rnd() * 3, .9 + rnd() * .5);
+for (const [x, z] of [[-58, 8], [-58, -4], [44, 6], [44, -10], [-20, 33], [10, 34], [-48, 35]]) albero(x, z, 1 + rnd() * .4);
+[[-45, -36, 30, 9, 22, 0xb4a998], [-8, -40, 44, 11, 26, 0x9ea6b0], [38, -34, 26, 8, 20, 0xc3b6a2], [-80, -20, 22, 8, 30, 0xa5a090]].forEach(([x, z, w, h, d, c]) => { box(w, h, d, std({ color:c, roughness:.85 }), x, h / 2, z); box(w + .6, .4, d + .6, matGrigio, x, h + .2, z);
+  for (let i = 0; i < w - 3; i += 4) box(1.8, 1.6, .08, std({ color:0x22303f, roughness:.2, metalness:.6 }, 1.6), x - w / 2 + 3 + i, h * .6, z + d / 2 + .05, mondo, false); });
+// lampioni
+const lampioni = [];
+[[-52, 20], [-30, 20], [-8, 20], [14, 20], [34, 20]].forEach(([x, z]) => { box(.16, 8, .16, matGrigio, x, 4, z); box(1.6, .14, .14, matGrigio, x + .7, 8, z); const l = new THREE.Mesh(new THREE.BoxGeometry(.9, .12, .35), matLampada); l.position.set(x + 1.3, 7.92, z); mondo.add(l);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:texGlow, color:0xffd9a0, blending:THREE.AdditiveBlending, transparent:true, depthWrite:false, fog:false, opacity:0 })); s.scale.set(7, 7, 1); s.position.set(x + 1.3, 7.8, z); mondo.add(s); lampioni.push(s); });
+// totem con il nome, sul piazzale
+{ const g = new THREE.Group(); g.position.set(-55, 0, 18); g.rotation.y = .5; box(.5, 7, .5, matGrigio, 0, 3.5, 0, g); const t = new THREE.Mesh(new THREE.BoxGeometry(5.6, 1.6, .4), std({ color:0x1b2437, roughness:.4 })); t.position.set(0, 7.2, 0); g.add(t);
+  const sc = new THREE.Mesh(new THREE.PlaneGeometry(5.3, 1.3), new THREE.MeshBasicMaterial({ map:scritta("CARROZZERIA ACCADEMIA", "#ffffff", 1024, 256, "800 92px system-ui"), transparent:true, fog:false })); sc.position.set(0, 7.2, .21); g.add(sc);
+  const sc2 = sc.clone(); sc2.rotation.y = Math.PI; sc2.position.z = -.21; g.add(sc2); mondo.add(g); }
+
+/* ---- capannone: pavimenti per zona, muri (si abbassano), tetto (si dissolve) ---- */
+const LUNG = 63, PROF = 19, X0 = -LUNG / 2, SEG = LUNG / 3, ALT = 6.5;
+const ZONE3 = { off:{ x:X0 + SEG / 2, nome:"OFFICINA", col:"#e0b52a" }, vern:{ x:X0 + SEG * 1.5, nome:"VERNICIATURA", col:"#3b86d6" }, rif:{ x:X0 + SEG * 2.5, nome:"RIFINITURA", col:"#40a561" } };
+const interno = new THREE.Group(); mondo.add(interno);
+for (const k in ZONE3) { const z = ZONE3[k]; piano(SEG - .15, PROF - .4, matCem, z.x, .07, 0, interno);
+  const m = new THREE.MeshBasicMaterial({ color:new THREE.Color(z.col), transparent:true, opacity:.9 });
+  for (const sz of [-1, 1]) piano(SEG - .6, .35, m, z.x, .09, sz * (PROF / 2 - .5), interno);
+  piano(.35, PROF - 1.2, m, z.x - SEG / 2 + .5, .09, 0, interno);
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(15, 3.75), new THREE.MeshBasicMaterial({ map:scritta(z.nome, z.col, 512, 128, "800 74px system-ui"), transparent:true, opacity:.6, depthWrite:false })); lab.rotation.x = -Math.PI / 2; lab.position.set(z.x, .1, 7.6); interno.add(lab); }
+{ const lab = new THREE.Mesh(new THREE.PlaneGeometry(15, 3.75), new THREE.MeshBasicMaterial({ map:scritta("PRONTE", "#e0594a", 512, 128, "800 74px system-ui"), transparent:true, opacity:.65, depthWrite:false })); lab.rotation.x = -Math.PI / 2; lab.position.set(-41.5, .09, 8.1); mondo.add(lab);
+  const lab2 = lab.clone(); lab2.material = new THREE.MeshBasicMaterial({ map:scritta("PIAZZALE", "#9aa6bf", 512, 128, "800 74px system-ui"), transparent:true, opacity:.5, depthWrite:false }); lab2.position.set(-10, .09, 18.3); mondo.add(lab2); }
+
+const muri = new THREE.Group(); mondo.add(muri);
+const matMuro = std({ map:texLamiera, color:0xffffff, roughness:.6, metalness:.25 }, .8);
+const matFascia = std({ color:0x22314f, roughness:.5 }, .8);
+box(LUNG, ALT, .4, matMuro, 0, ALT / 2, -PROF / 2, muri); box(.4, ALT, PROF, matMuro, X0, ALT / 2, 0, muri); box(.4, ALT, PROF, matMuro, X0 + LUNG, ALT / 2, 0, muri);
+box(LUNG + .6, .5, .6, matFascia, 0, ALT + .1, -PROF / 2, muri);
+// fronte con tre portoni sezionali (alzati) e porta pedonale
+{ const DW = 6.6, DH = 4.4, cx = [ZONE3.off.x, ZONE3.vern.x, ZONE3.rif.x]; let xa = X0;
+  cx.forEach(c => { box(c - DW / 2 - xa, ALT, .4, matMuro, (xa + c - DW / 2) / 2, ALT / 2, PROF / 2, muri); box(DW, ALT - DH, .4, matMuro, c, DH + (ALT - DH) / 2, PROF / 2, muri);
+    for (let i = 0; i < 4; i++) box(DW - .1, .05, .1, matGrigio, c, DH + .15 + i * .1, PROF / 2 + .2, muri, false); box(DW + .3, .2, .5, matGrigio, c, DH + .1, PROF / 2, muri); xa = c + DW / 2; });
+  box(X0 + LUNG - xa, ALT, .4, matMuro, (xa + X0 + LUNG) / 2, ALT / 2, PROF / 2, muri); box(LUNG + .6, .5, .6, matFascia, 0, ALT + .1, PROF / 2, muri);
+  [-30.5, 8, 30].forEach(x => { box(2.6, 1.1, .1, std({ color:0x1b2b3a, roughness:.15, metalness:.5 }, 1.8), x + (x === -30.5 ? 61.5 : 0) * 0, 3.4, PROF / 2 + .22, muri, false); }); }
+
+const tetto = new THREE.Group(); mondo.add(tetto);
+const matTetto = std({ color:0xaeb4bd, roughness:.5, metalness:.45, transparent:true }, .9);
+const tettoMats = [matTetto]; box(LUNG + .8, .35, PROF + .8, matTetto, 0, ALT + .55, 0, tetto);
+for (let i = 0; i < 12; i++) { const m = std({ color:0xffffff, roughness:.3, transparent:true, opacity:.85, emissive:0x8fb6d0, emissiveIntensity:.18 }, 1); tettoMats.push(m); box(4.6, .12, 7.5, m, X0 + 5 + i * 5, ALT + .78, 0, tetto, false); }
+for (const x of [-16, 12, 26]) { const c = box(3.2, 2, 2.4, matGrigio, x, ALT + 1.7, -4, tetto); c.material = matGrigio; const v = new THREE.Mesh(new THREE.CylinderGeometry(.7, .7, .3, 16), matScuro); v.position.set(x, ALT + 2.8, -4); tetto.add(v); }
+// neon appesi (visibili a tetto chiuso)
+const neon = new THREE.Group(); tetto.add(neon);
+for (let x = X0 + 4; x < X0 + LUNG; x += 6) for (const z of [-5, 5]) box(4, .12, .3, matNeon, x, ALT - .6, z, neon, false);
+
+/* ---- attrezzature nelle tre zone ---- */
+const matRosso = std({ color:0xb03030, roughness:.5, metalness:.3 }), matBlu = std({ color:0x2d6cb0, roughness:.5, metalness:.3 }), matAcc = std({ color:0xcfd5dd, roughness:.3, metalness:.9 }, 1.4), matArancio = std({ color:0xe0731a, roughness:.55, metalness:.3 });
+const ponteArms = [];
+// officina: ponti a due colonne sotto i primi tre posti, banco con morsa, cassettiera, compressore, pile di gomme
+POSTI.off.slice(0, 3).forEach(([x, z], i) => { const alto = AUTO.find(a => a.z === "off" && a.lift && Math.abs(POSTI.off[AUTO.filter(b => b.z === "off").indexOf(a)][0] - x) < .1);
+  for (const dx of [-2.2, 2.2]) { box(.35, 3.4, .35, matArancio, x + dx, 1.7, z - 1.3, interno); box(.35, 3.4, .35, matArancio, x + dx, 1.7, z + 1.3, interno); const arm = box(.2, .16, 2.6, matGiallo, x + dx, alto ? 1.28 : .22, z, interno); ponteArms.push(arm); }
+  box(5, .12, .5, matGrigio, x, 3.35, z - 1.3, interno); });
+box(9, .95, 1.1, matLegno, -26, .55, -8.7, interno); box(9.1, .08, 1.2, matGrigio, -26, 1.05, -8.7, interno); box(.5, .3, .4, matScuro, -29, 1.25, -8.7, interno);
+box(1.4, 1.7, .9, matRosso, -21, .9, -9, interno); for (let i = 0; i < 5; i++) box(1.3, .02, .85, matGrigio, -21, .4 + i * .3, -8.55, interno, false);
+{ const c = new THREE.Mesh(new THREE.CylinderGeometry(.55, .55, 1.6, 20), matBlu); c.rotation.z = Math.PI / 2; c.position.set(-17, .9, -9); c.castShadow = true; interno.add(c); box(.2, .6, .2, matGrigio, -16.4, .35, -9, interno); box(.2, .6, .2, matGrigio, -17.6, .35, -9, interno); }
+for (const [x, z] of [[-12, -9], [-10.5, -9]]) for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(.38, .17, 10, 22), matScuro); t.rotation.x = Math.PI / 2; t.position.set(x, .2 + i * .34, z); t.castShadow = true; interno.add(t); }
+for (const x of [-8.8, -8.2]) { const d = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, .9, 14), matBlu); d.position.set(x, .45, -9); d.castShadow = true; interno.add(d); }
+// scaffale pezzi di ricambio
+box(.1, 3, 2.6, matGrigio, -30.9, 1.5, -6, interno); for (let i = 0; i < 4; i++) { box(.8, .08, 2.6, matGrigio, -30.6, .5 + i * .8, -6, interno); box(.5, .4, .7, matCartone, -30.6, .75 + i * .8, -6.6 + (i % 2) * 1.2, interno); }
+// verniciatura: cabina con pareti, filtri luminosi sul soffitto, pistola su supporto, armadio vernici
+{ const matCab = std({ color:0xf0f3f7, roughness:.4, transparent:true, opacity:.55 }, 1.2); const cx = 0, cz = -3.5;
+  box(.12, 4.4, 9, matCab, cx - 12, 2.2, cz, interno); box(.12, 4.4, 9, matCab, cx + 12, 2.2, cz, interno); box(24, 4.4, .12, matCab, cx, 2.2, cz - 4.5, interno);
+  box(24, .12, 9, matCab, cx, 4.4, cz, interno, false); for (let i = -2; i <= 2; i++) box(3.4, .06, 7.6, emi(0xf4faff, 1.1), cx + i * 4.6, 4.3, cz, interno, false);
+  for (const sx of [-12, 12]) for (let i = 0; i < 3; i++) box(.05, 1.6, 2, std({ color:0x9fc4e0, roughness:.1, metalness:.1, transparent:true, opacity:.5 }, 2), cx + sx * (sx > 0 ? 1.003 : 1.003), 2.2, cz - 2.8 + i * 2.8, interno, false);
+  box(2, 2.8, 1.1, matBlu, 13.9, 1.45, -8.9, interno); for (let i = 0; i < 4; i++) box(1.8, .04, .02, matBianco, 13.9, 1 + i * .5, -8.34, interno, false);
+  const g = new THREE.Group(); g.position.set(8.8, 0, -8.3); box(.08, 1.4, .08, matGrigio, 0, .7, 0, g); box(.5, .05, .4, matGrigio, 0, 0, 0, g); box(.14, .5, .08, matGiallo, 0, 1.55, 0, g); const tb = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .4, 8), matAcc); tb.rotation.z = 1.2; tb.position.set(.17, 1.72, 0); g.add(tb); interno.add(g);
+  for (let i = 0; i < 6; i++) { const l = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .34, 14), std({ color:[0xd23b3b, 0x2f66c2, 0xf1f1ee, 0x2b2b2b][i % 4], roughness:.4, metalness:.5 })); l.position.set(-10.5 + i * .55, .17, -8.3); l.castShadow = true; interno.add(l); } }
+// rifinitura: tavoli con pannelli, lucidatrice, arco luminoso di controllo
+box(6, .95, 1.1, matGrigio, 14, .5, -8.9, interno); box(6.1, .08, 1.2, matBianco, 14, 1, -8.9, interno);
+for (let i = 0; i < 3; i++) box(1.3, .08, .9, std({ color:[0xd8d8d8, 0xb3322f, 0x2c3446][i], roughness:.3, metalness:.5 }), 12.3 + i * 1.7, 1.12, -8.9, interno);
+box(5, .95, 1.1, matLegno, 29, .5, -8.9, interno);
+{ const g = new THREE.Group(); g.position.set(25, 0, -8.2); box(.1, 1.3, .1, matGrigio, 0, .65, 0, g); box(.7, .08, .7, matGrigio, 0, .04, 0, g); const d = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, .12, 20), std({ color:0xf1c232, roughness:.7 })); d.position.set(0, 1.35, 0); g.add(d); interno.add(g); }
+{ const x = POSTI.rif[0][0]; for (const dx of [-2.9, 2.9]) box(.18, 3.4, .18, matGrigio, x + dx, 1.7, POSTI.rif[0][1], interno); const arc = new THREE.Mesh(new THREE.TorusGeometry(2.9, .09, 8, 28, Math.PI), matNeon); arc.position.set(x, 3.3, POSTI.rif[0][1]); arc.rotation.z = 0; interno.add(arc); const arc2 = arc.clone(); arc2.position.z += .3; interno.add(arc2); }
+// pallet e cassonetti nel piazzale
+for (const [x, z] of [[33, 15], [35.4, 15.6]]) box(2, .2, 1.6, matLegno, x, .1, z, mondo); box(1.7, 1.4, 1.4, matCartone, 33, .9, 15, mondo);
+for (const [x, z, c] of [[36, 11, 0x2e6b3a], [37.4, 11, 0x2b4f8f]]) box(1.1, 1.3, .8, std({ color:c, roughness:.6 }), x, .65, z);
+
+/* ================================================================== AUTO IN 3D (costruite da zero) */
+// misure di ogni forma: L lunghezza, W larghezza, hH cofano, bH cintura, tH baule, roof tetto, r0/r1/f0/f1 posizione del abitacolo (frazioni di L)
+const FORME = {
+  city:  { L:3.65, W:1.66, hH:.82, bH:.92, tH:.93, roof:1.50, r0:-.37, r1:-.28, f0:.15, f1:-.09, g:.17, wr:.29 },
+  hatch: { L:4.10, W:1.76, hH:.82, bH:.93, tH:.96, roof:1.44, r0:-.41, r1:-.29, f0:.17, f1:-.08, g:.17, wr:.31 },
+  sedan: { L:4.62, W:1.82, hH:.82, bH:.93, tH:.97, roof:1.43, r0:-.27, r1:-.16, f0:.16, f1:-.11, g:.17, wr:.32 },
+  wagon: { L:4.68, W:1.82, hH:.83, bH:.94, tH:1.0, roof:1.48, r0:-.46, r1:-.38, f0:.16, f1:-.09, g:.17, wr:.32 },
+  suv:   { L:4.50, W:1.88, hH:.98,  bH:1.06, tH:1.14, roof:1.66, r0:-.45, r1:-.37, f0:.17, f1:-.05, g:.23, wr:.37 },
+};
+const geoForma = {};
+function quad(a, b, c, d) { const g = new THREE.BufferGeometry(); g.setFromPoints([a, b, c, a, c, d]); g.computeVertexNormals(); return g; }
+function creaGeo(k) {
+  const T = FORME[k], L = T.L, W = T.W, xr = -L / 2, xf = L / 2, G = {};
+  // fiancata con i passaruota scavati (il raggio cresce di .07 perché la smussatura restringe il vuoto)
+  const y0 = T.g + .12, RA = T.wr * 1.16 + .07, wxa = L * .33, th = Math.asin(clamp((y0 - T.wr) / RA, -1, 1));
+  const sh = new THREE.Shape(); sh.moveTo(xr + .14, y0);
+  for (const cx of [-wxa, wxa]) { sh.lineTo(cx - RA * Math.cos(th), y0); sh.absarc(cx, T.wr, RA, Math.PI - th, th, true); }
+  sh.lineTo(xf - .14, y0); sh.quadraticCurveTo(xf - .02, T.g + .12, xf - .02, T.g + .3); sh.lineTo(xf - .02, T.hH - .22);
+  sh.quadraticCurveTo(xf - .02, T.hH, xf - .3, T.hH + .02); sh.lineTo(L * T.f0, T.bH); sh.lineTo(L * T.r0, T.bH); sh.lineTo(xr + .3, T.tH); sh.quadraticCurveTo(xr + .02, T.tH, xr + .02, T.tH - .2); sh.lineTo(xr + .02, T.g + .3); sh.quadraticCurveTo(xr + .02, T.g + .12, xr + .14, T.g + .12);
+  G.body = new THREE.ExtrudeGeometry(sh, { depth:W - .14, bevelEnabled:true, bevelThickness:.07, bevelSize:.07, bevelSegments:4, curveSegments:12 }); G.body.translate(0, 0, -(W - .14) / 2);
+  const cw = W * .86, cx0 = L * T.r0, cx1 = L * T.f0, rx0 = L * T.r1, rx1 = L * T.f1, ry = T.roof;
+  const cs = new THREE.Shape(); cs.moveTo(cx0, T.bH - .03); cs.lineTo(rx0, ry - .12); cs.quadraticCurveTo(rx0 + .03, ry, rx0 + .2, ry); cs.lineTo(rx1 - .22, ry); cs.quadraticCurveTo(rx1 + .0, ry, rx1 + .08, ry - .13); cs.lineTo(cx1, T.bH - .03); cs.closePath();
+  G.cabin = new THREE.ExtrudeGeometry(cs, { depth:cw - .08, bevelEnabled:true, bevelThickness:.04, bevelSize:.035, bevelSegments:3, curveSegments:8 }); G.cabin.translate(0, 0, -(cw - .08) / 2);
+  // vetri laterali (due per lato, con montante centrale) e parabrezza/lunotto
+  const y1 = T.bH + .05, y2 = ry - .13, xl = y => lerp(cx0, rx0, (y - T.bH) / (ry - .12 - T.bH)), xrr = y => lerp(cx1, rx1 + .08, (y - T.bH) / (ry - .13 - T.bH)), xm = (rx0 + rx1 + .08) / 2;
+  const poly = pts => { const s = new THREE.Shape(); pts.forEach((p, i) => i ? s.lineTo(p[0], p[1]) : s.moveTo(p[0], p[1])); return new THREE.ShapeGeometry(s); };
+  G.vetroPost = poly([[xl(y1) + .1, y1], [xm - .04, y1], [xm - .04, y2], [Math.min(xl(y2) + .14, xm - .16), y2]]);
+  G.vetroAnt  = poly([[xm + .04, y1], [xrr(y1) - .11, y1], [Math.max(xrr(y2) - .08, xm + .16), y2], [xm + .04, y2]]);
+  G.zVetri = cw / 2 + .006;
+  const ef = new THREE.Vector2(rx1 + .08 - cx1, ry - .13 - T.bH), nf = new THREE.Vector2(ef.y, -ef.x).normalize(), er = new THREE.Vector2(rx0 - cx0, ry - .12 - T.bH), nr = new THREE.Vector2(-er.y, er.x).normalize(), hz = cw / 2 - .1;
+  G.parabrezza = quad(new THREE.Vector3(cx1 + nf.x * .02, T.bH + .02 + nf.y * .02, -hz), new THREE.Vector3(cx1 + nf.x * .02, T.bH + .02 + nf.y * .02, hz), new THREE.Vector3(rx1 + .05 + nf.x * .02, ry - .1 + nf.y * .02, hz - .02), new THREE.Vector3(rx1 + .05 + nf.x * .02, ry - .1 + nf.y * .02, -hz + .02));
+  G.lunotto = quad(new THREE.Vector3(cx0 + nr.x * .02, T.bH + .02 + nr.y * .02, hz), new THREE.Vector3(cx0 + nr.x * .02, T.bH + .02 + nr.y * .02, -hz), new THREE.Vector3(rx0 + .0 + nr.x * .02, ry - .12 + nr.y * .02, -hz + .02), new THREE.Vector3(rx0 + .0 + nr.x * .02, ry - .12 + nr.y * .02, hz - .02));
+  G.xm = xm; return G;
+}
+const gRuota = new THREE.CylinderGeometry(1, 1, 1, 28).rotateX(Math.PI / 2), gSpoke = new THREE.BoxGeometry(1, 1, 1), gScatola = new THREE.BoxGeometry(1, 1, 1), gAnello = new THREE.RingGeometry(1, 1.2, 28);
+const tutteLeAuto = [], matFari = [];
+function costruisciAuto(k, colore, targa) {
+  const T = FORME[k], L = T.L, W = T.W, G = geoForma[k] || (geoForma[k] = creaGeo(k)), mats = [];
+  const M = m => { mats.push(m); return m; };
+  const vernice = M(phys({ color:colore, metalness:.5, roughness:.3, clearcoat:1, clearcoatRoughness:.08 }, 1.25));
+  const vetro = M(phys({ color:0x0b1219, metalness:.2, roughness:.05, clearcoat:1, side:THREE.DoubleSide }, 2));
+  const plastica = M(std({ color:0x15171b, roughness:.6 }, .6)), gomma = M(std({ color:0x101114, roughness:.92 }, .3)), cromo = M(std({ color:0xd8dde4, roughness:.18, metalness:1 }, 1.6)), cerchio = M(std({ color:0xe4e8ee, roughness:.3, metalness:.55 }, 1.2));
+  const faro = M(new THREE.MeshStandardMaterial({ color:0xf2f2f2, emissive:0xfff3d0, emissiveIntensity:.25, roughness:.2 })), fanale = M(new THREE.MeshStandardMaterial({ color:0x7a1010, emissive:0xff1a1a, emissiveIntensity:.35, roughness:.3 })); matFari.push(faro, fanale);
+  const targaMat = M(new THREE.MeshStandardMaterial({ map:texTarga(targa), roughness:.5 }));
+  const g = new THREE.Group(), add = (geo, mat, x, y, z, sx = 1, sy = 1, sz = 1, cast = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.castShadow = cast; m.receiveShadow = false; g.add(m); return m; };
+  add(G.body, vernice, 0, 0, 0); add(G.cabin, vernice, 0, 0, 0);
+  for (const s of [1, -1]) { const a = add(G.vetroPost, vetro, 0, 0, s * G.zVetri, 1, 1, 1, false), b = add(G.vetroAnt, vetro, 0, 0, s * G.zVetri, 1, 1, 1, false); if (s < 0) { a.rotation.y = b.rotation.y = Math.PI; } }
+  add(G.parabrezza, vetro, 0, 0, 0, 1, 1, 1, false); add(G.lunotto, vetro, 0, 0, 0, 1, 1, 1, false);
+  // dettagli: fiancate scure, griglia, paraurti, fari, fanali, specchi, maniglie, linee delle porte, targhe
+  add(gScatola, plastica, 0, T.g + .17, 0, L * .5, .09, W - .02); add(gScatola, plastica, L / 2 + .035, T.g + .26, 0, .06, .2, W * .78); add(gScatola, plastica, -L / 2 - .035, T.g + .26, 0, .06, .2, W * .8);
+  add(gScatola, plastica, L / 2 + .06, T.hH - .17, 0, .05, .14, W * .38); add(gScatola, cromo, L / 2 + .085, T.hH - .17, 0, .02, .025, W * .4);
+  for (const s of [1, -1]) {
+    add(gScatola, faro, L / 2 + .02, T.hH - .12, s * (W / 2 - .3), .15, .1, .38); add(gScatola, fanale, -L / 2 - .01, T.tH - .17, s * (W / 2 - .22), .08, .1, .36);
+    add(gScatola, vernice, L * T.f0 - .1, T.bH + .03, s * (W / 2 + .05), .16, .1, .12); add(gScatola, plastica, L * T.f0 - .1, T.bH - .02, s * (W / 2 - .05), .09, .08, .1);
+    for (const xs of [L * T.f0 - .45, G.xm + .02, L * T.r0 + .2]) add(gScatola, plastica, xs, T.bH - .3, s * (W / 2 + .004), .014, .62, .01, false);
+    for (const xs of [G.xm - .5, G.xm + .62]) add(gScatola, cromo, xs, T.bH - .14, s * (W / 2 + .012), .16, .025, .014, false);
+    // ruote: gomma, cerchio, razze, calotta, anello scuro del passaruota
+    for (const sx of [1, -1]) { const wx = sx * L * .33, wz = s * (W / 2 - .105), w = new THREE.Group(); w.position.set(wx, T.wr, wz); g.add(w);
+      const tire = new THREE.Mesh(gRuota, gomma); tire.scale.set(T.wr, .23, T.wr); tire.castShadow = true; w.add(tire);
+      const rim = new THREE.Mesh(gRuota, cerchio); rim.scale.set(T.wr * .68, .25, T.wr * .68); w.add(rim);
+      const face = new THREE.Mesh(gRuota, plastica); face.scale.set(T.wr * .55, .255, T.wr * .55); w.add(face);
+      for (let i = 0; i < 5; i++) { const sp = new THREE.Mesh(gSpoke, cerchio); sp.scale.set(T.wr * 1.18, .06, .27); sp.rotation.z = i * Math.PI / 5; sp.position.z = s * .002; w.add(sp); }
+      const cap = new THREE.Mesh(gRuota, cromo); cap.scale.set(.05, .27, .05); w.add(cap);
+      const ar = new THREE.Mesh(gAnello, plastica); ar.scale.set(T.wr * 1.02, T.wr * 1.02, 1); ar.position.set(wx, T.wr, s * (W / 2 + .013)); if (s < 0) ar.rotation.y = Math.PI; g.add(ar); }
+  }
+  if (k === "suv" || k === "wagon") for (const s of [1, -1]) add(gScatola, plastica, (L * (T.r1 + T.f1)) / 2, T.roof + .035, s * W * .36, L * (T.f1 - T.r1) * .85, .045, .05);
+  const tF = add(new THREE.PlaneGeometry(.52, .115), targaMat, L / 2 + .09, T.g + .38, 0, 1, 1, 1, false); tF.rotation.y = Math.PI / 2;
+  const tR = add(new THREE.PlaneGeometry(.52, .115), targaMat, -L / 2 - .09, T.tH - .42, 0, 1, 1, 1, false); tR.rotation.y = -Math.PI / 2;
+  const hit = new THREE.Mesh(new THREE.BoxGeometry(L + .3, T.roof + .1, W + .3), new THREE.MeshBasicMaterial({ visible:false })); hit.position.y = (T.roof + .1) / 2; g.add(hit); g.userData = { hit, mats, T };
+  tutteLeAuto.push(g); return g;
+}
+const gruppoAuto = new THREE.Group(); scene.add(gruppoAuto);
+const anelli = [];
+AUTO.forEach((a, i) => {
+  const u = (POSTI[a.z][AUTO.slice(0, i).filter(b => b.z === a.z).length]); a.x = u[0]; a.zz = u[1];
+  const car = costruisciAuto(a.k, a.col, a.t); a.car = car; car.userData.id = i;
+  const orizz = a.z === "acc" || a.z === "per";
+  car.rotation.y = (orizz ? (i % 2 ? 0 : Math.PI) : (i % 3 === 0 ? Math.PI / 2 : -Math.PI / 2)) + (a.z === "park" ? (rnd() - .5) * .08 : 0);
+  car.position.set(a.x, .07 + (a.lift || 0), a.zz); gruppoAuto.add(car);
+  // anello a terra, colorato per stato
+  const r = FORME[a.k].L * .62, ring = new THREE.Mesh(new THREE.RingGeometry(r, r + .22, 56), new THREE.MeshBasicMaterial({ color:COL[a.s], transparent:true, opacity:.85, depthWrite:false, side:THREE.DoubleSide }));
+  ring.rotation.x = -Math.PI / 2; ring.position.set(a.x, .13, a.zz); scene.add(ring); a.ring = ring; anelli.push(ring);
+  const disco = new THREE.Mesh(new THREE.CircleGeometry(r, 40), new THREE.MeshBasicMaterial({ color:COL[a.s], transparent:true, opacity:.1, depthWrite:false })); disco.rotation.x = -Math.PI / 2; disco.position.set(a.x, .125, a.zz); scene.add(disco); a.disco = disco;
+});
+// due auto di passaggio sulla strada, per dare vita
+const traffico = [["hatch", "#c7ccd4", 1, 26.2], ["suv", "#7a1c1c", -1, 28.7], ["city", "#2f6fb8", 1, 26.2]].map(([k, c, dir, z], i) => { const car = costruisciAuto(k, c, "TR " + (100 + i) + " AA"); car.position.set(-90 + i * 55, .05, z); car.rotation.y = dir > 0 ? 0 : Math.PI; car.userData.v = (6 + i * 1.7) * dir; scene.add(car); return car; });
+
+/* ================================================================== METEO: stato, mappatura e aggiornamento */
+const IT = { sole:"Sereno", nuvoloso:"Nuvoloso", coperto:"Coperto", pioggia:"Pioggia", temporale:"Temporale", neve:"Neve", nebbia:"Nebbia" };
+const ICO = { sole:"☀️", nuvoloso:"⛅", coperto:"☁️", pioggia:"🌧️", temporale:"⛈️", neve:"❄️", nebbia:"🌫️" };
+const PRESET = { sole:{ cloud:.08, rain:0, snow:0, fog:0, storm:0, wind:6 }, nuvoloso:{ cloud:.6, rain:0, snow:0, fog:0, storm:0, wind:12 }, coperto:{ cloud:1, rain:0, snow:0, fog:.05, storm:0, wind:10 },
+  pioggia:{ cloud:1, rain:.6, snow:0, fog:.12, storm:0, wind:16 }, temporale:{ cloud:1, rain:1, snow:0, fog:.12, storm:1, wind:34 }, neve:{ cloud:1, rain:0, snow:.8, fog:.2, storm:0, wind:8 }, nebbia:{ cloud:.9, rain:0, snow:0, fog:.9, storm:0, wind:3 } };
+const W = { cloud:.5, rain:0, snow:0, fog:0, storm:0, wind:8, day:1, wet:0, cover:0 };      // stato attuale (si muove piano verso l'obiettivo)
+let Wt = { ...PRESET.coperto, day:1 }, nome = "coperto", temp = null, reale = null, manuale = null;
+function daCodice(c, cc, vento) {
+  let p, n;
+  if (c === 0) { p = PRESET.sole; n = "sole"; } else if (c === 1) { p = { ...PRESET.sole, cloud:.3 }; n = "sole"; } else if (c === 2) { p = PRESET.nuvoloso; n = "nuvoloso"; } else if (c === 3) { p = PRESET.coperto; n = "coperto"; }
+  else if (c === 45 || c === 48) { p = PRESET.nebbia; n = "nebbia"; }
+  else if (c >= 51 && c <= 57) { p = { ...PRESET.pioggia, rain:.25 }; n = "pioggia"; } else if (c === 61 || c === 66) { p = { ...PRESET.pioggia, rain:.45 }; n = "pioggia"; } else if (c === 63 || c === 67 || c === 80) { p = { ...PRESET.pioggia, rain:.7 }; n = "pioggia"; } else if (c === 65 || c === 81 || c === 82) { p = { ...PRESET.pioggia, rain:1 }; n = "pioggia"; }
+  else if ((c >= 71 && c <= 77) || c === 85 || c === 86) { p = { ...PRESET.neve, snow:c === 71 || c === 77 ? .4 : c === 73 || c === 85 ? .7 : 1 }; n = "neve"; }
+  else if (c >= 95) { p = PRESET.temporale; n = "temporale"; } else { p = PRESET.nuvoloso; n = "nuvoloso"; }
+  return { p:{ ...p, cloud:Math.max(p.cloud, p.rain || p.snow ? 1 : cc / 100 * (n === "sole" ? .6 : 1)), wind:Math.max(p.wind * .6, vento) }, n };
+}
+async function caricaMeteo() {
+  try {
+    const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=43.5485&longitude=10.3106&current=temperature_2m,weather_code,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&timezone=Europe%2FRome&forecast_days=1");
+    const j = await r.json(), c = j.current, m = s => { const [h, mi] = s.split("T")[1].split(":").map(Number); return h * 60 + mi; };
+    const now = m(c.time), up = m(j.daily.sunrise[0]), down = m(j.daily.sunset[0]), edge = Math.min(now - up, down - now);
+    const x = daCodice(c.weather_code, c.cloud_cover, c.wind_speed_10m); reale = { p:x.p, n:x.n, temp:c.temperature_2m, day:smooth(-25, 40, edge), prog:clamp((now - up) / (down - up), 0, 1) };
+  } catch (e) { reale = null; $("mTxt").textContent = "Livorno · meteo non raggiungibile"; }
+  applicaMeteo();
+}
+function applicaMeteo() {
+  const src = manuale || reale || { p:PRESET.coperto, n:"coperto", temp:null, day:1, prog:.5 };
+  Wt = { ...src.p, day:src.day }; nome = src.n; temp = src.temp; sunProg = src.prog ?? .5;
+  const forzaOra = Q.get("ora"); if (forzaOra) { Wt.day = forzaOra === "notte" ? 0 : 1; if (forzaOra === "tramonto") { Wt.day = .5; sunProg = .93; } }
+  $("mIco").textContent = Wt.day < .3 && (nome === "sole" || nome === "nuvoloso" || nome === "coperto") ? "🌙" : ICO[nome];
+  $("mTemp").textContent = temp != null ? Math.round(temp) + "°" : (manuale ? "" : "--°"); $("mTemp").style.display = temp != null ? "" : "none";
+  $("mTxt").textContent = "Livorno · " + IT[nome] + (manuale ? " (prova)" : "");
+  // la prima volta il cielo parte già com'è fuori, senza dissolvenza
+  if (primo && (manuale || reale)) { primo = false; Object.assign(W, Wt); W.wet = Wt.rain > .05 ? 1 : 0; W.cover = Wt.snow > .05 ? 1 : 0; }
+}
+let sunProg = .5, primo = true;
+if (Q.get("meteo") && PRESET[Q.get("meteo")]) manuale = { p:PRESET[Q.get("meteo")], n:Q.get("meteo"), temp:null, day:1, prog:.55 };
+caricaMeteo(); setInterval(caricaMeteo, 10 * 60 * 1000);
+if (manuale) applicaMeteo();
+
+const col = (h) => new THREE.Color(h), tmp = new THREE.Color(), tmp2 = new THREE.Color();
+const PAL = { cTop:col(0x3f86d9), cHor:col(0xbcdcf5), oTop:col(0x8f9aa8), oHor:col(0xc9cfd6), sTop:col(0x485060), sHor:col(0x7d8592), nTop:col(0x040813), nHor:col(0x16233b), dusk:col(0xf2a26a), neve:col(0xdfe6ee) };
+const sunDir = new THREE.Vector3(), moonDir = new THREE.Vector3(-.35, .7, .4).normalize();
+let lampoT = 99, lampoFlash = 0, lampoSeq = 0, prossimo = 1.8;
+const nuvoleBase = nuvole.map(n => n.position.clone());
+// ombre delle nuvole sul terreno: si vedono anche guardando dall'alto
+const ombre = Array.from({ length:12 }, (_, i) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map:texGlow, color:0x000000, transparent:true, opacity:0, depthWrite:false }));
+  const s = 60 + rnd() * 70; m.scale.set(s, s * (.6 + rnd() * .4), 1); m.rotation.x = -Math.PI / 2; m.userData = { x:(rnd() - .5) * 260, z:(rnd() - .5) * 150 - 10, v:.7 + rnd() * .6, soglia:rnd() }; m.position.y = .4; m.renderOrder = 5; scene.add(m); return m; });
+
+function aggiornaMeteo(dt, t) {
+  const k = 1 - Math.exp(-dt * 1.1);
+  for (const key of ["cloud", "rain", "snow", "fog", "storm", "wind", "day"]) W[key] = lerp(W[key], Wt[key], key === "day" ? 1 - Math.exp(-dt * .5) : k);
+  W.wet = lerp(W.wet, W.rain > .05 ? 1 : 0, 1 - Math.exp(-dt * (W.rain > .05 ? .6 : .08)));
+  W.cover = lerp(W.cover, W.snow > .05 ? 1 : 0, 1 - Math.exp(-dt * (W.snow > .05 ? .25 : .03)));
+  const oc = clamp(W.cloud * 1.05 + W.rain * .4 + W.snow * .3, 0, 1), dk = clamp(W.rain * .45 + W.storm * .55, 0, 1), d = W.day, n = 1 - d, tw = 1 - Math.abs(2 * d - 1);
+  // posizione del sole: dal mattino al tramonto in base all'ora vera
+  const a = Math.PI * sunProg; sunDir.set(-Math.cos(a), .12 + Math.sin(a) * .78, .55).normalize();
+  // fulmine
+  let fl = 0;
+  if (W.storm > .5) { prossimo -= dt; if (prossimo < 0) { prossimo = 3.5 + rnd() * 6; creaFulmine(); lampoT = 0; lampoSeq = 0; } }
+  if (lampoT < 1) { lampoT += dt; const s = lampoT; fl = s < .07 ? 1 : s < .13 ? .15 : s < .22 ? .9 : Math.max(0, .5 - (s - .22) * 1.3); fulmine.visible = fl > .05 && s < .45; lampo.intensity = fl * 90000; } else { fulmine.visible = false; lampo.intensity = 0; }
+  if (Q.get("lampo") && W.storm > .5) { if (!fulmine.children.length) creaFulmine(); fl = .55; fulmine.visible = true; lampo.intensity = 50000; }   // solo per i controlli: tiene il fulmine acceso
+  // colori del cielo
+  const top = tmp.copy(PAL.cTop).lerp(PAL.oTop, oc).lerp(PAL.sTop, dk).lerp(PAL.nTop, n), hor = tmp2.copy(PAL.cHor).lerp(PAL.oHor, oc).lerp(PAL.sHor, dk).lerp(PAL.nHor, n);
+  hor.lerp(PAL.dusk, tw * (1 - oc) * .75).lerp(PAL.neve, W.snow * .5 * d);
+  if (fl > 0) { top.lerp(col(0xdfe9ff), fl * .6); hor.lerp(col(0xeaf1ff), fl * .7); }
+  skyMat.uniforms.uTop.value.copy(top); skyMat.uniforms.uHor.value.copy(hor); skyMat.uniforms.uGround.value.copy(hor).multiplyScalar(.55);
+  skyMat.uniforms.uSunDir.value.copy(sunDir); skyMat.uniforms.uSunCol.value.set(1, .86, .62).lerp(col(0xff8a4a), tw); skyMat.uniforms.uSunAmt.value = d * (1 - oc * .95);
+  const fogF = clamp(W.fog + W.rain * .18 + W.snow * .22, 0, 1);
+  scene.fog = scene.fog || new THREE.Fog(0x888888, 100, 500); scene.fog.color.copy(hor); scene.fog.near = lerp(150, 8, fogF); scene.fog.far = lerp(600, 95, fogF);
+  // luci
+  const sunI = d * lerp(3.0, .55, oc), moonI = n * .55 * (1 - oc * .6);
+  sole.intensity = Math.max(sunI, moonI) + fl * 2.5; sole.color.set(0xfff1dc).lerp(col(0xff9b5a), tw * (1 - oc)).lerp(col(0x9fb4ff), n);
+  sole.position.copy(sole.target.position).addScaledVector(sunDir.clone().lerp(moonDir, 1 - smooth(.05, .35, d)).normalize(), 180);
+  hemi.intensity = lerp(.18, .85, d) * lerp(1, .85, oc) + fl * 3; hemi.color.copy(hor).lerp(col(0xffffff), .35); hemi.groundColor.set(0x4a4f55).lerp(col(0xdfe3e8), W.cover * .8);
+  renderer.toneMappingExposure = lerp(1.25, 1, d) * (1 + fl * .3);
+  const buio = clamp(n + dk * .55 + oc * .25, 0, 1);
+  luciInterne.forEach(l => l.intensity = 380 + buio * 1500); luciPiazzale.forEach(l => l.intensity = buio * 1400 * (n > .2 ? 1 : .2));
+  lampioni.forEach(s => s.material.opacity = clamp(n * 1.1 + dk * .4, 0, 1) * .9); matLampada.emissiveIntensity = .5 + clamp(n + dk * .5, 0, 1) * 3;
+  matNeon.emissiveIntensity = 1 + buio * 1.6; matFari.forEach((m, i) => m.emissiveIntensity = i % 2 === 0 ? .2 + clamp(n * 1.3 + dk * .8, 0, 1) * 2.6 : .3 + clamp(n * 1.3 + dk * .8, 0, 1) * 1.8);
+  envMats.forEach(m => m.envMapIntensity = m._env * lerp(.12, 1, d) * lerp(1, .75, oc));
+  // bagliore del sole, stelle, nuvole
+  bagliore.position.copy(camera.position).addScaledVector(sunDir, 700); bagliore.material.opacity = d * (1 - oc) * .55; bagliore.material.color.set(0xffe2b0).lerp(col(0xff8a4a), tw);
+  stelle.material.opacity = n * (1 - oc) * .9;
+  nuvole.forEach((s, i) => { const u = s.userData, p = nuvoleBase[i]; s.position.x = ((p.x + t * W.wind * .25 * u.v + 600) % 1200) - 600; s.material.opacity = clamp((W.cloud - u.soglia) * 5, 0, 1) * .95;
+    s.material.color.set(0xffffff).lerp(col(0x39404c), dk * .85 + oc * .12).lerp(col(0x0c1220), n * .9).lerp(col(0xdbe3f0), fl * .8); });
+  ombre.forEach(m => { const u = m.userData; m.position.x = ((u.x + t * W.wind * .3 * u.v + 130) % 260 + 260) % 260 - 130 - 10; m.position.z = u.z; m.material.opacity = clamp((W.cloud - u.soglia) * 4, 0, 1) * .3 * d * (1 - W.cover * .5); });
+  // pioggia e neve
+  uPioggia.uTime.value = t; uPioggia.uAmount.value = W.rain; uPioggia.uOp.value = .22 + .38 * W.rain; uPioggia.uWind.value.set(W.wind * .35, W.wind * .08);
+  uPioggia.uCol.value.set(0xc6d8ee).lerp(col(0x56627a), n * .75); pioggia.visible = W.rain > .02;
+  nevi.material.uniforms.uAmount.value = W.snow; nevi.material.uniforms.uPx.value = VH; nevi.visible = W.snow > .02;
+  // asfalto bagnato (più scuro e lucido), neve a terra e sui tetti
+  matAsf.roughness = lerp(.92, .22, W.wet); matAsf.color.setScalar(lerp(1, .6, W.wet)); matCem.roughness = lerp(.85, .5, W.wet); matErba.color.setScalar(lerp(1, .78, W.wet));
+  neveTerra.material.opacity = W.cover * .93; neveTerra.visible = W.cover > .01; matTetto.color.set(0xaeb4bd).lerp(col(0xf4f7fb), W.cover);
+  return { oc, dk, d, n };
+}
+const neveTerra = piano(1400, 1400, new THREE.MeshStandardMaterial({ color:0xf3f7fb, roughness:.95, transparent:true, opacity:0, depthWrite:false }), 0, .052, 0, scene); neveTerra.receiveShadow = true;
+neveTerra.position.y = .045;
+
+
+/* ================================================================== STATO UNICO
+   Tutto parte da qui: auto, ricambi, file. Ogni azione cambia lo stato e chiama agg(),
+   che ridisegna bacheca, mappa, avvisi e cassetti. Avvisi e colori sono calcolati, mai scritti a mano. */
+let filtro = "tutte", selId = null, hoverId = null, grande = false, vistaAttiva = "tutto", ricSel = null, fileN = 0;
+let aperto = null;                                                  // pannello in alto: null, pratica, ricambi, file. Uno solo alla volta
+const ANT = {};                                                     // anteprima dell'ultimo arrivo sulla linguetta: { fino, h, s, act, v, b }
+const TAPPE = ["Ordinato", "Affidato al corriere", "In viaggio", "In consegna", "Arrivato"], PASSO = 20;   // prova: una tappa ogni 20 secondi
+const REG = { perito:true, conti:true, pratica:true };              // cosa parte da solo
+const ATTESA_INVIO = 15;                                            // secondi per fermare un invio automatico
+const COLONNE = [["acc", "Accettazione"], ["per", "Attesa perizia"], ["off", "Lamiera"], ["vern", "Verniciatura"], ["rif", "Montaggio"], ["park", "Pronta"]];
+const NOMEZ = Object.fromEntries(COLONNE), DOPO = { off:"vern", vern:"rif", rif:"park", park:"fuori" };
+const AREA = { acc:"piaz", per:"piaz", off:"off", vern:"vern", rif:"rif", park:"park" };
+POSTI.piaz = [...POSTI.acc, ...POSTI.per];
+const GRUPPI = {
+  perito:  { nome:"Perito assicurazione", tipi:["Preventivo", "Foto danno"], regola:"Pacchi al perito, quando sono completi" },
+  conti:   { nome:"Commercialista e cliente", tipi:["Fattura"], regola:"Fatture" },
+  pratica: { nome:"Pratica dell'auto", tipi:["Perizia", "Documento"], regola:"Perizie e documenti nella pratica" },
+};
+const gruppoDi = tipo => Object.keys(GRUPPI).find(k => GRUPPI[k].tipi.includes(tipo));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[c]);
+const eur = n => n.toLocaleString("it-IT") + " €", gg = n => n + (n === 1 ? " giorno" : " giorni"), stelle2 = v => "★".repeat(Math.round(v)) + "☆".repeat(5 - Math.round(v));
+const tra = n => new Date(Date.now() + n * 864e5).toLocaleDateString("it-IT", { weekday:"long", day:"numeric" });
+const A = t => AUTO.find(a => a.t === t), dentro = () => AUTO.filter(a => a.z !== "fuori");
+const norm = s => s.replace(/[\s_-]/g, "").toUpperCase();
+
+const CLIENTI = ["Anna Prova", "Marco Esempio", "Giulia Campione", "Paolo Finto", "Sara Modello", "Luca Bozza", "Elena Saggio", "Andrea Demo", "Chiara Tipo", "Matteo Copia", "Laura Verifica", "Davide Schizzo", "Marta Traccia", "Simone Calco", "Irene Stampo", "Fabio Schema", "Silvia Provini", "Giorgio Figura", "Paola Forma", "Enrico Disegno", "Monica Pianta", "Stefano Profilo", "Rita Sagoma"];
+// il nome del colore si ricava dallo stesso codice usato per dipingere l'auto nella mappa: non possono essere diversi
+function nomeColore(hex) { const [r, g, b] = [1, 3, 5].map(k => parseInt(hex.slice(k, k + 2), 16) / 255), M = Math.max(r, g, b), m = Math.min(r, g, b), l = (M + m) / 2, d = M - m, sat = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+  if (l > .88) return "Bianco"; if (l < .2) return "Nero"; if (d < .09) return l > .6 ? "Argento" : "Grigio"; if (l > .78 && r > b + .04) return "Panna"; if (sat < .24 && d > .15 && r > g && b > g) return "Viola"; if (sat < .24) return l < .35 ? "Grigio scuro" : l > .7 ? "Argento" : "Grigio";
+  let h = (M === r ? ((g - b) / d + 6) % 6 : M === g ? (b - r) / d + 2 : (r - g) / d + 4) * 60; const n = h < 14 || h > 340 ? "Rosso" : h < 38 ? "Arancione" : h < 65 ? "Giallo" : h < 150 ? "Verde" : h < 172 ? "Verde acqua" : h < 200 ? "Celeste" : h < 255 ? "Blu" : "Viola"; return n + (l < .3 ? " scuro" : ""); }
+AUTO.forEach((a, i) => {
+  const ar = AREA[a.z]; a.slot = AUTO.slice(0, i).filter(b => AREA[b.z] === ar).length + 0;
+  const p = POSTI[ar].findIndex(q => q[0] === a.x && q[1] === a.zz); if (p >= 0) a.slot = p;
+  a.tx = a.x; a.tz = a.zz; a.ry = a.car.rotation.y; a.lift = a.lift || 0;
+  const n = ["acc", "per", "off", "vern", "rif", "park"].indexOf(a.z);
+  a.docs = { "Preventivo":n > 0, "Foto danno":n > 0, "Perizia":n > 1, "Fattura":n === 5 && a.t !== "FC 509 HT" };
+  if (a.t === "EZ 315 GG") a.prev = 3;
+  a.scheda = a.t === "GH 905 WE" ? "manca" : "fatta";               // la compila chi fa l'accettazione, poi si stampa e va sulla macchina
+  const nc = CLIENTI[i], k = String(i + 1).padStart(2, "0");         // tutto inventato: numeri e indirizzi non esistono
+  a.cli = { n:nc, tel:"000 00000" + k, mail:nc.toLowerCase().replace(/[^a-z]+/g, ".") + "@esempio.it" };
+  a.dati = { anno:2014 + (i * 5) % 11, carb:["Benzina", "Diesel", "Ibrida", "GPL"][i % 4], km:(18000 + i * 7350).toLocaleString("it-IT"), telaio:"ESEMPIO0000000" + "0" + k, ass:["Assicurazione A (esempio)", "Assicurazione B (esempio)", "Assicurazione C (esempio)"][i % 3], sin:"ES-2026-0" + k };
+});
+let idRic = 1;
+RICH.forEach(r => { r.id = idRic++; r.ord = null; r.arr = false; r.tr = 0; delete r.rec; delete r.ordinata; delete r.aperta; });
+RICH.push({ id:idRic++, t:"FN 846 RS", pezzo:"Guarnizione portiera", da:"Luca", ora:"lunedì", compat:"", sel:0, ord:0, arr:false, tr:2, tm:Date.now(), opz:[{ f:"Ricambi Nord (esempio)", tipo:"Nuovo originale", tot:38, g:1, aff:4.8 }] });
+const FILES = [], PK = {};
+const aperteRic = () => RICH.filter(r => r.ord == null), inArrivo = () => RICH.filter(r => r.ord != null && !r.arr);
+const ora2 = () => new Date().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit", timeZone:"Europe/Rome" });
+function nota(x) { LOG.unshift(ora2() + " · " + x); }
+
+/* ---- annulla: fotografia dello stato prima dell'azione ---- */
+const CAMPI = ["z", "g", "avv", "docs", "sollecito", "prev", "slot", "lift", "chiestoFoto"];
+const foto = () => JSON.stringify({ a:AUTO.map(a => Object.fromEntries(CAMPI.map(k => [k, a[k]]))), r:RICH, f:FILES, p:PK, l:LOG });
+let annullo = null;
+function ripristina() { if (!annullo) return; const s = JSON.parse(annullo); annullo = null;
+  AUTO.forEach((a, i) => { CAMPI.forEach(k => { a[k] = s.a[i][k]; }); posa(a); });
+  RICH.splice(0, RICH.length, ...s.r); FILES.splice(0, FILES.length, ...s.f); LOG.splice(0, LOG.length, ...s.l);
+  Object.keys(PK).forEach(k => delete PK[k]); Object.assign(PK, s.p); Object.values(PK).forEach(p => { if (p.at) { p.at = null; p.ferma = true; } });
+  toast("Annullato"); agg(); }
+function toast(m, undo) { const t = $("toast"); t.innerHTML = `<span>${esc(m)}</span>${undo ? `<button data-act="annulla">Annulla</button>` : ""}`; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => { t.classList.remove("on"); if (undo) annullo = null; }, undo ? 7000 : 3000); }
+function fai(msg, fn) { const s = foto(); const r = fn(); annullo = s; agg(); toast(typeof r === "string" ? r : msg, true); }
+function automatico(fn) { annullo = null; $("toast").classList.remove("on"); fn(); agg(); }
+
+/* ---- posizione nel capannone ---- */
+function posa(a) { if (a.z === "fuori") return; const p = POSTI[AREA[a.z]][a.slot]; a.tx = p[0]; a.tz = p[1];
+  a.ry = AREA[a.z] === "piaz" ? (a.slot % 2 ? 0 : Math.PI) : (a.slot % 2 ? Math.PI / 2 : -Math.PI / 2); }
+const libero = z => POSTI[AREA[z]].findIndex((_, s) => !AUTO.some(b => b.z !== "fuori" && AREA[b.z] === AREA[z] && b.slot === s));
+function sposta(a, z) {
+  if (z === "fuori") { a.z = z; a.mosso = Date.now(); return true; }
+  if (AREA[z] !== AREA[a.z]) { const s = libero(z); if (s < 0) return false; a.slot = s; a.lift = 0; }
+  a.z = z; a.mosso = Date.now(); if (z === "vern") { a.g = 0; a.prev = 3; } if (z === "park") a.avv = false; posa(a); return true;
+}
+// chi ha la perizia entra in lamiera appena c'è un posto
+function code() { for (const a of AUTO) if (a.z === "per" && a.docs["Perizia"] && sposta(a, "off")) nota(`${a.t}: perizia arrivata e posto libero, passata in lamiera`); }
+
+/* ---- stato di ogni auto, calcolato ---- */
+function calcola(a) {
+  const pend = RICH.find(r => r.t === a.t && r.ord == null), arr = RICH.find(r => r.t === a.t && r.ord != null && !r.arr);
+  a.s = "ok"; a.a = null; a.why = ""; a.pronta = a.z === "park";
+  if (a.z === "fuori") return;
+  if (pend) { a.s = a.g >= 7 ? "bad" : "warn"; a.a = "ric"; a.why = `Da ordinare: ${pend.pezzo.toLowerCase()}${a.g >= 7 ? `. Ferma da ${gg(a.g)}` : ""}`; }
+  else if (arr) { a.s = "warn"; a.a = "ric"; a.why = `${arr.pezzo}: ${haTracking(arr) ? TAPPE[arr.tr].toLowerCase() : "ordinato"}, arriva ${tra(arr.opz[arr.ord].g)}`; }
+  else if (a.z === "per") { if (a.docs["Perizia"]) a.why = "Perizia arrivata, aspetta un posto in lamiera"; else { a.a = "ass"; if (a.g >= 4) { a.s = "warn"; a.why = a.sollecito ? "Perizia sollecitata oggi" : `Perizia chiesta ${gg(a.g)} fa, nessuna risposta`; } } }
+  else if (a.z === "vern" && a.prev && a.g > a.prev) { a.s = "warn"; a.why = `In verniciatura da ${gg(a.g)}, previsti ${a.prev}`; }
+  else if (a.z === "park" && !a.avv) { a.s = "warn"; a.why = "Pronta, cliente da avvisare"; }
+}
+
+/* ---- file: riconoscimento e pacchi per auto e destinatario ---- */
+function riconosci(n) { const s = n.toLowerCase(), N = norm(n);
+  const a = AUTO.find(x => x.z !== "fuori" && N.includes(norm(x.t)));
+  const tipo = /prevent/.test(s) ? "Preventivo" : /fattur/.test(s) ? "Fattura" : /perizia/.test(s) ? "Perizia" : /\.(jpe?g|png|heic|webp)$/.test(s) ? "Foto danno" : /libretto|patente|delega|cai\b/.test(s) ? "Documento" : null;
+  return { t:a ? a.t : null, tipo }; }
+function arrivaFile(nomi, extra = {}) {
+  nomi.forEach(n => { const r = { ...riconosci(n), ...extra }; const f = { id:++fileN, n, t:r.t, tipo:r.tipo, ok:!!(r.t && r.tipo), inviato:false, sT:extra.sT || null, sTipo:extra.sTipo || null, perche:extra.perche || "" };
+    if (!f.ok && !f.sT && !f.t && selId != null) { f.sT = AUTO[selId].t; f.perche = "è l'auto che stai guardando"; } FILES.push(f); });
+  const u = FILES[FILES.length - 1]; segnala("file", u.ok ? `${nomi.length === 1 ? u.tipo : nomi.length + " file"} per ${u.t}` : "File da confermare", u.n, "apri", "file", "Guarda"); }
+const daDecidere = () => FILES.filter(f => !f.ok && !f.inviato);
+function pacchi() { const m = {};
+  FILES.filter(f => f.ok && !f.inviato).forEach(f => { const g = gruppoDi(f.tipo), k = f.t + "|" + g; (m[k] ||= { k, t:f.t, g, files:[] }).files.push(f); });
+  return Object.values(m).map(p => { const a = A(p.t); p.manca = p.g === "perito" ? GRUPPI.perito.tipi.filter(x => !a.docs[x] && !p.files.some(f => f.tipo === x)) : []; return p; }); }
+function programma() { const ps = pacchi();
+  ps.forEach(p => { const s = PK[p.k] ||= { at:null, ferma:false }; const auto = REG[p.g] && !p.manca.length && !s.ferma; if (auto && !s.at) s.at = Date.now() + ATTESA_INVIO * 1000; if (!auto) s.at = null; });
+  Object.keys(PK).forEach(k => { if (!ps.some(p => p.k === k)) delete PK[k]; }); }
+function invia(k, daSolo) { const p = pacchi().find(x => x.k === k); if (!p) return; const a = A(p.t), n = p.files.length;
+  p.files.forEach(f => { f.inviato = ora2(); a.docs[f.tipo] = true; }); delete PK[k];
+  const esito = p.g === "pratica" ? `${p.t}: ${n === 1 ? p.files[0].tipo.toLowerCase() + " messa" : n + " file messi"} nella pratica` : `${p.t}: ${n} file a ${GRUPPI[p.g].nome.toLowerCase()}`;
+  nota(esito + (daSolo ? " (da solo)" : ""));
+  if (p.g === "perito" && a.z === "acc") { a.g = 0; sposta(a, "per"); nota(`${a.t}: passata in attesa di perizia`); }
+  code(); return esito; }
+
+/* ---- ricambi ---- */
+function creaRichiesta(t, pezzo, da) { const base = { "Faro":180, "Paraurti":320, "Specchietto":95, "Parafango":210 }[pezzo.split(" ")[0]] || 140;
+  const opz = [["Ricambi Nord (esempio)", "Nuovo originale", 1, 0, 3, 4.8], ["AutoPezzi Web (esempio)", "Aftermarket certificato", .62, 12, 2, 4.4], ["Demolizioni Sud (esempio)", "Usato smontato", .42, 25, 6, 3.9]].map(([f, tipo, k, s, g, aff]) => ({ f, tipo, tot:Math.round(base * k) + s, g, aff }));
+  const T0 = opz.map(o => o.tot), G0 = opz.map(o => o.g), q = (x, l) => 1 - (x - Math.min(...l)) / (Math.max(...l) - Math.min(...l));
+  opz.forEach(o => { o.score = .4 * q(o.tot, T0) + .3 * q(o.g, G0) + .3 * (o.aff - 1) / 4; }); opz.sort((x, y) => y.score - x.score);
+  const r = { id:idRic++, t, pezzo, da, ora:"adesso", compat:"", opz, sel:0, ord:null, arr:false, tr:0 }; RICH.unshift(r); segnala("ricambi", `${da} chiede: ${pezzo.toLowerCase()}`, `${t} ${A(t).m}`, "ordina", r.id, "Ordina " + eur(r.opz[0].tot)); return r; }
+function segnala(k, h, s, act, v, b) { if (aperto !== k) ANT[k] = { fino:Date.now() + 12000, h, s, act, v, b }; }
+const ordina = r => { r.ord = r.sel; r.tr = 0; r.tm = Date.now(); nota(`Ordinato ${r.pezzo.toLowerCase()} per ${r.t} da ${r.opz[r.sel].f}, ${r.da} avvisato`); segnala("ricambi", `${r.pezzo}: ordine partito`, `${r.t}, arriva ${tra(r.opz[r.sel].g)}`, "ric", r.id, "Segui"); };
+/* ---- foto del pezzo e dell'etichetta: disegni segnaposto (nessuna foto vera), verifica simulata ---- */
+const codPezzo = r => "RC-" + String(4000 + r.id * 37).padStart(5, "0");
+function disegno(tipo, testo, tinta = "#3b6cff") { const f = (tipo.split(" ")[0] || "").toLowerCase(); let g;
+  if (tipo === "etichetta") g = `<rect x="40" y="50" width="240" height="120" rx="8" fill="#fff" stroke="#999"/>${Array.from({ length:34 }, (_, i) => `<rect x="${56 + i * 5.6}" y="66" width="${i % 3 ? 2 : 4}" height="40" fill="#222"/>`).join("")}<text x="160" y="132" text-anchor="middle" font-size="20" font-family="monospace" font-weight="700" fill="#222">${esc(testo)}</text><text x="160" y="156" text-anchor="middle" font-size="11" font-family="sans-serif" fill="#777">ETICHETTA DI ESEMPIO</text>`;
+  else if (f === "faro") g = `<path d="M50 140 Q40 70 120 60 L270 80 Q290 110 260 150 Z" fill="#e8eef8" stroke="${tinta}" stroke-width="6"/><circle cx="120" cy="110" r="30" fill="#fff" stroke="#667" stroke-width="4"/><circle cx="200" cy="112" r="18" fill="#cfe0ff" stroke="#667" stroke-width="3"/>`;
+  else if (f === "paraurti") g = `<path d="M20 120 Q160 60 300 120 L292 160 Q160 120 28 160 Z" fill="${tinta}" opacity=".85"/><rect x="120" y="125" width="80" height="14" rx="4" fill="#223"/>`;
+  else if (f === "specchietto") g = `<path d="M70 70 Q150 40 240 80 Q260 120 230 150 Q150 170 80 140 Z" fill="${tinta}" opacity=".85"/><path d="M95 85 Q150 65 215 92 Q228 118 210 135 Q150 148 100 128 Z" fill="#dfe8f5"/>`;
+  else if (f === "parafango") g = `<path d="M30 150 Q40 60 150 55 Q270 60 290 150 Z" fill="${tinta}" opacity=".85"/><circle cx="160" cy="150" r="46" fill="#f4f6fa"/>`;
+  else g = `<path d="M45 70 L275 55 L285 150 L55 165 Z" fill="${tinta}" opacity=".85"/><circle cx="90" cy="110" r="8" fill="#fff"/><circle cx="240" cy="105" r="8" fill="#fff"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 210"><rect width="320" height="210" fill="#f1f3f7"/>${g}<text x="160" y="196" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#556">${tipo === "etichetta" ? "" : esc(testo)}</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); }
+const FOTOPEZZO = r => disegno(r.pezzo, "Foto di esempio: " + r.pezzo.toLowerCase());
+const verifica = r => !r.fp || !r.fe ? null : r.fp.cod === r.fe.cod;     // stesso codice sulla foto del pezzo e sull'etichetta
+function foto2(r, k) { if (k === "fp") r.fp = { cod:codPezzo(r), ora:ora2() };
+  else r.fe = { cod: r.id % 2 === 0 && !r.rifatta ? "RC-" + String(9100 + r.id).padStart(5, "0") : codPezzo(r), ora:ora2() };
+  nota(`${r.t}: foto ${k === "fp" ? "del pezzo" : "dell'etichetta"} per ${r.pezzo.toLowerCase()}${verifica(r) === false ? ", NON corrisponde" : verifica(r) ? ", corrisponde" : ""}`); }
+const giorniOff = a => a.g + { acc:0, per:1, off:3, vern:6, rif:8, park:10 }[a.z];   // giorni totali in officina (inventati, dal reparto)
+const haTracking = r => !/Usato/.test(r.opz[r.ord].tipo);           // chi vende usato spesso non lo dà: si conferma a mano
+// tracking automatico: alla consegna il pezzo risulta arrivato e l'auto si sblocca da sola
+function arrivato(r) { r.arr = true; r.tr = 4; r.ora2 = ora2(); nota(`${r.t}: ${r.pezzo.toLowerCase()} consegnato, l'auto può ripartire`); segnala("ricambi", `${r.pezzo}: consegnato`, `${r.t} può ripartire`, "vai", r.t, "Vedi l'auto"); }
+function avanzaTracking(tutti) { let mosso = false; inArrivo().filter(haTracking).forEach(r => { if (!tutti && Date.now() - r.tm < PASSO * 1000) return; mosso = true; r.tm = Date.now(); r.tr++;
+  if (r.tr >= 4) automatico(() => { arrivato(r); toast(`${r.pezzo}: consegnato, ${r.t} può ripartire`); }); }); if (mosso) agg(); }
+
+/* ---- avvisi: sempre ricavati dallo stato ---- */
+function avvisi() { const L = [];
+  dentro().forEach(a => { const r = RICH.find(x => x.t === a.t && x.ord == null);
+    if (r) L.push({ p:a.s === "bad" ? 0 : 1, c:a.s, t:a.t, h:`${a.t} · manca ${r.pezzo.toLowerCase()}`, s:a.g >= 7 ? `${a.m}, ferma da ${gg(a.g)}` : `${a.m}, chiesto da ${r.da}`, b:`Ordina ${eur(r.opz[r.sel].tot)}`, act:"ordina", v:r.id });
+    else if (a.s === "warn" && a.z === "per" && !a.sollecito) L.push({ p:2, c:"warn", t:a.t, h:`${a.t} · perizia in ritardo`, s:`${a.m}, chiesta ${gg(a.g)} fa`, b:"Sollecita", act:"sollecita", v:a.t });
+    else if (a.z === "vern" && a.s === "warn" && !a.a) L.push({ p:3, c:"warn", t:a.t, h:`${a.t} · verniciatura lunga`, s:`${a.m}, ${gg(a.g)} invece di ${a.prev}`, b:"Dai 2 giorni in più", act:"proroga", v:a.t });
+    else if (a.z === "park" && !a.avv) L.push({ p:2, c:"warn", t:a.t, h:`${a.t} · è pronta`, s:`${a.m}, il cliente non lo sa ancora`, b:"Avvisa cliente", act:"avvisa", v:a.t }); });
+  daDecidere().forEach(f => L.push({ p:1, c:"info", cas:"file", h:"Un file da confermare", s:f.n, b:"Guarda", act:"apri", v:"file" }));
+  pacchi().filter(p => p.manca.length && !A(p.t).chiestoFoto).forEach(p => L.push({ p:2, c:"info", t:p.t, h:`${p.t} · pacco incompleto`, s:`Per il perito manca: ${p.manca.join(", ").toLowerCase()}`, b:"Chiedi al reparto", act:"chiedi", v:p.t }));
+  return L.sort((a, b) => a.p - b.p); }
+
+/* ================================================================== DISEGNO */
+const FILTRI = [
+  { id:"tutte",  nome:"In officina",     cls:"",     f:() => true },
+  { id:"ctrl",   nome:"Da controllare",  cls:"bad",  f:a => a.s !== "ok" },
+  { id:"attesa", nome:"In attesa",       cls:"warn", f:a => !!a.a },
+  { id:"pronte", nome:"Pronte",          cls:"ok",   f:a => a.pronta },
+];
+function ghost(car, on) { if (car.userData.gh === on) return; car.userData.gh = on; car.userData.mats.forEach(m => { m.transparent = on; m.opacity = on ? .16 : 1; m.depthWrite = !on; m.needsUpdate = true; }); }
+const set = (id, html) => { const e = $(id); if (e._h === html) return; const sc = e.scrollTop; e.innerHTML = html; e._h = html; e.scrollTop = sc; };
+function agg() {
+  code(); AUTO.forEach(calcola); programma();
+  const F = FILTRI.find(x => x.id === filtro);
+  if (selId != null && AUTO[selId].z === "fuori") { selId = null; vai("tutto"); } if (selId == null && aperto === "pratica") aperto = null;
+  AUTO.forEach((a, i) => { const via = a.z === "fuori"; a.ghost = via || !F.f(a); a.car.visible = !via; ghost(a.car, a.ghost && !via); a.ring.visible = a.disco.visible = !a.ghost; a.ring.material.color.set(COL[a.s]); a.disco.material.color.set(COL[a.s]);
+    etichette[i].style.setProperty("--c", COL[a.s]); etichette[i].querySelector("i").textContent = a.g + "g"; etichette[i].querySelector("em").style.display = RICH.some(r => r.t === a.t && r.ord == null) ? "" : "none"; });
+  const k = FILTRI.map(f => `<button class="kpi ${f.cls}" data-act="filtro" data-v="${f.id}" aria-pressed="${filtro === f.id}"><b>${dentro().filter(f.f).length}</b><span>${f.nome}</span></button>`).join(""); set("kpis", k); set("kpis3d", k);
+  disBoard(); disAvvisi(); disRicambi(); disFile(); disPratica(); disInfo(); disDock();
+}
+function disBoard() {
+  const fpt = t => FILES.filter(f => f.ok && !f.inviato && f.t === t).length;
+  set("board", COLONNE.map(([z, n]) => { const l = AUTO.map((a, i) => [a, i]).filter(([a]) => a.z === z), posti = z === "acc" || z === "per" ? "" : "/" + POSTI[z].length;
+    return `<div class="bcol"><h3>${n}<span>${l.length}${posti}</span></h3><div class="lista">${l.map(([a, i]) => { const nf = fpt(a.t), nr = RICH.some(r => r.t === a.t && r.ord == null);
+      return `<button class="car ${a.s === "ok" ? "" : a.s} ${selId === i ? "sel" : ""} ${a.ghost ? "dim" : ""} ${a.mosso && Date.now() - a.mosso < 2400 ? "mosso" : ""}" data-act="auto" data-v="${i}" data-i="${i}"><span class="gg">${a.g === 0 ? "oggi" : a.g + " g"}</span><div class="targa">${a.t}</div>${nf || nr ? `<span class="segni">${nr ? "<i>ricambio</i>" : ""}${nf ? `<i>${nf} file</i>` : ""}</span>` : ""}<div class="meta"><i class="pal" style="background:${a.col}"></i>${a.m} · ${a.cli.n}</div>${a.why ? `<span class="tag">${a.why}</span>` : ""}${a.scheda === "manca" ? `<span class="tag">Scheda da compilare</span>` : ""}</button>`; }).join("")}</div></div>`; }).join(""));
+}
+const selT = () => selId == null ? null : AUTO[selId].t;
+function disAvvisi() { const L = avvisi(); $("nAvv").textContent = L.length; $("nAvv").className = "pill " + (L.some(x => x.c === "bad") ? "bad" : L.length ? "warn" : "ok");
+  set("avvisi", L.map(x => `<div class="avv ${x.c} ${x.t && x.t === selT() ? "rel" : ""}" data-act="${x.t ? "vai" : "apri"}" data-v="${x.t || x.cas}"><div class="g">${esc(x.h)}<small>${esc(x.s)}</small></div><button class="btn p ${x.act === "apri" ? "sec" : ""}" data-act="${x.act}" data-v="${x.v}">${x.b}</button></div>`).join("") || `<div class="bene">✓ Tutto a posto, non serve niente da te</div>`);
+  set("logUlt", `<b>✓ Fatto:</b> ${esc(LOG[0])}`); set("log", LOG.map(l => `<li>${esc(l)}</li>`).join("")); }
+
+const testa = (k, num, cls, sub) => { const n = $("n" + k); n.textContent = num || "✓"; n.className = "num " + (num ? cls : "zero"); $("s" + k).textContent = sub; };
+function offerta(r, o, i) { const min = Math.min(...r.opz.map(x => x.tot)), vel = Math.min(...r.opz.map(x => x.g));
+  const tag = (i === 0 ? `<span class="otag">Consigliato</span>` : "") + (o.tot === min ? `<span class="otag g">Costa meno</span>` : "") + (o.g === vel ? `<span class="otag">Arriva prima</span>` : "") + (o.aff < 4 ? `<span class="otag w">Meno affidabile</span>` : "");
+  return `<button class="offer ${i === r.sel ? "sel" : ""}" data-act="scegli" data-v="${r.id}|${i}"><span class="mini" data-act="zoom" data-v="o|${r.id}|${i}" title="Ingrandisci"><img alt="" src="${disegno(r.pezzo, o.f.replace(" (esempio)", ""), TINTE[i % 3])}"></span><div style="flex:1;min-width:0"><div class="nm">${o.f} ${tag}</div><div class="sub">${o.tipo} · arriva ${tra(o.g)} · <span class="stars">${stelle2(o.aff)}</span></div></div><div class="tot">${eur(o.tot)}</div></button>`; }
+function tracking(r) { const o = r.opz[r.ord];
+  if (!r.arr && !haTracking(r)) return `<div class="riga fatta"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}</span><small>${o.f} non dà il tracking. Previsto ${tra(o.g)}.</small></div><button class="btn p sec" data-act="arrivato" data-v="${r.id}">È arrivato</button></div>`;
+  return `<div class="riga ${ricSel === r.id ? "on" : ""}"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}, ${o.f.replace(" (esempio)", "")}</span><span class="quando">${r.arr ? "arrivato alle " + r.ora2 : "arriva " + tra(o.g)}</span><div class="tappe">${TAPPE.map((t, i) => `<i class="${i < r.tr || r.arr ? "f" : i === r.tr ? "o" : ""}"><em>${t}</em></i>`).join("")}</div></div></div>`; }
+const TINTE = ["#2f6f4f", "#3b6cff", "#8a6d3b"];
+function bloccoAuto(r) { const a = A(r.t); return `<div class="focus"><b>${r.t}</b> ${a.m}<small>In officina da ${gg(giorniOff(a))} · ${NOMEZ[a.z].toLowerCase()}${a.g >= 7 ? `, ferma da ${gg(a.g)}` : ""}. Conviene: ${r.opz[0].f.replace(" (esempio)", "")}, ${eur(r.opz[0].tot)}, arriva ${tra(r.opz[0].g)}</small></div>`; }
+function bloccoFoto(r) { const v = verifica(r), slot = (k, tit) => r[k] ? `<span class="fslot" data-act="zoom" data-v="${k}|${r.id}"><img alt="" src="${k === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod)}"><em>${tit}</em></span>` : `<button class="fslot vuota" data-act="foto" data-v="${k}|${r.id}" ${k === "fe" && !r.fp ? "disabled" : ""}><em>${tit}</em><b>Scatta</b></button>`;
+  return `<div class="fverif"><div class="fr">${slot("fp", "1. Foto del pezzo")}${slot("fe", "2. Foto etichetta")}<div class="esito ${v == null ? "" : v ? "si" : "no"}">${v == null ? (r.fp ? "Ora la foto dell'etichetta" : "Prima la foto del pezzo") : v ? `✓ Corrisponde<small>${r.fe.cod}, stesso pezzo</small>` : `✕ Non corrisponde<small>pezzo ${r.fp.cod}, etichetta ${r.fe.cod}</small><button class="btn p sec" data-act="rifoto" data-v="${r.id}">Rifai etichetta</button>`}</div></div><small class="nota">Foto simulate: disegni di esempio, nessuna foto vera.</small></div>`; }
+function disRicambi() { const P = aperteRic(), V = inArrivo(), D = RICH.filter(r => r.arr), cons = V.filter(r => r.tr === 3).length;
+  testa("Ric", P.length, P.some(r => A(r.t).s === "bad") ? "bad" : "", [P.length ? `${P.length} da ordinare` : "Niente da ordinare", V.length ? `${V.length} in viaggio${cons ? `, ${cons} in consegna` : ""}` : ""].filter(Boolean).join(" · "));
+  const cur = P.find(r => r.id === ricSel) || P.find(r => r.t === selT()) || P[0];
+  const el = r => `<button class="riga ${cur === r ? "on" : ""}" data-act="ric" data-v="${r.id}"><div class="g"><b>${r.pezzo}</b><small>${r.t} ${A(r.t).m}, chiesto da ${r.da} · in officina da ${gg(giorniOff(A(r.t)))}</small></div></button>`;
+  set("bRic", `<div class="tre ${P.length ? "" : "solo"}">${P.length ? `<div><div class="sotto">Da ordinare</div>${P.map(el).join("")}${P.length > 1 ? `<button class="btn p sec" style="width:100%" data-act="ordinaTutti">Ordina tutto, ${eur(P.reduce((x, r) => x + r.opz[r.sel].tot, 0))}</button>` : ""}</div><div><div class="sotto">${cur.pezzo}, ${cur.t}</div>${bloccoAuto(cur)}${bloccoFoto(cur)}${cur.opz.map((o, i) => offerta(cur, o, i)).join("")}<div class="row"><button class="btn grow" data-act="ordina" data-v="${cur.id}">Ordina da ${cur.opz[cur.sel].f.replace(" (esempio)", "")}, ${eur(cur.opz[cur.sel].tot)}</button></div></div>` : ""}<div><div class="sotto">Ordini in viaggio${V.length ? " (tracking simulato)" : ""}</div>${V.map(tracking).join("") || `<div class="vuoto">Nessun pezzo in viaggio. ${P.length ? "Quando ordini lo segui qui." : ""}</div>`}${D.length ? `<div class="sotto">Arrivati oggi</div>${D.map(r => `<div class="riga fatta"><div class="g"><b>${r.pezzo}</b><small>${r.t}, arrivato alle ${r.ora2}</small></div></div>`).join("")}` : ""}</div></div>`);
+}
+function pacco(p) { const s = PK[p.k] || {}, a = A(p.t), verso = p.g === "pratica" ? "Nella pratica" : "A " + GRUPPI[p.g].nome.toLowerCase();
+  const b = p.manca.length ? `<button class="btn p sec" data-act="chiedi" data-v="${p.t}" ${a.chiestoFoto ? "disabled" : ""}>${a.chiestoFoto ? "Chiesto" : "Chiedi"}</button><button class="btn p sec" data-act="invia" data-v="${p.k}">Manda lo stesso</button>` : s.at ? `<span class="cd" data-cd="${p.k}"></span><button class="btn p sec" data-act="ferma" data-v="${p.k}">Aspetta</button><button class="btn p" data-act="invia" data-v="${p.k}">Adesso</button>` : `<button class="btn p" data-act="invia" data-v="${p.k}">${p.g === "pratica" ? "Archivia" : "Invia"}</button>`;
+  return `<div class="riga ${p.t === selT() ? "rel" : ""}" style="flex-wrap:wrap"><div class="g" style="min-width:150px"><b>${p.t}</b> <span style="font-size:13px">${verso}</span><div>${p.files.map(f => `<span class="doc" title="${esc(f.n)}">${f.tipo}</span>`).join("")}${p.manca.map(m => `<span class="doc no">manca ${m.toLowerCase()}</span>`).join("")}</div></div><div class="row" style="align-items:center">${b}</div></div>`; }
+function dubbio(f) { const t = f.t || f.sT, tipo = f.tipo || f.sTipo;
+  return `<div class="riga" style="flex-wrap:wrap;border-color:#f0c869"><div class="g" style="min-width:170px"><b>${esc(f.n)}</b><small>${t || tipo ? `Credo sia: ${tipo || "?"} per ${t || "?"}${f.perche ? " (" + esc(f.perche) + ")" : ""}` : "Non riesco a capire di che auto è"}</small></div><div class="row"><select data-act="dubT" data-v="${f.id}" aria-label="Auto"><option value="">Quale auto?</option>${dentro().map(a => `<option ${a.t === t ? "selected" : ""} value="${a.t}">${a.t} ${a.m}</option>`).join("")}</select><select data-act="dubTipo" data-v="${f.id}" aria-label="Tipo di file"><option value="">Che cos'è?</option>${Object.values(GRUPPI).flatMap(g => g.tipi).map(x => `<option ${x === tipo ? "selected" : ""}>${x}</option>`).join("")}</select><button class="btn p" data-act="conferma" data-v="${f.id}" ${t && tipo ? "" : "disabled"}>Sì, è giusto</button></div></div>`; }
+function disFile() { const D = daDecidere(), P = pacchi(), I = FILES.filter(f => f.inviato), pronti = P.filter(p => !p.manca.length);
+  testa("File", D.length + P.length, "", D.length ? `${D.length} da confermare${P.length ? `, ${P.length} ${P.length === 1 ? "pacco" : "pacchi"}` : ""}` : P.length ? `${pronti.length} pronti, ${P.length - pronti.length} incompleti` : "Trascina qui foto e documenti");
+  const lista = D.map(dubbio).join("") + P.map(pacco).join("");
+  const car = `<button class="carica" data-act="carica">Trascina i file dove vuoi nella pagina, anche sopra un'auto, o <b>scegli dal computer</b></button>`;
+  set("bFile", `<div class="due" style="grid-template-columns:1.7fr 1fr"><div>${car}${lista || `<div class="vuoto">Niente in attesa.</div>`}${pronti.length > 1 ? `<button class="btn" data-act="inviaTutti">Manda adesso i ${pronti.length} pacchi pronti</button>` : ""}</div><div><div class="sotto">Parte da solo dopo ${ATTESA_INVIO} secondi</div><div class="regole">${Object.entries(GRUPPI).map(([k, g]) => `<label><input type="checkbox" data-act="regola" data-v="${k}" ${REG[k] ? "checked" : ""}> ${g.regola}</label>`).join("")}</div><div class="sotto">Già andati oggi</div>${I.slice().reverse().map(f => `<div style="font-size:12.5px;color:var(--muted);margin:4px 0">${f.inviato} · <b style="color:var(--ink)">${f.t}</b> ${f.tipo}</div>`).join("") || `<div class="vuoto">Ancora nessuno.</div>`}</div></div>`);
+  battito(); }
+function azioniPratica(a) { const r = RICH.find(x => x.t === a.t && x.ord == null), v = RICH.find(x => x.t === a.t && x.ord != null && !x.arr), p = pacchi().filter(x => x.t === a.t); let b = "";
+  if (r) b += `<button class="btn p" data-act="ordina" data-v="${r.id}">Ordina ${r.pezzo.toLowerCase()}, ${eur(r.opz[r.sel].tot)}</button><button class="btn p sec" data-act="ric" data-v="${r.id}">Confronta offerte</button>`;
+  if (v && !haTracking(v)) b += `<button class="btn p" data-act="arrivato" data-v="${v.id}">${v.pezzo} arrivato</button>`;
+  if (a.z === "per" && !a.docs["Perizia"]) b += `<button class="btn p" data-act="sollecita" data-v="${a.t}" ${a.sollecito ? "disabled" : ""}>${a.sollecito ? "Sollecitata" : "Sollecita perizia"}</button>`;
+  p.forEach(x => { b += `<button class="btn p ${x.manca.length ? "sec" : ""}" data-act="${x.manca.length ? "apri" : "invia"}" data-v="${x.manca.length ? "file" : x.k}">${x.manca.length ? "Pacco incompleto" : x.g === "pratica" ? "Archivia i file" : "Manda i " + x.files.length + " file"}</button>`; });
+  if (a.z === "vern" && a.s === "warn" && !a.a) b += `<button class="btn p sec" data-act="proroga" data-v="${a.t}">Dai 2 giorni in più</button>`;
+  if (a.z === "park" && !a.avv) b += `<button class="btn p" data-act="avvisa" data-v="${a.t}">Avvisa il cliente</button>`;
+  if (DOPO[a.z] && !r && !v) b += `<button class="btn p sec" data-act="avanza" data-v="${a.t}">${a.z === "park" ? "Consegnata" : "Passa a " + NOMEZ[DOPO[a.z]].toLowerCase()}</button>`;
+  return b; }
+const SCHEDA = { manca:["no", "da compilare in accettazione"], fatta:["", "compilata, stampata e sulla macchina"] };
+const riga2 = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
+const coloreHtml = a => `<i class="pal" style="background:${a.col}"></i>${nomeColore(a.col)}`;
+function disPratica() { const a = selId == null ? null : AUTO[selId]; $("chip").hidden = !a;
+  if (!a) { $("sPr").textContent = "Tocca un'auto nella tabella o sulla mappa"; $("tPr").textContent = "Nessuna auto scelta"; set("bPr", ""); return; }
+  $("tPr").textContent = `${a.t} ${a.m}`; $("sPr").textContent = a.why || a.cli.n; $("chip").textContent = "✕ " + a.t;
+  const zi = COLONNE.findIndex(c => c[0] === a.z), ric = RICH.filter(r => r.t === a.t), fl = FILES.filter(f => f.t === a.t && !f.inviato), [sc, st] = SCHEDA[a.scheda], d = a.dati;
+  set("bPr", `<div class="passi">${COLONNE.map(([z, n], i) => `<div class="${i < zi ? "f" : i === zi ? "o" : ""}">${n}</div>`).join("")}</div><div class="row" style="margin-bottom:8px">${azioniPratica(a) || `<span class="vuoto">${a.z === "acc" ? "Aspetta preventivo e foto: quando ci sono parte il pacco per il perito." : "Niente da fare adesso."}</span>`}</div>
+    <div class="tre qua"><div><div class="sotto">Cliente</div><dl class="kv2">${riga2("Nome", `<b>${a.cli.n}</b>`)}${riga2("Telefono", `<a href="tel:${a.cli.tel.replace(/\s/g, "")}">${a.cli.tel}</a>`)}${riga2("Email", `<a href="mailto:${a.cli.mail}">${a.cli.mail}</a>`)}${riga2("Assicurazione", d.ass)}${riga2("Sinistro", d.sin)}</dl></div>
+    <div><div class="sotto">Auto</div><dl class="kv2">${riga2("Modello", `<b>${a.m}</b>`)}${riga2("Colore", coloreHtml(a))}${riga2("Anno", d.anno)}${riga2("Motore", d.carb)}${riga2("Km", d.km)}${riga2("Telaio", d.telaio)}</dl></div>
+    <div><div class="sotto">Scheda e documenti</div><span class="doc ${sc}">scheda ${st}</span>${Object.entries(a.docs).filter(([n, ok]) => ok || !(n === "Fattura" && zi < 5) && !(n === "Perizia" && zi < 1)).map(([n, ok]) => `<span class="doc ${ok ? "" : "no"}">${ok ? "✓" : "manca"} ${n.toLowerCase()}</span>`).join("")}${fl.map(f => `<div style="font-size:12.5px;color:var(--muted);margin-top:5px">${esc(f.n)} in partenza</div>`).join("")}<div class="row" style="margin-top:9px"><button class="btn p sec" data-act="scheda" data-v="${a.t}">Apri la scheda</button><button class="btn p sec" data-act="caricaAuto" data-v="${a.t}">Aggiungi file</button></div></div>
+    <div><div class="sotto">Ricambi</div>${ric.map(r => r.ord != null ? tracking(r) : `<div class="riga"><div class="g"><b>${r.pezzo}</b><small>da ordinare</small></div></div>`).join("") || `<div class="vuoto" style="padding:2px 0">Nessuno</div>`}${a.z === "park" ? "" : `<div class="row"><select id="pezzo" aria-label="Pezzo"><option>Faro anteriore</option><option>Paraurti posteriore</option><option>Specchietto destro</option><option>Parafango sinistro</option></select><button class="btn p sec" data-act="chiediPezzo" data-v="${a.t}">Chiedi</button></div>`}</div></div>`); }
+function apriScheda(t) { const a = A(t), r = (k, v) => `<tr><th>${k}</th><td>${v || "&nbsp;"}</td></tr>`, vuota = a.scheda === "manca";
+  $("schedaBox").innerHTML = `<button class="x" data-act="chiudiScheda" aria-label="Chiudi la scheda">×</button><h3>Scheda di accettazione</h3><p>Modello provvisorio: va rifatto uguale alla scheda vera quando arriva la foto.</p><table>${r("Targa", a.t)}${r("Auto", a.m)}${r("Colore", coloreHtml(a))}${r("Cliente", a.cli.n)}${r("Telefono", a.cli.tel)}${r("Lavori da fare", "")}${r("Note", "")}</table><span class="doc ${SCHEDA[a.scheda][0]}">scheda ${SCHEDA[a.scheda][1]}</span>`; $("scheda").showModal(); }
+function disInfo() { const b = $("info"); if (selId == null) { b.style.display = "none"; return; } const a = AUTO[selId];
+  set("info", `<button class="x" data-act="desel" aria-label="Chiudi">×</button><span class="plate">${a.t}</span><div class="mod">${a.m} <span class="pill ${a.s}">${STATO[a.s]}</span></div><div class="kv">${a.cli.n} · ${a.cli.tel}<br>${NOMEZ[a.z]} · ${a.g === 0 ? "da oggi" : "da " + gg(a.g)}</div>${a.why ? `<div class="why">${a.why}</div>` : ""}<div class="row" style="margin-top:8px">${azioniPratica(a)}</div>`); b.style.display = "block"; }
+function disDock() { $("dock").className = aperto ? "l2" : "l0"; $("pann").hidden = !aperto; $("pTit").textContent = { pratica:selId == null ? "" : `${selT()} · ${AUTO[selId].m} · ${AUTO[selId].cli.n}`, ricambi:"Richieste ricambi", file:"Carica e smista" }[aperto] || "";
+  [["cPratica", "pratica", "Pr"], ["cRic", "ricambi", "Ric"], ["cFile", "file", "File"]].forEach(([id, k, b]) => { if (ANT[k] && (ANT[k].fino < Date.now() || aperto === k)) delete ANT[k]; const n = ANT[k], t = $(id).querySelector(".testa");
+    $("b" + b).hidden = aperto !== k; $(id).className = `cas riq ${aperto === k ? "attivo" : ""} ${n ? "arrivo" : ""}`; t.setAttribute("aria-expanded", aperto === k); t.disabled = k === "pratica" && selId == null;
+    set("vb" + b, n ? `<div class="g"><b>${esc(n.h)}</b><small>${esc(n.s)}</small></div><button class="btn p" data-act="${n.act}" data-v="${n.v}">${n.b}</button>` : ""); }); }
+function apriP(k) { aperto = k; agg(); }
+function chiudiP() { if (aperto === "pratica") return deseleziona(); aperto = null; agg(); }
+function battito() { document.querySelectorAll("[data-cd]").forEach(e => { const s = PK[e.dataset.cd]; e.textContent = s?.at ? `parte tra ${Math.max(0, Math.ceil((s.at - Date.now()) / 1000))} s` : ""; }); }
+setInterval(() => { const ora = Date.now(), sc = Object.keys(PK).filter(k => PK[k].at && PK[k].at <= ora); if (sc.length) automatico(() => toast(sc.map(k => invia(k, true)).filter(Boolean).join(" · "))); battito(); avanzaTracking(false); disDock(); }, 1000);
+
+/* ================================================================== AZIONI (un solo punto per tutta la pagina) */
+// se l'etichetta non corrisponde al pezzo si chiede conferma prima di ordinare
+let sicuroFn = null;
+function sicuro(rs, go) { const m = rs.filter(r => verifica(r) === false); if (!m.length) return go(); sicuroFn = go;
+  $("lbBox").innerHTML = `<p style="font-size:16px"><b>L'etichetta non corrisponde al pezzo</b></p><p>${m.map(r => `${esc(r.pezzo)} (${r.t})`).join(", ")}. Ordinare comunque?</p><div class="row"><button class="btn p" data-act="chiudiZoom">No, controllo</button><button class="btn p sec" data-act="siOrdina">Ordina comunque</button></div>`; $("lb").showModal(); }
+const R = id => RICH.find(r => r.id === +id), Fi = id => FILES.find(f => f.id === +id); let targaCarica = null;
+const ATT = {
+  annulla:ripristina, filtro:v => { filtro = filtro === v ? "tutte" : v; agg(); }, auto:v => seleziona(+v), vai:v => seleziona(AUTO.indexOf(A(v)), true), desel:() => deseleziona(),
+  cassetto:v => aperto === v ? chiudiP() : apriP(v), chiudi:() => chiudiP(), scheda:v => apriScheda(v), chiudiScheda:() => $("scheda").close(),
+  apri:v => { if (grande) setGrande(false); apriP(v); }, ric:v => { ricSel = +v; if (grande) setGrande(false); const r = R(v), i = r ? AUTO.indexOf(A(r.t)) : -1;   // il focus va sull'auto, il pannello resta sui ricambi
+    if (i >= 0 && AUTO[i].z !== "fuori" && r.ord == null) { if (AUTO[i].ghost) filtro = "tutte"; selId = i; aperto = "ricambi"; agg(); inquadra(AUTO[i]); } else apriP("ricambi"); },
+  foto:v => { const [k, id] = v.split("|"); fai("", () => { const r = R(id); foto2(r, k); return verifica(r) === false ? "L'etichetta non corrisponde al pezzo" : k === "fe" ? "Etichetta verificata: corrisponde" : "Foto del pezzo salvata"; }); },
+  rifoto:v => fai("", () => { const r = R(v); r.rifatta = true; r.fe = null; foto2(r, "fe"); return "Etichetta rifatta: corrisponde"; }),
+  zoom:v => { const p = v.split("|"), r = R(p[0] === "o" ? p[1] : p[1]); const src = p[0] === "o" ? disegno(r.pezzo, r.opz[+p[2]].f.replace(" (esempio)", ""), TINTE[+p[2] % 3]) : p[0] === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod);
+    $("lbBox").innerHTML = `<img alt="" src="${src}"><p>${p[0] === "o" ? esc(r.opz[+p[2]].f) + ", " + esc(r.pezzo.toLowerCase()) : p[0] === "fp" ? "Foto del pezzo" : "Etichetta"} · immagine di esempio, non una foto vera</p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; $("lb").showModal(); }, chiudiZoom:() => $("lb").close(),
+  scegli:v => { const [id, i] = v.split("|"); R(id).sel = +i; ricSel = +id; agg(); },
+  ordina:v => { const go = () => fai("", () => { const r = R(v); ordina(r); return `Ordinato: ${r.pezzo}, arriva ${tra(r.opz[r.ord].g)}`; }); sicuro([R(v)], go); },
+  ordinaTutti:() => sicuro(aperteRic(), () => fai("", () => { const P = aperteRic(); P.forEach(ordina); return `Ordinati ${P.length} ricambi`; })),
+  siOrdina:() => { $("lb").close(); const f = sicuroFn; sicuroFn = null; f?.(); },
+  arrivato:v => fai("", () => { const r = R(v); arrivato(r); return `${r.t} può ripartire`; }),
+  sollecita:v => fai("", () => { A(v).sollecito = true; nota(`${v}: perizia sollecitata`); return `Sollecito preparato per ${v}`; }),
+  proroga:v => fai("", () => { const a = A(v); a.prev = a.g + 2; nota(`${v}: verniciatura allungata di 2 giorni`); return `${v}: nuova data, ${tra(2)}`; }),
+  avvisa:v => fai("", () => { A(v).avv = true; nota(`${v}: cliente avvisato che l'auto è pronta`); return `${v}: cliente avvisato`; }),
+  chiedi:v => fai("", () => { A(v).chiestoFoto = true; nota(`${v}: chiesto al reparto quello che manca`); return `${v}: chiesto al reparto`; }),
+  avanza:v => { const a = A(v), z = DOPO[a.z]; if (z !== "fuori" && libero(z) < 0) return toast(`${NOMEZ[z]} è piena: prima libera un posto`); fai("", () => { sposta(a, z); nota(z === "fuori" ? `${v}: consegnata` : `${v}: passata a ${NOMEZ[z].toLowerCase()}`); return z === "fuori" ? `${v} consegnata` : `${v} ora è in ${NOMEZ[z].toLowerCase()}`; }); if (z !== "fuori") inquadra(a); },
+  invia:v => fai("", () => invia(v)), ferma:v => { PK[v].ferma = true; PK[v].at = null; agg(); },
+  inviaTutti:() => fai("", () => { const P = pacchi().filter(p => !p.manca.length); P.forEach(p => invia(p.k)); return `Mandati ${P.length} pacchi`; }),
+  regola:(v, e) => { REG[v] = e.checked; agg(); }, dubT:(v, e) => { const f = Fi(v); f.t = e.value || null; if (!f.t) f.sT = null; agg(); }, dubTipo:(v, e) => { const f = Fi(v); f.tipo = e.value || null; if (!f.tipo) f.sTipo = null; agg(); },
+  conferma:v => fai("", () => { const f = Fi(v); f.t = f.t || f.sT; f.tipo = f.tipo || f.sTipo; f.ok = true; return `Ok: ${f.tipo.toLowerCase()} per ${f.t}`; }),
+  carica:() => { targaCarica = null; $("fileIn").click(); }, caricaAuto:v => { targaCarica = v; $("fileIn").click(); },
+  chiediPezzo:v => fai("", () => { const p = $("pezzo").value; creaRichiesta(v, p, "Ufficio"); return `Offerte trovate per ${p.toLowerCase()}`; }),
+  log:() => $("logBox").classList.toggle("on"), evMenu:() => $("evMenu").classList.toggle("on"),
+  evRic:() => automatico(() => { const a = dentro().find(x => ["off", "rif", "vern"].includes(x.z) && !RICH.some(r => r.t === x.t && !r.arr)); if (!a) return toast("Tutte le auto hanno già un ricambio richiesto"); const r = creaRichiesta(a.t, "Specchietto destro", "Marco"); toast(`Nuova richiesta: ${r.pezzo.toLowerCase()} per ${a.t}`); }),
+  evFoto:() => automatico(() => { const a = dentro().find(x => x.z === "acc"); if (!a) return toast("Nessuna auto in accettazione"); const n = norm(a.t); arrivaFile([...(a.docs["Preventivo"] || FILES.some(f => f.t === a.t && f.tipo === "Preventivo") ? [] : [n + "_preventivo.pdf"]), n + "_foto_danno.jpg"]); toast(`Arrivate le foto di ${a.t}`); }),
+  evPer:() => automatico(() => { const a = dentro().find(x => x.z === "per" && !x.docs["Perizia"] && !FILES.some(f => f.t === x.t && f.tipo === "Perizia")); if (!a) return toast("Nessuna perizia da aspettare"); arrivaFile([norm(a.t) + "_perizia.pdf"]); toast(`Arrivata la perizia di ${a.t}`); }),
+  evTrack:() => { if (!inArrivo().filter(haTracking).length) return toast("Nessun pezzo in viaggio con tracking"); avanzaTracking(true); },
+  evStrano:() => automatico(() => { arrivaFile(["scansione_" + String(43 + fileN).padStart(4, "0") + ".pdf"]); toast("Arrivato un file senza nome chiaro"); }),
+};
+document.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!e.target.closest("#evMenu, #provaEv") || b?.closest("#evMenu")) $("evMenu").classList.remove("on");
+  if (!b || b.disabled || b.tagName === "SELECT" || b.tagName === "INPUT") return; ATT[b.dataset.act]?.(b.dataset.v, b); });
+document.addEventListener("change", e => { const b = e.target.closest("select[data-act], input[data-act]"); if (b) ATT[b.dataset.act](b.dataset.v, b); });
+$("fileIn").onchange = e => { const n = [...e.target.files].map(f => f.name), t = targaCarica; e.target.value = ""; if (n.length) automatico(() => arrivaFile(n, t ? { t } : {})); };
+$("board").addEventListener("mouseover", e => { const c = e.target.closest(".car"); hoverId = c ? +c.dataset.i : null; }); $("board").addEventListener("mouseleave", () => { hoverId = null; });
+// i file si lasciano ovunque; sopra un'auto vanno direttamente alla sua pratica
+let cardDrop = null; const pulisci = () => { $("velo").classList.remove("on"); cardDrop?.classList.remove("drop"); cardDrop = null; };
+addEventListener("dragover", e => { if (![...e.dataTransfer.types].includes("Files")) return; e.preventDefault(); $("velo").classList.add("on"); const c = e.target.closest?.(".car"); if (c !== cardDrop) { cardDrop?.classList.remove("drop"); c?.classList.add("drop"); cardDrop = c; } });
+addEventListener("dragleave", e => { if (!e.relatedTarget) pulisci(); });
+addEventListener("drop", e => { e.preventDefault(); const c = e.target.closest?.(".car"), n = [...e.dataTransfer.files].map(f => f.name); pulisci(); if (n.length) automatico(() => arrivaFile(n, c ? { t:AUTO[+c.dataset.i].t } : {})); });
+
+/* ---- selezione: foglio, mappa e cassetti insieme ---- */
+function inquadra(a) { vistaAttiva = null; $("vTutto").classList.remove("on"); $("vAlto").classList.remove("on"); const d = FORME[a.k].L, dir = new THREE.Vector3(.35, 0, 1).normalize(); volaA(new THREE.Vector3(a.tx, 0, a.tz).addScaledVector(dir, 15 + d).add(new THREE.Vector3(0, 11, 0)), new THREE.Vector3(a.tx, 1, a.tz)); }
+// un secondo clic sulla stessa auto la chiude; forza = resta scelta (avvisi, ricerca)
+function seleziona(id, forza) { if (id < 0 || AUTO[id].z === "fuori") return; if (selId === id && !forza && (aperto === "pratica" || grande)) return deseleziona(); if (AUTO[id].ghost) filtro = "tutte"; selId = id; aperto = "pratica"; agg(); inquadra(AUTO[id]); document.querySelector(".car.sel")?.scrollIntoView({ block:"nearest", inline:"nearest" }); }
+function deseleziona() { selId = null; if (aperto === "pratica") aperto = null; agg(); vai("tutto"); }
+$("boardBox").addEventListener("click", e => { if (selId != null && !e.target.closest(".car")) deseleziona(); });
+addEventListener("keydown", e => { if (e.key !== "Escape" || $("scheda").open || e.target.matches("input, select")) return; if (grande) return setGrande(false); if (aperto) return chiudiP(); if (selId != null) deseleziona(); });
+
+// etichette HTML che seguono le auto, dentro la finestra
+const etichette = AUTO.map((a, i) => { const d = document.createElement("div"); d.className = "lbl"; d.dataset.t = a.t; d.style.setProperty("--c", COL[a.s]);
+  d.innerHTML = `<b>${a.t}</b><i>${a.g}g</i><em>P</em>`; $("labels").appendChild(d); return d; });
+const v3 = new THREE.Vector3();
+function aggiornaEtichette() {
+  AUTO.forEach((a, i) => { const l = etichette[i]; v3.set(a.x, 2.1 + (a.lift || 0) + FORME[a.k].roof * .6, a.zz).project(camera);
+    const dentro = v3.z < 1 && Math.abs(v3.x) < 1.05 && Math.abs(v3.y) < 1.05;
+    const vicino = selId === i || hoverId === i || (grande ? (a.s !== "ok" || camera.position.distanceTo(a.car.position) < 62) : a.s === "bad");
+    l.classList.toggle("hide", !dentro || !!a.ghost); l.style.pointerEvents = !dentro || a.ghost ? "none" : "auto"; l.classList.toggle("mini", !vicino); l.classList.toggle("sel", selId === i);
+    if (dentro) l.style.transform = `translate(${(v3.x * .5 + .5) * VW}px, ${(-v3.y * .5 + .5) * VH}px) translate(-50%, ${vicino ? "-140%" : "-50%"})`; });
+}
+
+// puntatore sulla mappa: passaggio sopra = evidenzia, clic (senza trascinare) = seleziona
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(); let down = null;
+function trova(e) { const r = renderer.domElement.getBoundingClientRect(); ptr.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ptr, camera);
+  const hits = ray.intersectObjects(AUTO.filter(a => !a.ghost).map(a => a.car.userData.hit), false); return hits.length ? AUTO.findIndex(a => a.car.userData.hit === hits[0].object) : null; }
+renderer.domElement.addEventListener("pointermove", e => { if (e.buttons) return; const i = trova(e); hoverId = i; renderer.domElement.style.cursor = i != null ? "pointer" : "grab"; });
+renderer.domElement.addEventListener("pointerleave", () => { hoverId = null; });
+renderer.domElement.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; vistaAttiva = null; });
+renderer.domElement.addEventListener("pointerup", e => { if (!down) return; const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5; down = null; if (moved) return; const i = trova(e); if (i != null) seleziona(i); else if (selId != null) deseleziona(); });
+etichette.forEach((l, i) => { l.style.pointerEvents = "auto"; l.style.cursor = "pointer"; l.onclick = () => seleziona(i); });
+
+// ricerca per targa o modello
+const inp = $("q"), sug = $("sugg");
+inp.addEventListener("input", () => { const q = inp.value.replace(/\s/g, "").toUpperCase(); if (!q) { sug.style.display = "none"; return; }
+  const ris = AUTO.map((a, i) => ({ a, i })).filter(({ a }) => a.t.replace(/\s/g, "").includes(q) || [a.m, a.cli.n, nomeColore(a.col)].some(x => x.toUpperCase().includes(inp.value.trim().toUpperCase())) || a.cli.tel.replace(/\s/g, "").includes(q)).filter(({ a }) => a.z !== "fuori").slice(0, 5);
+  sug.innerHTML = ris.map(({ a, i }) => `<button data-i="${i}"><b>${a.t}</b><small>${a.m} · ${a.cli.n}</small></button>`).join("") || `<div style="padding:10px;color:var(--muted)">Nessuna auto trovata</div>`; sug.style.display = "block";
+  sug.querySelectorAll("button").forEach(b => b.onclick = () => { seleziona(+b.dataset.i, true); inp.value = ""; sug.style.display = "none";  }); });
+inp.addEventListener("keydown", e => { if (e.key === "Enter") sug.querySelector("button")?.click(); });
+document.addEventListener("click", e => { if (!$("search").contains(e.target)) sug.style.display = "none"; if (!$("provaMenu").contains(e.target) && e.target !== $("prova")) $("provaMenu").style.display = "none"; });
+
+/* ================================================================== FINESTRA 3D: misura, viste, schermo intero */
+function vistaPT(id) { const v = VISTE[id], k = clamp(1.45 / (VW / VH), .8, 2); return { p:v.t.clone().add(v.p.clone().sub(v.t).multiplyScalar(k)), t:v.t.clone() }; }
+function vai(id, subito) { vistaAttiva = id; const { p, t } = vistaPT(id); if (subito) { fly = null; camera.position.copy(p); controls.target.copy(t); } else volaA(p, t);
+  $("vTutto").classList.toggle("on", id === "tutto"); $("vAlto").classList.toggle("on", id === "alto"); }
+const tocco = matchMedia("(pointer:coarse)").matches;
+function modoControlli() { controls.enableZoom = grande; controls.enableRotate = controls.enablePan = grande || !tocco; renderer.domElement.style.touchAction = (grande || !tocco) ? "none" : "pan-y"; }
+function adatta() {
+  const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
+  VW = w; VH = h; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); nevi.material.uniforms.uPx.value = h;
+  if (vistaAttiva) vai(vistaAttiva, true);
+}
+new ResizeObserver(adatta).observe(stage);
+function setGrande(on) { grande = on; document.body.classList.toggle("fullscreen", on); stage.classList.toggle("big", on); $("espandi").textContent = on ? "Riduci ⤡" : "Ingrandisci ⤢"; modoControlli(); $("provaMenu").style.display = "none"; }
+$("espandi").onclick = () => setGrande(!grande);
+$("scrim").onclick = () => setGrande(false);
+
+
+$("vTutto").onclick = () => { vai("tutto"); };
+$("vAlto").onclick = () => vai("alto");
+let chiuso = false, kChiuso = 0;
+$("vTetto").onclick = () => { chiuso = !chiuso; $("vTetto").classList.toggle("on", chiuso); $("vTetto").textContent = chiuso ? "Tetto chiuso" : "Tetto"; };
+
+// prova meteo: serve per mostrare gli effetti, il meteo vero si aggiorna da solo
+const voci = [["auto", "Meteo vero di Livorno"], ["sole", "☀️ Sole"], ["nuvoloso", "⛅ Nuvoloso"], ["pioggia", "🌧️ Pioggia"], ["temporale", "⛈️ Temporale con fulmini"], ["neve", "❄️ Neve"], ["nebbia", "🌫️ Nebbia"]];
+$("provaMenu").innerHTML = voci.map(([id, t]) => `<button data-m="${id}" class="${id === "auto" ? "on" : ""}">${t}</button>`).join("");
+$("prova").onclick = () => { const m = $("provaMenu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
+$("provaMenu").querySelectorAll("button").forEach(b => b.onclick = () => { $("provaMenu").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  manuale = b.dataset.m === "auto" ? null : { p:PRESET[b.dataset.m], n:b.dataset.m, temp:reale?.temp ?? null, day:reale?.day ?? 1, prog:reale?.prog ?? .55 }; applicaMeteo(); });
+
+const ora = () => { const t = new Date().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit", timeZone:"Europe/Rome" }); $("ora").textContent = t; $("sync").textContent = t; }; ora(); setInterval(ora, 20000);
+$("data").textContent = new Date().toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long", timeZone:"Europe/Rome" });
+
+/* ================================================================== CICLO */
+FILES.length = 0;
+arrivaFile(["FK482ZA_preventivo.pdf", "FK482ZA_foto_danno_1-8.jpg", "GB117LM_preventivo.pdf", "FC509HT_fattura.pdf"]);
+arrivaFile(["scansione_0042.pdf"], { sT:"EX 903 TR", sTipo:"Perizia", perche:"nel testo c'è la targa" });
+delete ANT.file; if (Q.get("ferma")) Object.keys(REG).forEach(k => REG[k] = false);
+agg(); modoControlli(); adatta(); vai("tutto", true);
+const clock = new THREE.Clock(); let T = 0;
+function ciclo() {
+  requestAnimationFrame(ciclo);
+  const dt = Math.min(clock.getDelta(), .1); T += dt;
+  if (fly) { fly.k += dt / fly.dur; const e = 1 - Math.pow(1 - Math.min(1, fly.k), 3); camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) fly = null; }
+  controls.update();
+  aggiornaMeteo(dt, T);
+  // tetto e pareti: aperto = si vede dentro, chiuso = capannone vero
+  kChiuso = lerp(kChiuso, chiuso ? 1 : 0, 1 - Math.exp(-dt * 4)); muri.scale.y = lerp(.2, 1, kChiuso); tetto.visible = kChiuso > .03; tettoMats.forEach((m, i) => m.opacity = i ? .85 * kChiuso : kChiuso); neon.visible = kChiuso > .5;
+  // le auto si spostano da sole quando cambiano fase
+  { const kk = 1 - Math.exp(-dt * 2.2); AUTO.forEach(a => { a.x = lerp(a.x, a.tx, kk); a.zz = lerp(a.zz, a.tz, kk); a.car.position.set(a.x, lerp(a.car.position.y, .07 + a.lift, kk), a.zz); a.car.rotation.y = lerp(a.car.rotation.y, a.ry, kk); a.ring.position.x = a.disco.position.x = a.x; a.ring.position.z = a.disco.position.z = a.zz; }); }
+  // anelli: pulsano se l'auto è ferma
+  AUTO.forEach((a, i) => { const p = a.s === "bad" ? .5 + .5 * Math.sin(T * 3.2) : 0, sel = selId === i || hoverId === i; a.ring.material.opacity = (sel ? 1 : .8) + p * .2; a.disco.material.opacity = sel ? .3 : .1 + p * .12; a.ring.scale.setScalar(sel ? 1.08 + Math.sin(T * 4) * .02 : 1); });
+  traffico.forEach(c => { c.position.x += c.userData.v * dt; if (c.userData.v > 0 && c.position.x > 90) c.position.x = -90; if (c.userData.v < 0 && c.position.x < -90) c.position.x = 90; });
+  aggiornaEtichette();
+  renderer.render(scene, camera);
+}
+ciclo();
+window.__pronto = true;
+// per i controlli: ?auto=DY668PQ seleziona un'auto, ?espandi=1 apre a tutto schermo
+{ if (Q.get("espandi")) setGrande(true);
+  const q = Q.get("auto"); if (q) { const i = AUTO.findIndex(a => a.t.replace(/\s/g, "") === q.toUpperCase()); if (i >= 0) seleziona(i); }
+  if (Q.get("zoom") && selId != null) { const a = AUTO[selId]; fly = null; camera.position.set(a.x + 4.2, 1.9, a.zz + 6.2); controls.target.set(a.x, .8, a.zz); }
+  if (Q.get("cam") === "basso") { vistaAttiva = null; camera.position.set(-70, 7, 52); controls.target.set(-10, 6, -20); }
+  if (Q.get("vista") === "alto") $("vAlto").click(); if (Q.get("tetto")) $("vTetto").click();
+  if (Q.get("filtro")) { filtro = Q.get("filtro"); agg(); } }
+</script>
+</body>
+</html>
