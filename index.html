@@ -272,7 +272,7 @@
   #ling { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; align-items:end; }
   .cas, #dock.l2 .cas:not(.l2) { display:block; } .cas.attivo { border-color:var(--accent); background:#f3f7ff; } .cas .testa[disabled] { cursor:default; opacity:.6; background:none; } .cas.attivo .fr { transform:rotate(180deg); }
   .ante { display:flex; align-items:center; gap:10px; padding:4px 14px 12px; } .ante:empty { display:none; } .ante .g { flex:1; min-width:0; } .ante b { font-size:14px; } .ante small { display:block; color:var(--muted); font-size:12.5px; }
-  #pann { height:min(42vh,370px); display:flex; flex-direction:column; animation:sale .18s ease-out; } @keyframes sale { from { transform:translateY(14px); opacity:.3; } }
+  #pann { height:min(42vh,370px); display:flex; flex-direction:column; transform-origin:50% 100%; }
   #pann header { flex:none; display:flex; align-items:center; padding:8px 10px 6px 16px; border-bottom:1px solid var(--line); } #pann header b { flex:1; font-size:15.5px; } #pann header button { background:#eef0f5; border-radius:8px; padding:7px 13px; font-size:13.5px; font-weight:600; } #pann header button:hover { background:#dfe5f3; }
   #bPr, #bRic, #bFile { flex:1; min-height:0; overflow-y:auto; padding:8px 16px 12px; scrollbar-width:thin; }
   .tre { display:grid; grid-template-columns:.8fr 1.25fr 1.1fr; gap:18px; } .tre.qua { grid-template-columns:1.1fr 1fr 1fr 1.25fr; } .tre.solo { grid-template-columns:1fr; } .tre > div { min-width:0; } .tre .sotto { margin-top:2px; }
@@ -295,6 +295,32 @@
   .esito { flex:1; font-size:13px; padding:5px 8px; border-radius:8px; background:#f4f5f8; color:var(--muted); display:flex; flex-direction:column; justify-content:center; gap:2px; } .esito small { font-size:11.5px; } .esito.si { background:#e8f6ee; color:#176b3a; font-weight:700; } .esito.no { background:#fdeaea; color:#a12121; font-weight:700; } .esito .btn { margin-top:3px; align-self:flex-start; }
   .nota { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
   #lb { border:0; border-radius:14px; padding:12px; max-width:min(92vw,720px); } #lb::backdrop { background:rgba(10,15,30,.6); } #lb img { width:100%; max-height:70vh; object-fit:contain; border-radius:8px; display:block; } #lb p { font-size:13.5px; margin:8px 0; }
+
+  /* ============ movimento: transizioni di stato (le entrate e uscite le fa motore.js) ============ */
+  :root { --entra:cubic-bezier(.22,1,.36,1); --sposta:cubic-bezier(.65,0,.35,1); }
+  .cas { transition:background-color .3s var(--entra), border-color .3s var(--entra), box-shadow .35s var(--entra); }
+  .cas .fr { transition:transform .38s var(--sposta); } .cas > .testa { transition:background-color .2s var(--entra), opacity .25s; }
+  .car { transition:opacity .35s var(--entra), box-shadow .3s var(--entra), background-color .3s var(--entra), border-color .3s var(--entra); }
+  .riga, .offer, .avv, .kpi, .btn, .fslot, .esito { transition:background-color .25s var(--entra), border-color .25s var(--entra), box-shadow .3s var(--entra), opacity .25s, transform .18s var(--entra); }
+  .btn:active, .offer:active, button.riga:active, .kpi:active { transform:scale(.97); }
+  #toast { transition:opacity .22s var(--entra), transform .42s var(--entra); } #toast:not(.on) { transition:opacity .18s ease-in, transform .2s ease-in; }
+  #velo { display:block; opacity:0; visibility:hidden; transform:scale(1.01); transition:opacity .22s var(--entra), transform .3s var(--entra), visibility 0s .22s; } #velo.on { opacity:1; visibility:visible; transform:none; transition:opacity .22s var(--entra), transform .3s var(--entra); }
+  #scrim { display:block !important; opacity:0; pointer-events:none; transition:opacity .4s var(--sposta); } body.fullscreen #scrim { opacity:1; pointer-events:auto; }
+  #evMenu { transform-origin:100% 0; } #provaMenu, #sugg { transform-origin:0 0; }
+  dialog::backdrop { animation:velo .3s var(--entra); } dialog.via::backdrop { opacity:0; transition:opacity .2s ease-in; } @keyframes velo { from { opacity:0; } }
+  .tappe i::before, .passi div::before { transition:background-color .4s var(--entra), box-shadow .4s var(--entra); }
+  @media (prefers-reduced-motion:reduce) { *, *::before, *::after, dialog::backdrop { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+
+  /* ============ ruoli ============ */
+  #chi { display:flex; align-items:center; gap:7px; color:#aeb8cc; font-size:12.5px; white-space:nowrap; } #chi select { background:#323a50; color:#fff; border:1px solid #4a5574; font-weight:600; padding:6px 8px; }
+  .fslot.attesa { cursor:default; background:#f7f8fb; } .fslot.attesa b { color:var(--muted); font-size:11.5px; font-weight:600; }
+  .fmini { display:flex; align-items:center; gap:7px; padding:5px 8px; border-radius:9px; background:#f4f5f8; color:var(--muted); font-size:12.5px; margin-bottom:7px; } .fmini .mini { width:40px; height:30px; } .fmini.si { background:#e8f6ee; color:#176b3a; font-weight:600; } .fmini.no { background:#fdeaea; color:#a12121; font-weight:700; }
+  .chiedi { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; } .chiedi select { flex:1 1 140px; }
+  .chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:6px; } .chip2 { font-size:12px; padding:4px 10px; border-radius:99px; background:#eef0f5; font-weight:600; transition:background-color .2s var(--entra), color .2s; } .chip2.on { background:var(--accent); color:#fff; }
+  .reglist { list-style:none; margin:0; padding:0; font-size:12.5px; } .reglist li { display:grid; grid-template-columns:42px 104px minmax(0,1fr); gap:6px; padding:4px 2px; border-bottom:1px solid #eef0f5; } .reglist li span { color:var(--muted); font-variant-numeric:tabular-nums; } .reglist li.err { color:#a12121; background:#fdf1f1; }
+  .tre.reg { grid-template-columns:1.6fr 1fr .9fr; } .col2 { display:flex; flex-direction:column; gap:7px; align-items:stretch; } .vedi { display:flex; align-items:center; gap:7px; font-size:13px; } .vedi select { flex:1; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration:.32s; animation-timing-function:cubic-bezier(.22,1,.36,1); }
+  @media (max-width:860px) { #chi { font-size:0; gap:0; } .tre.reg { grid-template-columns:minmax(0,1fr); } }
 </style>
 <script type="importmap">
 { "imports": { "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -304,7 +330,7 @@
 <header class="top">
   <div><h1>Nuova Carrozzeria Accademia</h1><div class="sub" id="data"></div></div>
   <div id="search"><input id="q" placeholder="Cerca targa, auto o cliente" aria-label="Cerca targa, auto o cliente" autocomplete="off"><div id="sugg"></div></div>
-  <span class="bozza">Bozza: dati inventati, nessun invio reale</span>
+  <label id="chi" title="In questa bozza si cambia a mano; nel sistema vero ognuno entra con il suo accesso">Accesso <select id="ruolo" data-act="ruolo" aria-label="Accesso come"><option value="capo">Capo</option><option value="ufficio">Ufficio</option><option value="officina">Officina</option><option value="admin">Amministratore</option></select></label><span class="bozza">Bozza: dati inventati, nessun invio reale</span>
   <div class="sync"><span class="dot"></span> Esempio di lettura WinCar <span id="sync"></span></div>
   <button id="provaEv" data-act="evMenu">Prova un arrivo</button>
 </header>
@@ -313,10 +339,11 @@
   <div class="col-l">
     <div id="kpis"></div>
     <div class="riq" id="boardBox"><div class="board" id="board"></div></div>
-    <div id="dock" class="l0"><section class="riq" id="pann" hidden><header><b id="pTit"></b><button data-act="chiudi">Chiudi ✕</button></header><div id="bPr"></div><div id="bRic"></div><div id="bFile"></div></section><div id="ling">
+    <div id="dock" class="l0"><section class="riq" id="pann" hidden><header><b id="pTit"></b><button data-act="chiudi">Chiudi ✕</button></header><div id="bPr"></div><div id="bRic"></div><div id="bFile"></div><div id="bReg"></div></section><div id="ling">
       <section class="cas riq" id="cPratica"><button class="testa" data-act="cassetto" data-v="pratica"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5l2-5h14l2 5v5h-2M7 17h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span><span class="tt"><b id="tPr"></b><span id="sPr"></span></span><span class="fr">⌃</span></button><div class="ante" id="vbPr"></div></section>
       <section class="cas riq" id="cRic"><button class="testa" data-act="cassetto" data-v="ricambi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg></span><span class="tt"><b id="tRic">Richieste ricambi</b><span id="sRic"></span></span><span class="num" id="nRic"></span><span class="fr">⌃</span></button><div class="ante" id="vbRic"></div></section>
       <section class="cas riq" id="cFile"><button class="testa" data-act="cassetto" data-v="file"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v4h16v-4"/></svg></span><span class="tt"><b id="tFile">Carica e smista</b><span id="sFile"></span></span><span class="num" id="nFile"></span><span class="fr">⌃</span></button><div class="ante" id="vbFile"></div></section>
+      <section class="cas riq" id="cReg"><button class="testa" data-act="cassetto" data-v="registro"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/><circle cx="18" cy="18" r="3"/></svg></span><span class="tt"><b id="tReg">Registro e assistenza</b><span id="sReg"></span></span><span class="num" id="nReg"></span><span class="fr">⌃</span></button><div class="ante" id="vbReg"></div></section>
     </div></div>
   </div>
   <div class="col-r">
@@ -449,7 +476,7 @@ const VISTE = {
 };
 camera.position.copy(VISTE.tutto.p); controls.target.copy(VISTE.tutto.t);
 let fly = null;
-function volaA(p, t, dur = 1.15) { fly = { p0:camera.position.clone(), t0:controls.target.clone(), p1:p, t1:t, k:0, dur }; }
+function volaA(p, t, dur = 1.25) { fly = { p0:camera.position.clone(), t0:controls.target.clone(), p1:p, t1:t, k:0, dur, gia:!!fly }; }
 renderer.domElement.addEventListener("pointerdown", () => { fly = null; $("vTutto").classList.remove("on"); $("vAlto").classList.remove("on"); });
 
 /* ================================================================== TEXTURE (disegnate al volo) */
@@ -756,13 +783,32 @@ function daCodice(c, cc, vento) {
   else if (c >= 95) { p = PRESET.temporale; n = "temporale"; } else { p = PRESET.nuvoloso; n = "nuvoloso"; }
   return { p:{ ...p, cloud:Math.max(p.cloud, p.rain || p.snow ? 1 : cc / 100 * (n === "sole" ? .6 : 1)), wind:Math.max(p.wind * .6, vento) }, n };
 }
+// Più fonti insieme: tre modelli di previsione (uno italiano a 2 km) + il radar, che è un'osservazione vera.
+// I modelli da soli segnano spesso "rovesci" da 0,1 mm che fuori non ci sono: sulla pioggia decide il radar.
+const LAT = 43.5485, LON = 10.3106, MODELLI = ["italia_meteo_arpae_icon_2i", "ecmwf_ifs025", "best_match"];
+const mediana = l => { const s = l.filter(v => v != null).sort((a, b) => a - b); return s.length ? s[s.length >> 1] : null; };
+async function modello(m) { const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,cloud_cover,wind_speed_10m,precipitation&daily=sunrise,sunset&timezone=Europe%2FRome&forecast_days=1&models=${m}`); const j = await r.json(); if (j.error || !j.current) throw 0; return j; }
+// radar RainViewer: si legge l'immagine dell'ultima scansione nel raggio di ~5 km dall'officina
+async function radar() { const d = await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json(), f = d.radar.past.at(-1), z = 7, n = 2 ** z;
+  const x = (LON + 180) / 360 * n, y = (1 - Math.log(Math.tan(LAT * Math.PI / 180) + 1 / Math.cos(LAT * Math.PI / 180)) / Math.PI) / 2 * n;
+  const img = new Image(); img.crossOrigin = "anonymous"; img.src = `${d.host}${f.path}/256/${z}/${x | 0}/${y | 0}/2/1_1.png`; await img.decode();
+  const cv = document.createElement("canvas"); cv.width = cv.height = 256; const g = cv.getContext("2d", { willReadFrequently:true }); g.drawImage(img, 0, 0);
+  const px = (x % 1) * 256 | 0, py = (y % 1) * 256 | 0, R = 5, dati = g.getImageData(Math.max(0, px - R), Math.max(0, py - R), 2 * R + 1, 2 * R + 1).data; let si = 0, tot = 0, forte = 0;
+  for (let i = 3; i < dati.length; i += 4) { tot++; if (dati[i] > 0) { si++; forte += dati[i] / 255; } }
+  return { quota:si / tot, forza:si ? forte / si : 0, ora:new Date(f.time * 1000).toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" }) }; }
 async function caricaMeteo() {
-  try {
-    const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=43.5485&longitude=10.3106&current=temperature_2m,weather_code,cloud_cover,wind_speed_10m,is_day&daily=sunrise,sunset&timezone=Europe%2FRome&forecast_days=1");
-    const j = await r.json(), c = j.current, m = s => { const [h, mi] = s.split("T")[1].split(":").map(Number); return h * 60 + mi; };
-    const now = m(c.time), up = m(j.daily.sunrise[0]), down = m(j.daily.sunset[0]), edge = Math.min(now - up, down - now);
-    const x = daCodice(c.weather_code, c.cloud_cover, c.wind_speed_10m); reale = { p:x.p, n:x.n, temp:c.temperature_2m, day:smooth(-25, 40, edge), prog:clamp((now - up) / (down - up), 0, 1) };
-  } catch (e) { reale = null; $("mTxt").textContent = "Livorno · meteo non raggiungibile"; }
+  const [mod, rad] = await Promise.all([Promise.allSettled(MODELLI.map(modello)), radar().catch(() => null)]), ok = mod.filter(x => x.status === "fulfilled").map(x => x.value);
+  if (!ok.length) { reale = null; $("mTxt").textContent = "Livorno · meteo non raggiungibile"; return applicaMeteo(); }
+  const j = ok[0], C = ok.map(o => o.current), m = s => { const [h, mi] = s.split("T")[1].split(":").map(Number); return h * 60 + mi; };
+  const now = m(j.current.time), up = m(j.daily.sunrise[0]), down = m(j.daily.sunset[0]), edge = Math.min(now - up, down - now);
+  const cc = mediana(C.map(c => c.cloud_cover)), vento = mediana(C.map(c => c.wind_speed_10m)), tmp = mediana(C.map(c => c.temperature_2m));
+  const piove = rad ? rad.quota > .25 : C.filter(c => c.precipitation >= .2).length * 2 > C.length;     // senza radar: serve la maggioranza dei modelli
+  let codice = mediana(C.map(c => c.weather_code));
+  if (!piove && codice >= 51 && !(codice >= 71 && codice <= 77)) codice = cc > 85 ? 3 : cc > 40 ? 2 : 1;   // i modelli dicono pioggia, il radar no: nuvole
+  if (piove && codice < 51) codice = rad && rad.forza > .7 ? 63 : 61;                                    // il radar vede pioggia che i modelli non hanno
+  if (codice >= 95 && !piove) codice = 3;
+  const x = daCodice(codice, cc, vento); reale = { p:x.p, n:x.n, temp:tmp, day:smooth(-25, 40, edge), prog:clamp((now - up) / (down - up), 0, 1),
+    fonte:`${rad ? `Radar ${rad.ora}: ${piove ? "pioggia" : "niente pioggia"} entro 5 km` : "Radar non raggiungibile"} · ${ok.length} modelli (ICON 2I, ECMWF), mediana` };
   applicaMeteo();
 }
 function applicaMeteo() {
@@ -771,7 +817,7 @@ function applicaMeteo() {
   const forzaOra = Q.get("ora"); if (forzaOra) { Wt.day = forzaOra === "notte" ? 0 : 1; if (forzaOra === "tramonto") { Wt.day = .5; sunProg = .93; } }
   $("mIco").textContent = Wt.day < .3 && (nome === "sole" || nome === "nuvoloso" || nome === "coperto") ? "🌙" : ICO[nome];
   $("mTemp").textContent = temp != null ? Math.round(temp) + "°" : (manuale ? "" : "--°"); $("mTemp").style.display = temp != null ? "" : "none";
-  $("mTxt").textContent = "Livorno · " + IT[nome] + (manuale ? " (prova)" : "");
+  $("mTxt").textContent = "Livorno · " + IT[nome] + (manuale ? " (prova)" : ""); $("meteo").title = manuale ? "" : src.fonte || "";
   // la prima volta il cielo parte già com'è fuori, senza dissolvenza
   if (primo && (manuale || reale)) { primo = false; Object.assign(W, Wt); W.wet = Wt.rain > .05 ? 1 : 0; W.cover = Wt.snow > .05 ? 1 : 0; }
 }
@@ -845,7 +891,26 @@ neveTerra.position.y = .045;
    che ridisegna bacheca, mappa, avvisi e cassetti. Avvisi e colori sono calcolati, mai scritti a mano. */
 let filtro = "tutte", selId = null, hoverId = null, grande = false, vistaAttiva = "tutto", ricSel = null, fileN = 0;
 let aperto = null;                                                  // pannello in alto: null, pratica, ricambi, file. Uno solo alla volta
-const ANT = {};                                                     // anteprima dell'ultimo arrivo sulla linguetta: { fino, h, s, act, v, b }
+const ANT = {};
+/* ---- ruoli: la stessa officina vista da quattro posti di lavoro ----
+   Officina: chiede i pezzi e fa le foto. Ufficio: file, perizie, clienti, ordini in arrivo. Capo: decide e compra.
+   Amministratore (Luca): vede tutto, registro completo, errori e strumenti per l'assistenza a distanza. */
+const RUOLI = { capo:"Capo", ufficio:"Ufficio", officina:"Officina", admin:"Amministratore" };
+const LINGUE = { capo:["pratica", "ricambi"], ufficio:["pratica", "ricambi", "file"], officina:["pratica", "ricambi"], admin:["pratica", "ricambi", "file", "registro"] };
+const NEGA = {                                                      // azioni che quel ruolo non vede
+  capo:["foto", "rifoto", "chiediOff", "carica", "caricaAuto", "invia", "inviaTutti", "ferma", "conferma", "regola", "chiedi", "sollecita", "avvisa", "arrivato"],
+  ufficio:["ordina", "ordinaTutti", "siOrdina", "foto", "rifoto", "chiediOff", "proroga", "avanza"],
+  officina:["ordina", "ordinaTutti", "siOrdina", "scegli", "carica", "caricaAuto", "invia", "inviaTutti", "ferma", "conferma", "regola", "chiedi", "sollecita", "avvisa", "proroga", "arrivato"],
+  admin:[] };
+const QR = new URLSearchParams(location.search).get("ruolo");
+let ruolo = RUOLI[QR] ? QR : "capo", daSistema = false;
+const puo = act => !NEGA[ruolo].includes(act);
+// i pulsanti vietati spariscono con una regola di stile: vale anche per quello che si ridisegna dopo
+document.head.insertAdjacentHTML("beforeend", `<style>${Object.entries(NEGA).filter(([, l]) => l.length).map(([r, l]) => l.map(a => `body[data-ruolo="${r}"] [data-act="${a}"]`).join(",") + "{display:none!important}").join("")}</style>`);
+document.body.dataset.ruolo = ruolo;
+const REGISTRO = [];                                                // registro completo per l'amministratore: chi, quando, cosa
+addEventListener("error", e => { REGISTRO.unshift({ ora:ora2(), chi:"Errore", x:`${e.message} (${(e.filename || "").split("/").pop()}:${e.lineno})`, err:true }); });
+addEventListener("unhandledrejection", e => { REGISTRO.unshift({ ora:ora2(), chi:"Errore", x:String(e.reason?.message || e.reason), err:true }); });                                                     // anteprima dell'ultimo arrivo sulla linguetta: { fino, h, s, act, v, b }
 const TAPPE = ["Ordinato", "Affidato al corriere", "In viaggio", "In consegna", "Arrivato"], PASSO = 20;   // prova: una tappa ogni 20 secondi
 const REG = { perito:true, conti:true, pratica:true };              // cosa parte da solo
 const ATTESA_INVIO = 15;                                            // secondi per fermare un invio automatico
@@ -888,7 +953,7 @@ RICH.push({ id:idRic++, t:"FN 846 RS", pezzo:"Guarnizione portiera", da:"Luca", 
 const FILES = [], PK = {};
 const aperteRic = () => RICH.filter(r => r.ord == null), inArrivo = () => RICH.filter(r => r.ord != null && !r.arr);
 const ora2 = () => new Date().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit", timeZone:"Europe/Rome" });
-function nota(x) { LOG.unshift(ora2() + " · " + x); }
+function nota(x) { LOG.unshift(ora2() + " · " + x); REGISTRO.unshift({ ora:ora2(), chi:daSistema ? "Sistema" : RUOLI[ruolo], x }); }
 
 /* ---- annulla: fotografia dello stato prima dell'azione ---- */
 const CAMPI = ["z", "g", "avv", "docs", "sollecito", "prev", "slot", "lift", "chiestoFoto"];
@@ -901,7 +966,7 @@ function ripristina() { if (!annullo) return; const s = JSON.parse(annullo); ann
   toast("Annullato"); agg(); }
 function toast(m, undo) { const t = $("toast"); t.innerHTML = `<span>${esc(m)}</span>${undo ? `<button data-act="annulla">Annulla</button>` : ""}`; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => { t.classList.remove("on"); if (undo) annullo = null; }, undo ? 7000 : 3000); }
 function fai(msg, fn) { const s = foto(); const r = fn(); annullo = s; agg(); toast(typeof r === "string" ? r : msg, true); }
-function automatico(fn) { annullo = null; $("toast").classList.remove("on"); fn(); agg(); }
+function automatico(fn) { annullo = null; $("toast").classList.remove("on"); daSistema = true; try { fn(); } finally { daSistema = false; } agg(); }
 
 /* ---- posizione nel capannone ---- */
 function posa(a) { if (a.z === "fuori") return; const p = POSTI[AREA[a.z]][a.slot]; a.tx = p[0]; a.tz = p[1];
@@ -955,7 +1020,7 @@ function creaRichiesta(t, pezzo, da) { const base = { "Faro":180, "Paraurti":320
   const opz = [["Ricambi Nord (esempio)", "Nuovo originale", 1, 0, 3, 4.8], ["AutoPezzi Web (esempio)", "Aftermarket certificato", .62, 12, 2, 4.4], ["Demolizioni Sud (esempio)", "Usato smontato", .42, 25, 6, 3.9]].map(([f, tipo, k, s, g, aff]) => ({ f, tipo, tot:Math.round(base * k) + s, g, aff }));
   const T0 = opz.map(o => o.tot), G0 = opz.map(o => o.g), q = (x, l) => 1 - (x - Math.min(...l)) / (Math.max(...l) - Math.min(...l));
   opz.forEach(o => { o.score = .4 * q(o.tot, T0) + .3 * q(o.g, G0) + .3 * (o.aff - 1) / 4; }); opz.sort((x, y) => y.score - x.score);
-  const r = { id:idRic++, t, pezzo, da, ora:"adesso", compat:"", opz, sel:0, ord:null, arr:false, tr:0 }; RICH.unshift(r); segnala("ricambi", `${da} chiede: ${pezzo.toLowerCase()}`, `${t} ${A(t).m}`, "ordina", r.id, "Ordina " + eur(r.opz[0].tot)); return r; }
+  const r = { id:idRic++, t, pezzo, da, ora:"adesso", compat:"", opz, sel:0, ord:null, arr:false, tr:0 }; RICH.unshift(r); nota(`${t}: ${da.toLowerCase()} chiede ${pezzo.toLowerCase()}`); segnala("ricambi", `${da} chiede: ${pezzo.toLowerCase()}`, `${t} ${A(t).m}`, "ordina", r.id, "Ordina " + eur(r.opz[0].tot)); return r; }
 function segnala(k, h, s, act, v, b) { if (aperto !== k) ANT[k] = { fino:Date.now() + 12000, h, s, act, v, b }; }
 const ordina = r => { r.ord = r.sel; r.tr = 0; r.tm = Date.now(); nota(`Ordinato ${r.pezzo.toLowerCase()} per ${r.t} da ${r.opz[r.sel].f}, ${r.da} avvisato`); segnala("ricambi", `${r.pezzo}: ordine partito`, `${r.t}, arriva ${tra(r.opz[r.sel].g)}`, "ric", r.id, "Segui"); };
 /* ---- foto del pezzo e dell'etichetta: disegni segnaposto (nessuna foto vera), verifica simulata ---- */
@@ -990,7 +1055,9 @@ function avvisi() { const L = [];
     else if (a.z === "park" && !a.avv) L.push({ p:2, c:"warn", t:a.t, h:`${a.t} · è pronta`, s:`${a.m}, il cliente non lo sa ancora`, b:"Avvisa cliente", act:"avvisa", v:a.t }); });
   daDecidere().forEach(f => L.push({ p:1, c:"info", cas:"file", h:"Un file da confermare", s:f.n, b:"Guarda", act:"apri", v:"file" }));
   pacchi().filter(p => p.manca.length && !A(p.t).chiestoFoto).forEach(p => L.push({ p:2, c:"info", t:p.t, h:`${p.t} · pacco incompleto`, s:`Per il perito manca: ${p.manca.join(", ").toLowerCase()}`, b:"Chiedi al reparto", act:"chiedi", v:p.t }));
-  return L.sort((a, b) => a.p - b.p); }
+  // officina: le richieste senza foto sono lavoro suo
+  aperteRic().filter(r => verifica(r) !== true).forEach(r => L.push({ p:1, c:verifica(r) === false ? "bad" : "info", t:r.t, h:`${r.t} · ${verifica(r) === false ? "etichetta da rifare" : "foto da fare"}`, s:`${r.pezzo}: ${r.fp ? "manca la foto dell'etichetta" : "foto del pezzo e dell'etichetta"}`, b:"Fotografa", act:"ricOff", v:r.id }));
+  return L.filter(x => puo(x.act) && (x.act !== "ricOff" || ruolo === "officina" || ruolo === "admin") && (x.act !== "apri" || LINGUE[ruolo].includes(x.v))).sort((a, b) => a.p - b.p); }
 
 /* ================================================================== DISEGNO */
 const FILTRI = [
@@ -1000,7 +1067,77 @@ const FILTRI = [
   { id:"pronte", nome:"Pronte",          cls:"ok",   f:a => a.pronta },
 ];
 function ghost(car, on) { if (car.userData.gh === on) return; car.userData.gh = on; car.userData.mats.forEach(m => { m.transparent = on; m.opacity = on ? .16 : 1; m.depthWrite = !on; m.needsUpdate = true; }); }
-const set = (id, html) => { const e = $(id); if (e._h === html) return; const sc = e.scrollTop; e.innerHTML = html; e._h = html; e.scrollTop = sc; };
+const set = (id, html, sel) => { const e = $(id); if (e._h === html) return; const fai = () => { const sc = e.scrollTop; e.innerHTML = html; e._h = html; e.scrollTop = sc; }; sel ? flip(e, sel, fai) : fai(); };
+
+/* ================================================================== MOVIMENTO
+   Niente scatta: quello che appare, sparisce o cambia posto si muove con una curva di velocità.
+   Entrate: partono svelte e si posano piano. Uscite: più brevi, accelerano andando via.
+   Spostamenti: accelerano e frenano (ease-in-out), partendo sempre dal punto dove l'elemento era. */
+const CURVA = { entra:"cubic-bezier(.22,1,.36,1)", esce:"cubic-bezier(.55,0,.75,.2)", sposta:"cubic-bezier(.65,0,.35,1)", molla:"cubic-bezier(.34,1.36,.64,1)" };
+const RIDOTTO = matchMedia("(prefers-reduced-motion: reduce)");
+// chi chiede meno movimento al sistema vede solo dissolvenze brevi
+function anima(el, kf, ms, curva = CURVA.entra, opz = {}) { if (RIDOTTO.matches) { kf = kf.map(k => ({ opacity:k.opacity ?? 1 })); ms = Math.min(ms, 140); }
+  return el.animate(kf, { duration:ms, easing:curva, fill:"backwards", ...opz }); }
+// mostra o nasconde un elemento: entra da "da" (vicino a dove nasce), esce verso lo stesso punto
+function vedi(el, on, { da = "translateY(-6px) scale(.97)", ms = 240, mostra = () => { el.hidden = false; }, nascondi = () => { el.hidden = true; }, altezza = false } = {}) {
+  if (!el || el._on === on) return; el._on = on; el._a?.cancel(); el._a = null;
+  if (on) { mostra(); const h = altezza ? el.scrollHeight : 0;
+    el._a = anima(el, [{ opacity:0, transform:da, ...(altezza ? { height:"0px", overflow:"hidden" } : {}) }, { opacity:1, transform:"none", ...(altezza ? { height:h + "px", overflow:"hidden" } : {}) }], ms, CURVA.entra); }
+  else { const h = el.offsetHeight; if (!h && !el.getClientRects().length) return nascondi();
+    const a = el._a = anima(el, [{ opacity:1, transform:"none", ...(altezza ? { height:h + "px", overflow:"hidden" } : {}) }, { opacity:0, transform:da, ...(altezza ? { height:"0px", overflow:"hidden" } : {}) }], ms * .7, CURVA.esce, { fill:"forwards" });
+    a.onfinish = () => { nascondi(); a.cancel(); if (el._a === a) el._a = null; }; } }
+// FLIP: fotografa dove sono gli elementi, ridisegna, poi ognuno vola dal posto vecchio al nuovo.
+// Il volo usa una copia sopra la pagina, così passa da una colonna all'altra senza essere tagliato.
+function flip(box, sel, ridisegna) { const chiave = e => e.dataset.k ?? e.dataset.i, prima = new Map(), via = [];
+  box._voli?.forEach(c => c.remove()); box._voli = [];
+  const vivi = box.getClientRects().length > 0 && box._visto;
+  if (vivi) box.querySelectorAll(sel).forEach(e => { const r = e.getBoundingClientRect(); if (r.width) prima.set(chiave(e), { e, r }); });
+  ridisegna(); box._visto = true; if (!vivi) return;
+  const bb = box.getBoundingClientRect(), dentro = r => r.bottom > bb.top && r.top < bb.bottom && r.right > bb.left && r.left < bb.right;
+  const copia = (e, r) => { const c = e.cloneNode(true); Object.assign(c.style, { position:"fixed", left:r.left + "px", top:r.top + "px", width:r.width + "px", height:r.height + "px", margin:"0", zIndex:45, pointerEvents:"none", boxSizing:"border-box" }); c.removeAttribute("data-act"); document.body.append(c); box._voli.push(c); return c; };
+  const ora = new Set();
+  box.querySelectorAll(sel).forEach((e, n) => { const k = chiave(e), p = prima.get(k), r1 = e.getBoundingClientRect(); ora.add(k); if (!r1.width) return;
+    if (!p) return void anima(e, [{ opacity:0, transform:"translateY(8px) scale(.97)" }, { opacity:1, transform:"none" }], 320, CURVA.entra, { delay:Math.min(n, 6) * 18 });
+    const dx = p.r.left - r1.left, dy = p.r.top - r1.top; if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+    if (!dentro(p.r) && !dentro(r1)) return;                                         // fuori vista: niente volo
+    const ms = Math.min(620, 320 + Math.hypot(dx, dy) * .35), c = copia(e, r1);         // più lontano = un po' più lungo
+    e.style.visibility = "hidden";
+    const a = anima(c, [{ transform:`translate(${dx}px,${dy}px) scale(${p.r.width / r1.width},${p.r.height / r1.height})`, transformOrigin:"0 0", boxShadow:"0 0 0 rgba(0,0,0,0)" }, { offset:.5, boxShadow:"0 14px 30px rgba(20,30,60,.22)" }, { transform:"none", transformOrigin:"0 0", boxShadow:"0 0 0 rgba(0,0,0,0)" }], ms, CURVA.sposta);
+    a.onfinish = a.oncancel = () => { c.remove(); e.style.visibility = ""; }; });
+  // chi è sparito si dissolve dove stava
+  prima.forEach(({ e, r }, k) => { if (ora.has(k) || !dentro(r)) return; const c = copia(e, r); const a = anima(c, [{ opacity:1, transform:"none" }, { opacity:0, transform:"scale(.96)" }], 200, CURVA.esce, { fill:"forwards" }); a.onfinish = () => c.remove(); }); }
+// finestre (scheda, foto ingrandita, conferme): si aprono dal punto da cui vengono, si chiudono tornandoci
+function apriD(d, da) { d._da = da || null; d.classList.remove("via"); d.showModal(); const r1 = d.getBoundingClientRect(), r0 = da?.getBoundingClientRect?.();
+  const t0 = r0 && r0.width ? `translate(${r0.left + r0.width / 2 - (r1.left + r1.width / 2)}px,${r0.top + r0.height / 2 - (r1.top + r1.height / 2)}px) scale(${Math.max(.08, r0.width / r1.width)})` : "translateY(14px) scale(.96)";
+  d._a?.cancel(); d._a = anima(d, [{ opacity:0, transform:t0 }, { opacity:1, transform:"none" }], r0 ? 420 : 300, CURVA.entra); }
+function chiudiD(d) { if (!d.open || d.classList.contains("via")) return; const r1 = d.getBoundingClientRect(), r0 = d._da?.isConnected ? d._da.getBoundingClientRect() : null;
+  const t1 = r0 && r0.width ? `translate(${r0.left + r0.width / 2 - (r1.left + r1.width / 2)}px,${r0.top + r0.height / 2 - (r1.top + r1.height / 2)}px) scale(${Math.max(.08, r0.width / r1.width)})` : "translateY(10px) scale(.97)";
+  d.classList.add("via"); d._a?.cancel(); const a = d._a = anima(d, [{ opacity:1, transform:"none" }, { opacity:0, transform:t1 }], r0 ? 300 : 190, r0 ? CURVA.sposta : CURVA.esce, { fill:"forwards" });
+  a.onfinish = () => { d.close(); d.classList.remove("via"); a.cancel(); }; }
+["scheda", "lb"].forEach(id => $(id).addEventListener("cancel", e => { e.preventDefault(); chiudiD($(id)); }));
+// il riquadro sotto le linguette (anteprima di un arrivo) cresce e si richiude, non compare di colpo
+function setAnte(id, html) { const e = $(id); if (e._h === html) return; const pieno = !!e._h; e._a?.cancel();
+  if (html) { e.innerHTML = html; e._h = html; if (!pieno) { const h = e.scrollHeight; e._a = anima(e, [{ height:"0px", paddingTop:"0px", paddingBottom:"0px", opacity:0, overflow:"hidden" }, { height:h + "px", opacity:1, overflow:"hidden" }], 360, CURVA.entra); } return; }
+  e._h = ""; const h = e.offsetHeight, a = e._a = anima(e, [{ height:h + "px", opacity:1, overflow:"hidden" }, { height:"0px", paddingTop:"0px", paddingBottom:"0px", opacity:0, overflow:"hidden" }], 260, CURVA.sposta, { fill:"forwards" });
+  a.onfinish = () => { e.innerHTML = ""; a.cancel(); }; }
+// pannello in alto: sale dalle linguette, scende verso di loro; cambiando linguetta il contenuto arriva dal suo lato
+const CORPO = { pratica:"bPr", ricambi:"bRic", file:"bFile", registro:"bReg" }, ORDINE = ["pratica", "ricambi", "file", "registro"];
+function cambiaPannello(da, a) { const p = $("pann"), corpo = k => $(CORPO[k]);
+  let h0 = 0; if (p._a) { h0 = p.getBoundingClientRect().height; p._a.cancel(); p._a = null; }
+  Object.keys(CORPO).forEach(k => { corpo(k).hidden = k !== (a || da); });
+  if (a && !da) { p.hidden = false; const h = p.offsetHeight;
+    p._a = anima(p, [{ height:h0 + "px", opacity:h0 ? 1 : 0, transform:h0 ? "none" : "translateY(14px)" }, { height:h + "px", opacity:1, transform:"none" }], 420, CURVA.entra);
+    p._a.onfinish = () => { p._a = null; };
+    anima(corpo(a), [{ opacity:0, transform:"translateY(12px)" }, { opacity:1, transform:"none" }], 440, CURVA.entra, { delay:70 }); return; }
+  if (!a && da) { const h = h0 || p.offsetHeight, x = p._a = anima(p, [{ height:h + "px", opacity:1, transform:"none" }, { height:"0px", opacity:0, transform:"translateY(14px)" }], 300, CURVA.sposta, { fill:"forwards" });
+    x.onfinish = () => { p.hidden = true; corpo(da).hidden = true; x.cancel(); p._a = null; }; return; }
+  if (a && da) { const dir = Math.sign(ORDINE.indexOf(a) - ORDINE.indexOf(da)) || 1;
+    anima(corpo(a), [{ opacity:0, transform:`translateX(${dir * 34}px)` }, { opacity:1, transform:"none" }], 380, CURVA.entra);
+    anima($("pTit"), [{ opacity:0, transform:`translateX(${dir * 14}px)` }, { opacity:1, transform:"none" }], 320, CURVA.entra); } }
+// ingrandisci / riduci la mappa: la finestra si allarga dal suo posto e ci torna
+function voloFinestra(cambia) { const w = $("win"), r0 = w.getBoundingClientRect(); cambia(); const r1 = w.getBoundingClientRect();
+  if (!r0.width || !r1.width) return; w._a?.cancel();
+  w._a = anima(w, [{ transformOrigin:"0 0", transform:`translate(${r0.left - r1.left}px,${r0.top - r1.top}px) scale(${r0.width / r1.width},${r0.height / r1.height})` }, { transformOrigin:"0 0", transform:"none" }], 480, CURVA.sposta); }
 function agg() {
   code(); AUTO.forEach(calcola); programma();
   const F = FILTRI.find(x => x.id === filtro);
@@ -1008,17 +1145,17 @@ function agg() {
   AUTO.forEach((a, i) => { const via = a.z === "fuori"; a.ghost = via || !F.f(a); a.car.visible = !via; ghost(a.car, a.ghost && !via); a.ring.visible = a.disco.visible = !a.ghost; a.ring.material.color.set(COL[a.s]); a.disco.material.color.set(COL[a.s]);
     etichette[i].style.setProperty("--c", COL[a.s]); etichette[i].querySelector("i").textContent = a.g + "g"; etichette[i].querySelector("em").style.display = RICH.some(r => r.t === a.t && r.ord == null) ? "" : "none"; });
   const k = FILTRI.map(f => `<button class="kpi ${f.cls}" data-act="filtro" data-v="${f.id}" aria-pressed="${filtro === f.id}"><b>${dentro().filter(f.f).length}</b><span>${f.nome}</span></button>`).join(""); set("kpis", k); set("kpis3d", k);
-  disBoard(); disAvvisi(); disRicambi(); disFile(); disPratica(); disInfo(); disDock();
+  disBoard(); disAvvisi(); disRicambi(); disFile(); disPratica(); disInfo(); disRegistro(); disDock();
 }
 function disBoard() {
   const fpt = t => FILES.filter(f => f.ok && !f.inviato && f.t === t).length;
   set("board", COLONNE.map(([z, n]) => { const l = AUTO.map((a, i) => [a, i]).filter(([a]) => a.z === z), posti = z === "acc" || z === "per" ? "" : "/" + POSTI[z].length;
     return `<div class="bcol"><h3>${n}<span>${l.length}${posti}</span></h3><div class="lista">${l.map(([a, i]) => { const nf = fpt(a.t), nr = RICH.some(r => r.t === a.t && r.ord == null);
-      return `<button class="car ${a.s === "ok" ? "" : a.s} ${selId === i ? "sel" : ""} ${a.ghost ? "dim" : ""} ${a.mosso && Date.now() - a.mosso < 2400 ? "mosso" : ""}" data-act="auto" data-v="${i}" data-i="${i}"><span class="gg">${a.g === 0 ? "oggi" : a.g + " g"}</span><div class="targa">${a.t}</div>${nf || nr ? `<span class="segni">${nr ? "<i>ricambio</i>" : ""}${nf ? `<i>${nf} file</i>` : ""}</span>` : ""}<div class="meta"><i class="pal" style="background:${a.col}"></i>${a.m} · ${a.cli.n}</div>${a.why ? `<span class="tag">${a.why}</span>` : ""}${a.scheda === "manca" ? `<span class="tag">Scheda da compilare</span>` : ""}</button>`; }).join("")}</div></div>`; }).join(""));
+      return `<button class="car ${a.s === "ok" ? "" : a.s} ${selId === i ? "sel" : ""} ${a.ghost ? "dim" : ""} ${a.mosso && Date.now() - a.mosso < 2400 ? "mosso" : ""}" data-act="auto" data-v="${i}" data-i="${i}"><span class="gg">${a.g === 0 ? "oggi" : a.g + " g"}</span><div class="targa">${a.t}</div>${nf || nr ? `<span class="segni">${nr ? "<i>ricambio</i>" : ""}${nf ? `<i>${nf} file</i>` : ""}</span>` : ""}<div class="meta"><i class="pal" style="background:${a.col}"></i>${a.m} · ${a.cli.n}</div>${a.why ? `<span class="tag">${a.why}</span>` : ""}${a.scheda === "manca" ? `<span class="tag">Scheda da compilare</span>` : ""}</button>`; }).join("")}</div></div>`; }).join(""), ".car");
 }
 const selT = () => selId == null ? null : AUTO[selId].t;
 function disAvvisi() { const L = avvisi(); $("nAvv").textContent = L.length; $("nAvv").className = "pill " + (L.some(x => x.c === "bad") ? "bad" : L.length ? "warn" : "ok");
-  set("avvisi", L.map(x => `<div class="avv ${x.c} ${x.t && x.t === selT() ? "rel" : ""}" data-act="${x.t ? "vai" : "apri"}" data-v="${x.t || x.cas}"><div class="g">${esc(x.h)}<small>${esc(x.s)}</small></div><button class="btn p ${x.act === "apri" ? "sec" : ""}" data-act="${x.act}" data-v="${x.v}">${x.b}</button></div>`).join("") || `<div class="bene">✓ Tutto a posto, non serve niente da te</div>`);
+  set("avvisi", L.map(x => `<div class="avv ${x.c} ${x.t && x.t === selT() ? "rel" : ""}" data-k="${x.act}${x.v}" data-act="${x.t ? "vai" : "apri"}" data-v="${x.t || x.cas}"><div class="g">${esc(x.h)}<small>${esc(x.s)}</small></div><button class="btn p ${x.act === "apri" ? "sec" : ""}" data-act="${x.act}" data-v="${x.v}">${x.b}</button></div>`).join("") || `<div class="bene" data-k="bene">✓ Tutto a posto, non serve niente da te</div>`, "[data-k]");
   set("logUlt", `<b>✓ Fatto:</b> ${esc(LOG[0])}`); set("log", LOG.map(l => `<li>${esc(l)}</li>`).join("")); }
 
 const testa = (k, num, cls, sub) => { const n = $("n" + k); n.textContent = num || "✓"; n.className = "num " + (num ? cls : "zero"); $("s" + k).textContent = sub; };
@@ -1026,28 +1163,49 @@ function offerta(r, o, i) { const min = Math.min(...r.opz.map(x => x.tot)), vel 
   const tag = (i === 0 ? `<span class="otag">Consigliato</span>` : "") + (o.tot === min ? `<span class="otag g">Costa meno</span>` : "") + (o.g === vel ? `<span class="otag">Arriva prima</span>` : "") + (o.aff < 4 ? `<span class="otag w">Meno affidabile</span>` : "");
   return `<button class="offer ${i === r.sel ? "sel" : ""}" data-act="scegli" data-v="${r.id}|${i}"><span class="mini" data-act="zoom" data-v="o|${r.id}|${i}" title="Ingrandisci"><img alt="" src="${disegno(r.pezzo, o.f.replace(" (esempio)", ""), TINTE[i % 3])}"></span><div style="flex:1;min-width:0"><div class="nm">${o.f} ${tag}</div><div class="sub">${o.tipo} · arriva ${tra(o.g)} · <span class="stars">${stelle2(o.aff)}</span></div></div><div class="tot">${eur(o.tot)}</div></button>`; }
 function tracking(r) { const o = r.opz[r.ord];
-  if (!r.arr && !haTracking(r)) return `<div class="riga fatta"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}</span><small>${o.f} non dà il tracking. Previsto ${tra(o.g)}.</small></div><button class="btn p sec" data-act="arrivato" data-v="${r.id}">È arrivato</button></div>`;
-  return `<div class="riga ${ricSel === r.id ? "on" : ""}"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}, ${o.f.replace(" (esempio)", "")}</span><span class="quando">${r.arr ? "arrivato alle " + r.ora2 : "arriva " + tra(o.g)}</span><div class="tappe">${TAPPE.map((t, i) => `<i class="${i < r.tr || r.arr ? "f" : i === r.tr ? "o" : ""}"><em>${t}</em></i>`).join("")}</div></div></div>`; }
+  if (!r.arr && !haTracking(r)) return `<div class="riga fatta" data-k="r${r.id}"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}</span><small>${o.f} non dà il tracking. Previsto ${tra(o.g)}.</small></div><button class="btn p sec" data-act="arrivato" data-v="${r.id}">È arrivato</button></div>`;
+  return `<div class="riga ${ricSel === r.id ? "on" : ""}" data-k="r${r.id}"><div class="g"><b>${r.pezzo}</b> <span class="sc">${r.t}, ${o.f.replace(" (esempio)", "")}</span><span class="quando">${r.arr ? "arrivato alle " + r.ora2 : "arriva " + tra(o.g)}</span><div class="tappe">${TAPPE.map((t, i) => `<i class="${i < r.tr || r.arr ? "f" : i === r.tr ? "o" : ""}"><em>${t}</em></i>`).join("")}</div></div></div>`; }
 const TINTE = ["#2f6f4f", "#3b6cff", "#8a6d3b"];
 function bloccoAuto(r) { const a = A(r.t); return `<div class="focus"><b>${r.t}</b> ${a.m}<small>In officina da ${gg(giorniOff(a))} · ${NOMEZ[a.z].toLowerCase()}${a.g >= 7 ? `, ferma da ${gg(a.g)}` : ""}. Conviene: ${r.opz[0].f.replace(" (esempio)", "")}, ${eur(r.opz[0].tot)}, arriva ${tra(r.opz[0].g)}</small></div>`; }
-function bloccoFoto(r) { const v = verifica(r), slot = (k, tit) => r[k] ? `<span class="fslot" data-act="zoom" data-v="${k}|${r.id}"><img alt="" src="${k === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod)}"><em>${tit}</em></span>` : `<button class="fslot vuota" data-act="foto" data-v="${k}|${r.id}" ${k === "fe" && !r.fp ? "disabled" : ""}><em>${tit}</em><b>Scatta</b></button>`;
-  return `<div class="fverif"><div class="fr">${slot("fp", "1. Foto del pezzo")}${slot("fe", "2. Foto etichetta")}<div class="esito ${v == null ? "" : v ? "si" : "no"}">${v == null ? (r.fp ? "Ora la foto dell'etichetta" : "Prima la foto del pezzo") : v ? `✓ Corrisponde<small>${r.fe.cod}, stesso pezzo</small>` : `✕ Non corrisponde<small>pezzo ${r.fp.cod}, etichetta ${r.fe.cod}</small><button class="btn p sec" data-act="rifoto" data-v="${r.id}">Rifai etichetta</button>`}</div></div><small class="nota">Foto simulate: disegni di esempio, nessuna foto vera.</small></div>`; }
+function bloccoFoto(r) { const v = verifica(r), fa = puo("foto"), slot = (k, tit) => r[k] ? `<span class="fslot" data-act="zoom" data-v="${k}|${r.id}"><img alt="" src="${k === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod)}"><em>${tit}</em></span>` : fa ? `<button class="fslot vuota" data-act="foto" data-v="${k}|${r.id}" ${k === "fe" && !r.fp ? "disabled" : ""}><em>${tit}</em><b>Scatta</b></button>` : `<span class="fslot vuota attesa"><em>${tit}</em><b>dall'officina</b></span>`;
+  return `<div class="fverif"><div class="fr">${slot("fp", "1. Foto del pezzo")}${slot("fe", "2. Foto etichetta")}<div class="esito ${v == null ? "" : v ? "si" : "no"}">${v == null ? (fa ? (r.fp ? "Ora la foto dell'etichetta" : "Prima la foto del pezzo") : "L'officina non ha ancora mandato le foto") : v ? `✓ Corrisponde<small>${r.fe.cod}, stesso pezzo</small>` : `✕ Non corrisponde<small>pezzo ${r.fp.cod}, etichetta ${r.fe.cod}</small><button class="btn p sec" data-act="rifoto" data-v="${r.id}">Rifai etichetta</button>`}</div></div><small class="nota">Foto simulate: disegni di esempio, nessuna foto vera.</small></div>`; }
 function disRicambi() { const P = aperteRic(), V = inArrivo(), D = RICH.filter(r => r.arr), cons = V.filter(r => r.tr === 3).length;
+  if (ruolo === "officina") return disRicOfficina(P, V);
   testa("Ric", P.length, P.some(r => A(r.t).s === "bad") ? "bad" : "", [P.length ? `${P.length} da ordinare` : "Niente da ordinare", V.length ? `${V.length} in viaggio${cons ? `, ${cons} in consegna` : ""}` : ""].filter(Boolean).join(" · "));
-  const cur = P.find(r => r.id === ricSel) || P.find(r => r.t === selT()) || P[0];
-  const el = r => `<button class="riga ${cur === r ? "on" : ""}" data-act="ric" data-v="${r.id}"><div class="g"><b>${r.pezzo}</b><small>${r.t} ${A(r.t).m}, chiesto da ${r.da} · in officina da ${gg(giorniOff(A(r.t)))}</small></div></button>`;
-  set("bRic", `<div class="tre ${P.length ? "" : "solo"}">${P.length ? `<div><div class="sotto">Da ordinare</div>${P.map(el).join("")}${P.length > 1 ? `<button class="btn p sec" style="width:100%" data-act="ordinaTutti">Ordina tutto, ${eur(P.reduce((x, r) => x + r.opz[r.sel].tot, 0))}</button>` : ""}</div><div><div class="sotto">${cur.pezzo}, ${cur.t}</div>${bloccoAuto(cur)}${bloccoFoto(cur)}${cur.opz.map((o, i) => offerta(cur, o, i)).join("")}<div class="row"><button class="btn grow" data-act="ordina" data-v="${cur.id}">Ordina da ${cur.opz[cur.sel].f.replace(" (esempio)", "")}, ${eur(cur.opz[cur.sel].tot)}</button></div></div>` : ""}<div><div class="sotto">Ordini in viaggio${V.length ? " (tracking simulato)" : ""}</div>${V.map(tracking).join("") || `<div class="vuoto">Nessun pezzo in viaggio. ${P.length ? "Quando ordini lo segui qui." : ""}</div>`}${D.length ? `<div class="sotto">Arrivati oggi</div>${D.map(r => `<div class="riga fatta"><div class="g"><b>${r.pezzo}</b><small>${r.t}, arrivato alle ${r.ora2}</small></div></div>`).join("")}` : ""}</div></div>`);
+  const cur = P.find(r => r.id === ricSel) || P.find(r => r.t === selT()) || P[0], compra = puo("ordina");
+  const el = r => `<button class="riga ${cur === r ? "on" : ""}" data-k="r${r.id}" data-act="ric" data-v="${r.id}"><div class="g"><b>${r.pezzo}</b><small>${r.t} ${A(r.t).m}, chiesto da ${r.da} · in officina da ${gg(giorniOff(A(r.t)))}${verifica(r) === true ? " · foto ✓" : verifica(r) === false ? " · etichetta ✕" : ""}</small></div></button>`;
+  // il capo vede le opzioni di acquisto; le foto solo come esito, piccole
+  const fotoCapo = r => { const v = verifica(r); return `<div class="fmini ${v == null ? "" : v ? "si" : "no"}">${r.fp ? `<span class="mini" data-act="zoom" data-v="fp|${r.id}"><img alt="" src="${FOTOPEZZO(r)}"></span>` : ""}${r.fe ? `<span class="mini" data-act="zoom" data-v="fe|${r.id}"><img alt="" src="${disegno("etichetta", r.fe.cod)}"></span>` : ""}<span>${v == null ? "Foto dell'officina non ancora arrivate" : v ? "Officina: pezzo ed etichetta corrispondono" : "Officina: l'etichetta NON corrisponde al pezzo"}</span></div>`; };
+  const dett = cur ? `<div><div class="sotto">${cur.pezzo}, ${cur.t}</div>${bloccoAuto(cur)}${ruolo === "capo" ? fotoCapo(cur) : bloccoFoto(cur)}${cur.opz.map((o, i) => offerta(cur, o, i)).join("")}${compra ? `<div class="row"><button class="btn grow" data-act="ordina" data-v="${cur.id}">Ordina da ${cur.opz[cur.sel].f.replace(" (esempio)", "")}, ${eur(cur.opz[cur.sel].tot)}</button></div>` : `<div class="vuoto">Ordina il capo.</div>`}</div>` : "";
+  set("bRic", `<div class="tre ${P.length ? "" : "solo"}">${P.length ? `<div><div class="sotto">Da ordinare</div>${P.map(el).join("")}${P.length > 1 && compra ? `<button class="btn p sec" style="width:100%" data-act="ordinaTutti">Ordina tutto, ${eur(P.reduce((x, r) => x + r.opz[r.sel].tot, 0))}</button>` : ""}</div>${dett}` : ""}<div><div class="sotto">Ordini in viaggio${V.length ? " (tracking simulato)" : ""}</div>${V.map(tracking).join("") || `<div class="vuoto">Nessun pezzo in viaggio. ${P.length && compra ? "Quando ordini lo segui qui." : ""}</div>`}${D.length ? `<div class="sotto">Arrivati oggi</div>${D.map(r => `<div class="riga fatta" data-k="r${r.id}"><div class="g"><b>${r.pezzo}</b><small>${r.t}, arrivato alle ${r.ora2}</small></div></div>`).join("")}` : ""}</div></div>`, "[data-k]");
 }
+// officina: chiede il pezzo e lo fotografa. Niente prezzi né fornitori
+const PEZZI = ["Faro anteriore", "Paraurti anteriore", "Paraurti posteriore", "Specchietto destro", "Specchietto sinistro", "Parafango sinistro", "Guarnizione portiera"];
+function disRicOfficina(P, V) { const daFare = P.filter(r => verifica(r) !== true);
+  testa("Ric", daFare.length, P.some(r => verifica(r) === false) ? "bad" : "", daFare.length ? `${daFare.length} da fotografare` : P.length ? "Foto fatte, aspetta il capo" : "Chiedi un pezzo");
+  const cur = P.find(r => r.id === ricSel) || daFare[0] || P[0], auto = dentro().filter(a => a.z !== "park"), sT = selT() || cur?.t;
+  const el = r => `<button class="riga ${cur === r ? "on" : ""}" data-k="r${r.id}" data-act="ric" data-v="${r.id}"><div class="g"><b>${r.pezzo}</b><small>${r.t} ${A(r.t).m} · ${verifica(r) === true ? "foto ✓, aspetta il capo" : verifica(r) === false ? "etichetta da rifare" : r.fp ? "manca l'etichetta" : "da fotografare"}</small></div></button>`;
+  set("bRic", `<div class="tre"><div><div class="sotto">Chiedi un pezzo</div><div class="chiedi"><select id="offAuto" aria-label="Auto">${auto.map(a => `<option value="${a.t}" ${a.t === sT ? "selected" : ""}>${a.t} · ${a.m}</option>`).join("")}</select><select id="offPezzo" aria-label="Pezzo">${PEZZI.map(p => `<option>${p}</option>`).join("")}</select><button class="btn p" data-act="chiediOff">Chiedi</button></div>${P.length ? `<div class="sotto">Richieste aperte</div>${P.map(el).join("")}` : ""}</div>
+    <div>${cur ? `<div class="sotto">${cur.pezzo}, ${cur.t}</div><div class="focus"><b>${cur.t}</b> ${A(cur.t).m}<small>Prima il pezzo intero, poi l'etichetta col codice ben leggibile.</small></div>${bloccoFoto(cur)}` : `<div class="vuoto">Nessuna richiesta aperta.</div>`}</div>
+    <div><div class="sotto">In arrivo</div>${V.map(r => `<div class="riga" data-k="r${r.id}"><div class="g"><b>${r.pezzo}</b><small>${r.t}, arriva ${tra(r.opz[r.ord].g)}</small></div></div>`).join("") || `<div class="vuoto">Niente in arrivo.</div>`}</div></div>`, "[data-k]"); }
+// amministratore: registro completo, errori, stato e strumenti per l'assistenza
+let regFiltro = "tutti";
+function disRegistro() { if (!LINGUE[ruolo].includes("registro")) return; const err = REGISTRO.filter(r => r.err).length;
+  testa("Reg", err, "bad", `${REGISTRO.length} eventi${err ? `, ${err} errori` : ", nessun errore"}`);
+  const F = ["tutti", "Capo", "Ufficio", "Officina", "Amministratore", "Sistema", "Errore"], L = REGISTRO.filter(r => regFiltro === "tutti" || r.chi === regFiltro);
+  set("bReg", `<div class="tre reg"><div><div class="sotto">Registro di tutte le azioni</div><div class="chips">${F.map(f => `<button class="chip2 ${regFiltro === f ? "on" : ""}" data-act="regF" data-v="${f}">${f === "tutti" ? "Tutti" : f === "Errore" ? "Errori" : f}</button>`).join("")}</div><ol class="reglist">${L.slice(0, 200).map(r => `<li class="${r.err ? "err" : ""}"><span>${r.ora}</span><b>${esc(r.chi)}</b>${esc(r.x)}</li>`).join("") || `<li class="vuoto">Ancora niente.</li>`}</ol></div>
+    <div><div class="sotto">Stato del sistema</div><dl class="kv2">${riga2("Auto in officina", dentro().length)}${riga2("Ricambi", `${aperteRic().length} da ordinare, ${inArrivo().length} in viaggio`)}${riga2("File", `${daDecidere().length} da confermare, ${pacchi().length} pacchi`)}${riga2("Invii automatici", Object.entries(REG).map(([k, v]) => `${k} ${v ? "acceso" : "spento"}`).join(", "))}${riga2("Meteo", esc($("meteo")?.title || "—"))}${riga2("Browser", esc(navigator.userAgent.match(/(Edg|Chrome|Firefox|Safari)\/[\d.]+/)?.[0] || "?"))}${riga2("Schermo", `${innerWidth}×${innerHeight}`)}</dl></div>
+    <div><div class="sotto">Assistenza</div><div class="col2"><label class="vedi">Vedi come <select data-act="ruolo">${Object.entries(RUOLI).map(([k, n]) => `<option value="${k}" ${k === ruolo ? "selected" : ""}>${n}</option>`).join("")}</select></label><button class="btn p sec" data-act="rapporto">Copia il rapporto per l'assistenza</button><button class="btn p sec" data-act="bloccaInvii">${Object.values(REG).some(Boolean) ? "Ferma tutti gli invii automatici" : "Riaccendi gli invii automatici"}</button><button class="btn p sec" data-act="riavvia">Ricarica la pagina</button></div><small class="nota">In questa bozza tutto gira sul computer che la apre. L'assistenza vera a distanza richiede il server condiviso, con un accesso per ogni persona.</small></div></div>`); }
 function pacco(p) { const s = PK[p.k] || {}, a = A(p.t), verso = p.g === "pratica" ? "Nella pratica" : "A " + GRUPPI[p.g].nome.toLowerCase();
   const b = p.manca.length ? `<button class="btn p sec" data-act="chiedi" data-v="${p.t}" ${a.chiestoFoto ? "disabled" : ""}>${a.chiestoFoto ? "Chiesto" : "Chiedi"}</button><button class="btn p sec" data-act="invia" data-v="${p.k}">Manda lo stesso</button>` : s.at ? `<span class="cd" data-cd="${p.k}"></span><button class="btn p sec" data-act="ferma" data-v="${p.k}">Aspetta</button><button class="btn p" data-act="invia" data-v="${p.k}">Adesso</button>` : `<button class="btn p" data-act="invia" data-v="${p.k}">${p.g === "pratica" ? "Archivia" : "Invia"}</button>`;
-  return `<div class="riga ${p.t === selT() ? "rel" : ""}" style="flex-wrap:wrap"><div class="g" style="min-width:150px"><b>${p.t}</b> <span style="font-size:13px">${verso}</span><div>${p.files.map(f => `<span class="doc" title="${esc(f.n)}">${f.tipo}</span>`).join("")}${p.manca.map(m => `<span class="doc no">manca ${m.toLowerCase()}</span>`).join("")}</div></div><div class="row" style="align-items:center">${b}</div></div>`; }
+  return `<div class="riga ${p.t === selT() ? "rel" : ""}" data-k="${p.k}" style="flex-wrap:wrap"><div class="g" style="min-width:150px"><b>${p.t}</b> <span style="font-size:13px">${verso}</span><div>${p.files.map(f => `<span class="doc" title="${esc(f.n)}">${f.tipo}</span>`).join("")}${p.manca.map(m => `<span class="doc no">manca ${m.toLowerCase()}</span>`).join("")}</div></div><div class="row" style="align-items:center">${b}</div></div>`; }
 function dubbio(f) { const t = f.t || f.sT, tipo = f.tipo || f.sTipo;
   return `<div class="riga" style="flex-wrap:wrap;border-color:#f0c869"><div class="g" style="min-width:170px"><b>${esc(f.n)}</b><small>${t || tipo ? `Credo sia: ${tipo || "?"} per ${t || "?"}${f.perche ? " (" + esc(f.perche) + ")" : ""}` : "Non riesco a capire di che auto è"}</small></div><div class="row"><select data-act="dubT" data-v="${f.id}" aria-label="Auto"><option value="">Quale auto?</option>${dentro().map(a => `<option ${a.t === t ? "selected" : ""} value="${a.t}">${a.t} ${a.m}</option>`).join("")}</select><select data-act="dubTipo" data-v="${f.id}" aria-label="Tipo di file"><option value="">Che cos'è?</option>${Object.values(GRUPPI).flatMap(g => g.tipi).map(x => `<option ${x === tipo ? "selected" : ""}>${x}</option>`).join("")}</select><button class="btn p" data-act="conferma" data-v="${f.id}" ${t && tipo ? "" : "disabled"}>Sì, è giusto</button></div></div>`; }
 function disFile() { const D = daDecidere(), P = pacchi(), I = FILES.filter(f => f.inviato), pronti = P.filter(p => !p.manca.length);
   testa("File", D.length + P.length, "", D.length ? `${D.length} da confermare${P.length ? `, ${P.length} ${P.length === 1 ? "pacco" : "pacchi"}` : ""}` : P.length ? `${pronti.length} pronti, ${P.length - pronti.length} incompleti` : "Trascina qui foto e documenti");
   const lista = D.map(dubbio).join("") + P.map(pacco).join("");
   const car = `<button class="carica" data-act="carica">Trascina i file dove vuoi nella pagina, anche sopra un'auto, o <b>scegli dal computer</b></button>`;
-  set("bFile", `<div class="due" style="grid-template-columns:1.7fr 1fr"><div>${car}${lista || `<div class="vuoto">Niente in attesa.</div>`}${pronti.length > 1 ? `<button class="btn" data-act="inviaTutti">Manda adesso i ${pronti.length} pacchi pronti</button>` : ""}</div><div><div class="sotto">Parte da solo dopo ${ATTESA_INVIO} secondi</div><div class="regole">${Object.entries(GRUPPI).map(([k, g]) => `<label><input type="checkbox" data-act="regola" data-v="${k}" ${REG[k] ? "checked" : ""}> ${g.regola}</label>`).join("")}</div><div class="sotto">Già andati oggi</div>${I.slice().reverse().map(f => `<div style="font-size:12.5px;color:var(--muted);margin:4px 0">${f.inviato} · <b style="color:var(--ink)">${f.t}</b> ${f.tipo}</div>`).join("") || `<div class="vuoto">Ancora nessuno.</div>`}</div></div>`);
+  set("bFile", `<div class="due" style="grid-template-columns:1.7fr 1fr"><div>${car}${lista || `<div class="vuoto">Niente in attesa.</div>`}${pronti.length > 1 ? `<button class="btn" data-act="inviaTutti">Manda adesso i ${pronti.length} pacchi pronti</button>` : ""}</div><div><div class="sotto">Parte da solo dopo ${ATTESA_INVIO} secondi</div><div class="regole">${Object.entries(GRUPPI).map(([k, g]) => `<label><input type="checkbox" data-act="regola" data-v="${k}" ${REG[k] ? "checked" : ""}> ${g.regola}</label>`).join("")}</div><div class="sotto">Già andati oggi</div>${I.slice().reverse().map(f => `<div style="font-size:12.5px;color:var(--muted);margin:4px 0">${f.inviato} · <b style="color:var(--ink)">${f.t}</b> ${f.tipo}</div>`).join("") || `<div class="vuoto">Ancora nessuno.</div>`}</div></div>`, "[data-k]");
   battito(); }
 function azioniPratica(a) { const r = RICH.find(x => x.t === a.t && x.ord == null), v = RICH.find(x => x.t === a.t && x.ord != null && !x.arr), p = pacchi().filter(x => x.t === a.t); let b = "";
   if (r) b += `<button class="btn p" data-act="ordina" data-v="${r.id}">Ordina ${r.pezzo.toLowerCase()}, ${eur(r.opz[r.sel].tot)}</button><button class="btn p sec" data-act="ric" data-v="${r.id}">Confronta offerte</button>`;
@@ -1061,7 +1219,7 @@ function azioniPratica(a) { const r = RICH.find(x => x.t === a.t && x.ord == nul
 const SCHEDA = { manca:["no", "da compilare in accettazione"], fatta:["", "compilata, stampata e sulla macchina"] };
 const riga2 = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
 const coloreHtml = a => `<i class="pal" style="background:${a.col}"></i>${nomeColore(a.col)}`;
-function disPratica() { const a = selId == null ? null : AUTO[selId]; $("chip").hidden = !a;
+function disPratica() { const a = selId == null ? null : AUTO[selId]; vedi($("chip"), !!a, { da:"scale(.85)", ms:260 });
   if (!a) { $("sPr").textContent = "Tocca un'auto nella tabella o sulla mappa"; $("tPr").textContent = "Nessuna auto scelta"; set("bPr", ""); return; }
   $("tPr").textContent = `${a.t} ${a.m}`; $("sPr").textContent = a.why || a.cli.n; $("chip").textContent = "✕ " + a.t;
   const zi = COLONNE.findIndex(c => c[0] === a.z), ric = RICH.filter(r => r.t === a.t), fl = FILES.filter(f => f.t === a.t && !f.inviato), [sc, st] = SCHEDA[a.scheda], d = a.dati;
@@ -1071,13 +1229,15 @@ function disPratica() { const a = selId == null ? null : AUTO[selId]; $("chip").
     <div><div class="sotto">Scheda e documenti</div><span class="doc ${sc}">scheda ${st}</span>${Object.entries(a.docs).filter(([n, ok]) => ok || !(n === "Fattura" && zi < 5) && !(n === "Perizia" && zi < 1)).map(([n, ok]) => `<span class="doc ${ok ? "" : "no"}">${ok ? "✓" : "manca"} ${n.toLowerCase()}</span>`).join("")}${fl.map(f => `<div style="font-size:12.5px;color:var(--muted);margin-top:5px">${esc(f.n)} in partenza</div>`).join("")}<div class="row" style="margin-top:9px"><button class="btn p sec" data-act="scheda" data-v="${a.t}">Apri la scheda</button><button class="btn p sec" data-act="caricaAuto" data-v="${a.t}">Aggiungi file</button></div></div>
     <div><div class="sotto">Ricambi</div>${ric.map(r => r.ord != null ? tracking(r) : `<div class="riga"><div class="g"><b>${r.pezzo}</b><small>da ordinare</small></div></div>`).join("") || `<div class="vuoto" style="padding:2px 0">Nessuno</div>`}${a.z === "park" ? "" : `<div class="row"><select id="pezzo" aria-label="Pezzo"><option>Faro anteriore</option><option>Paraurti posteriore</option><option>Specchietto destro</option><option>Parafango sinistro</option></select><button class="btn p sec" data-act="chiediPezzo" data-v="${a.t}">Chiedi</button></div>`}</div></div>`); }
 function apriScheda(t) { const a = A(t), r = (k, v) => `<tr><th>${k}</th><td>${v || "&nbsp;"}</td></tr>`, vuota = a.scheda === "manca";
-  $("schedaBox").innerHTML = `<button class="x" data-act="chiudiScheda" aria-label="Chiudi la scheda">×</button><h3>Scheda di accettazione</h3><p>Modello provvisorio: va rifatto uguale alla scheda vera quando arriva la foto.</p><table>${r("Targa", a.t)}${r("Auto", a.m)}${r("Colore", coloreHtml(a))}${r("Cliente", a.cli.n)}${r("Telefono", a.cli.tel)}${r("Lavori da fare", "")}${r("Note", "")}</table><span class="doc ${SCHEDA[a.scheda][0]}">scheda ${SCHEDA[a.scheda][1]}</span>`; $("scheda").showModal(); }
-function disInfo() { const b = $("info"); if (selId == null) { b.style.display = "none"; return; } const a = AUTO[selId];
-  set("info", `<button class="x" data-act="desel" aria-label="Chiudi">×</button><span class="plate">${a.t}</span><div class="mod">${a.m} <span class="pill ${a.s}">${STATO[a.s]}</span></div><div class="kv">${a.cli.n} · ${a.cli.tel}<br>${NOMEZ[a.z]} · ${a.g === 0 ? "da oggi" : "da " + gg(a.g)}</div>${a.why ? `<div class="why">${a.why}</div>` : ""}<div class="row" style="margin-top:8px">${azioniPratica(a)}</div>`); b.style.display = "block"; }
-function disDock() { $("dock").className = aperto ? "l2" : "l0"; $("pann").hidden = !aperto; $("pTit").textContent = { pratica:selId == null ? "" : `${selT()} · ${AUTO[selId].m} · ${AUTO[selId].cli.n}`, ricambi:"Richieste ricambi", file:"Carica e smista" }[aperto] || "";
-  [["cPratica", "pratica", "Pr"], ["cRic", "ricambi", "Ric"], ["cFile", "file", "File"]].forEach(([id, k, b]) => { if (ANT[k] && (ANT[k].fino < Date.now() || aperto === k)) delete ANT[k]; const n = ANT[k], t = $(id).querySelector(".testa");
-    $("b" + b).hidden = aperto !== k; $(id).className = `cas riq ${aperto === k ? "attivo" : ""} ${n ? "arrivo" : ""}`; t.setAttribute("aria-expanded", aperto === k); t.disabled = k === "pratica" && selId == null;
-    set("vb" + b, n ? `<div class="g"><b>${esc(n.h)}</b><small>${esc(n.s)}</small></div><button class="btn p" data-act="${n.act}" data-v="${n.v}">${n.b}</button>` : ""); }); }
+  $("schedaBox").innerHTML = `<button class="x" data-act="chiudiScheda" aria-label="Chiudi la scheda">×</button><h3>Scheda di accettazione</h3><p>Modello provvisorio: va rifatto uguale alla scheda vera quando arriva la foto.</p><table>${r("Targa", a.t)}${r("Auto", a.m)}${r("Colore", coloreHtml(a))}${r("Cliente", a.cli.n)}${r("Telefono", a.cli.tel)}${r("Lavori da fare", "")}${r("Note", "")}</table><span class="doc ${SCHEDA[a.scheda][0]}">scheda ${SCHEDA[a.scheda][1]}</span>`; apriD($("scheda"), document.querySelector(`[data-act="scheda"][data-v="${t}"]`)); }
+function disInfo() { const b = $("info"), vis = { da:"translateY(12px)", ms:300, mostra:() => { b.style.display = "block"; }, nascondi:() => { b.style.display = "none"; } }; if (selId == null) return vedi(b, false, vis); const a = AUTO[selId];
+  set("info", `<button class="x" data-act="desel" aria-label="Chiudi">×</button><span class="plate">${a.t}</span><div class="mod">${a.m} <span class="pill ${a.s}">${STATO[a.s]}</span></div><div class="kv">${a.cli.n} · ${a.cli.tel}<br>${NOMEZ[a.z]} · ${a.g === 0 ? "da oggi" : "da " + gg(a.g)}</div>${a.why ? `<div class="why">${a.why}</div>` : ""}<div class="row" style="margin-top:8px">${azioniPratica(a)}</div>`); vedi(b, true, vis); }
+function disDock() { $("dock").className = aperto ? "l2" : "l0"; const p = $("pann"); if ((p._k ?? null) !== aperto) { cambiaPannello(p._k ?? null, aperto); p._k = aperto; } if (aperto) $("pTit").textContent = { pratica:selId == null ? "" : `${selT()} · ${AUTO[selId].m} · ${AUTO[selId].cli.n}`, ricambi:$("tRic").textContent, file:"Carica e smista", registro:"Registro e assistenza" }[aperto];
+  const LG = LINGUE[ruolo]; $("ling").style.gridTemplateColumns = `repeat(${LG.length},minmax(0,1fr))`; $("ruolo").value = ruolo;
+  $("tRic").textContent = { capo:"Ricambi da comprare", officina:"Ricambi: chiedi e fotografa", ufficio:"Ordini ricambi", admin:"Richieste ricambi" }[ruolo];
+  [["cPratica", "pratica", "Pr"], ["cRic", "ricambi", "Ric"], ["cFile", "file", "File"], ["cReg", "registro", "Reg"]].forEach(([id, k, b]) => { $(id).hidden = !LG.includes(k); if (ANT[k] && (ANT[k].fino < Date.now() || aperto === k)) delete ANT[k]; const n = ANT[k], t = $(id).querySelector(".testa");
+    $(id).className = `cas riq ${aperto === k ? "attivo" : ""} ${n ? "arrivo" : ""}`; t.setAttribute("aria-expanded", aperto === k); t.disabled = k === "pratica" && selId == null;
+    setAnte("vb" + b, n ? `<div class="g"><b>${esc(n.h)}</b><small>${esc(n.s)}</small></div><button class="btn p" data-act="${n.act}" data-v="${n.v}">${n.b}</button>` : ""); }); }
 function apriP(k) { aperto = k; agg(); }
 function chiudiP() { if (aperto === "pratica") return deseleziona(); aperto = null; agg(); }
 function battito() { document.querySelectorAll("[data-cd]").forEach(e => { const s = PK[e.dataset.cd]; e.textContent = s?.at ? `parte tra ${Math.max(0, Math.ceil((s.at - Date.now()) / 1000))} s` : ""; }); }
@@ -1087,21 +1247,32 @@ setInterval(() => { const ora = Date.now(), sc = Object.keys(PK).filter(k => PK[
 // se l'etichetta non corrisponde al pezzo si chiede conferma prima di ordinare
 let sicuroFn = null;
 function sicuro(rs, go) { const m = rs.filter(r => verifica(r) === false); if (!m.length) return go(); sicuroFn = go;
-  $("lbBox").innerHTML = `<p style="font-size:16px"><b>L'etichetta non corrisponde al pezzo</b></p><p>${m.map(r => `${esc(r.pezzo)} (${r.t})`).join(", ")}. Ordinare comunque?</p><div class="row"><button class="btn p" data-act="chiudiZoom">No, controllo</button><button class="btn p sec" data-act="siOrdina">Ordina comunque</button></div>`; $("lb").showModal(); }
+  $("lbBox").innerHTML = `<p style="font-size:16px"><b>L'etichetta non corrisponde al pezzo</b></p><p>${m.map(r => `${esc(r.pezzo)} (${r.t})`).join(", ")}. Ordinare comunque?</p><div class="row"><button class="btn p" data-act="chiudiZoom">No, controllo</button><button class="btn p sec" data-act="siOrdina">Ordina comunque</button></div>`; apriD($("lb")); }
+const menuProva = on => vedi($("evMenu"), on, { da:"translateY(-8px) scale(.96)", ms:220, mostra:() => $("evMenu").classList.add("on"), nascondi:() => $("evMenu").classList.remove("on") });
+function cambiaRuolo(r) { if (!RUOLI[r] || r === ruolo) return; const fatto = () => { ruolo = r; document.body.dataset.ruolo = r; $("ruolo").value = r; nota(`Accesso come ${RUOLI[r].toLowerCase()}`);
+    if (aperto && !LINGUE[r].includes(aperto)) aperto = null; const u = new URL(location); u.searchParams.set("ruolo", r); history.replaceState(null, "", u); agg(); };
+  if (!document.startViewTransition || RIDOTTO.matches) return fatto(); const vt = document.startViewTransition(fatto); [vt.ready, vt.finished, vt.updateCallbackDone].forEach(x => x.catch(() => {})); }
 const R = id => RICH.find(r => r.id === +id), Fi = id => FILES.find(f => f.id === +id); let targaCarica = null;
 const ATT = {
   annulla:ripristina, filtro:v => { filtro = filtro === v ? "tutte" : v; agg(); }, auto:v => seleziona(+v), vai:v => seleziona(AUTO.indexOf(A(v)), true), desel:() => deseleziona(),
-  cassetto:v => aperto === v ? chiudiP() : apriP(v), chiudi:() => chiudiP(), scheda:v => apriScheda(v), chiudiScheda:() => $("scheda").close(),
+  cassetto:v => aperto === v ? chiudiP() : apriP(v), chiudi:() => chiudiP(), scheda:v => apriScheda(v), chiudiScheda:() => chiudiD($("scheda")),
   apri:v => { if (grande) setGrande(false); apriP(v); }, ric:v => { ricSel = +v; if (grande) setGrande(false); const r = R(v), i = r ? AUTO.indexOf(A(r.t)) : -1;   // il focus va sull'auto, il pannello resta sui ricambi
     if (i >= 0 && AUTO[i].z !== "fuori" && r.ord == null) { if (AUTO[i].ghost) filtro = "tutte"; selId = i; aperto = "ricambi"; agg(); inquadra(AUTO[i]); } else apriP("ricambi"); },
   foto:v => { const [k, id] = v.split("|"); fai("", () => { const r = R(id); foto2(r, k); return verifica(r) === false ? "L'etichetta non corrisponde al pezzo" : k === "fe" ? "Etichetta verificata: corrisponde" : "Foto del pezzo salvata"; }); },
   rifoto:v => fai("", () => { const r = R(v); r.rifatta = true; r.fe = null; foto2(r, "fe"); return "Etichetta rifatta: corrisponde"; }),
-  zoom:v => { const p = v.split("|"), r = R(p[0] === "o" ? p[1] : p[1]); const src = p[0] === "o" ? disegno(r.pezzo, r.opz[+p[2]].f.replace(" (esempio)", ""), TINTE[+p[2] % 3]) : p[0] === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod);
-    $("lbBox").innerHTML = `<img alt="" src="${src}"><p>${p[0] === "o" ? esc(r.opz[+p[2]].f) + ", " + esc(r.pezzo.toLowerCase()) : p[0] === "fp" ? "Foto del pezzo" : "Etichetta"} · immagine di esempio, non una foto vera</p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; $("lb").showModal(); }, chiudiZoom:() => $("lb").close(),
+  zoom:(v, el) => { const p = v.split("|"), r = R(p[0] === "o" ? p[1] : p[1]); const src = p[0] === "o" ? disegno(r.pezzo, r.opz[+p[2]].f.replace(" (esempio)", ""), TINTE[+p[2] % 3]) : p[0] === "fp" ? FOTOPEZZO(r) : disegno("etichetta", r.fe.cod);
+    $("lbBox").innerHTML = `<img alt="" src="${src}"><p>${p[0] === "o" ? esc(r.opz[+p[2]].f) + ", " + esc(r.pezzo.toLowerCase()) : p[0] === "fp" ? "Foto del pezzo" : "Etichetta"} · immagine di esempio, non una foto vera</p><button class="btn p" data-act="chiudiZoom">Chiudi</button>`; apriD($("lb"), el); }, chiudiZoom:() => chiudiD($("lb")),
+  ruolo:(v, e) => cambiaRuolo(e.value), regF:v => { regFiltro = v; agg(); },
+  ricOff:v => ATT.ric(v),
+  chiediOff:() => fai("", () => { const t = $("offAuto").value, p = $("offPezzo").value, r = creaRichiesta(t, p, "Officina"); ricSel = r.id; return `Chiesto: ${p.toLowerCase()} per ${t}. Ora le foto`; }),
+  rapporto:() => { const x = JSON.stringify({ quando:new Date().toISOString(), ruolo, schermo:[innerWidth, innerHeight], browser:navigator.userAgent, registro:REGISTRO.slice(0, 300), stato:JSON.parse(foto()) }, null, 1);
+    nota("Rapporto per l'assistenza copiato"); navigator.clipboard?.writeText(x).then(() => toast("Rapporto copiato: incollalo nel messaggio per l'assistenza"), () => toast("Copia non riuscita")); },
+  bloccaInvii:() => { const on = !Object.values(REG).some(Boolean); Object.keys(REG).forEach(k => REG[k] = on); nota(on ? "Invii automatici riaccesi" : "Invii automatici fermati dall'amministratore"); agg(); },
+  riavvia:() => location.reload(),
   scegli:v => { const [id, i] = v.split("|"); R(id).sel = +i; ricSel = +id; agg(); },
   ordina:v => { const go = () => fai("", () => { const r = R(v); ordina(r); return `Ordinato: ${r.pezzo}, arriva ${tra(r.opz[r.ord].g)}`; }); sicuro([R(v)], go); },
   ordinaTutti:() => sicuro(aperteRic(), () => fai("", () => { const P = aperteRic(); P.forEach(ordina); return `Ordinati ${P.length} ricambi`; })),
-  siOrdina:() => { $("lb").close(); const f = sicuroFn; sicuroFn = null; f?.(); },
+  siOrdina:() => { chiudiD($("lb")); const f = sicuroFn; sicuroFn = null; f?.(); },
   arrivato:v => fai("", () => { const r = R(v); arrivato(r); return `${r.t} può ripartire`; }),
   sollecita:v => fai("", () => { A(v).sollecito = true; nota(`${v}: perizia sollecitata`); return `Sollecito preparato per ${v}`; }),
   proroga:v => fai("", () => { const a = A(v); a.prev = a.g + 2; nota(`${v}: verniciatura allungata di 2 giorni`); return `${v}: nuova data, ${tra(2)}`; }),
@@ -1114,14 +1285,15 @@ const ATT = {
   conferma:v => fai("", () => { const f = Fi(v); f.t = f.t || f.sT; f.tipo = f.tipo || f.sTipo; f.ok = true; return `Ok: ${f.tipo.toLowerCase()} per ${f.t}`; }),
   carica:() => { targaCarica = null; $("fileIn").click(); }, caricaAuto:v => { targaCarica = v; $("fileIn").click(); },
   chiediPezzo:v => fai("", () => { const p = $("pezzo").value; creaRichiesta(v, p, "Ufficio"); return `Offerte trovate per ${p.toLowerCase()}`; }),
-  log:() => $("logBox").classList.toggle("on"), evMenu:() => $("evMenu").classList.toggle("on"),
+  log:() => { const b = $("logBox"), on = !b.classList.contains("on"); vedi($("log"), on, { altezza:true, da:"none", ms:320, mostra:() => b.classList.add("on"), nascondi:() => b.classList.remove("on") }); },
+  evMenu:() => menuProva(!$("evMenu")._on),
   evRic:() => automatico(() => { const a = dentro().find(x => ["off", "rif", "vern"].includes(x.z) && !RICH.some(r => r.t === x.t && !r.arr)); if (!a) return toast("Tutte le auto hanno già un ricambio richiesto"); const r = creaRichiesta(a.t, "Specchietto destro", "Marco"); toast(`Nuova richiesta: ${r.pezzo.toLowerCase()} per ${a.t}`); }),
   evFoto:() => automatico(() => { const a = dentro().find(x => x.z === "acc"); if (!a) return toast("Nessuna auto in accettazione"); const n = norm(a.t); arrivaFile([...(a.docs["Preventivo"] || FILES.some(f => f.t === a.t && f.tipo === "Preventivo") ? [] : [n + "_preventivo.pdf"]), n + "_foto_danno.jpg"]); toast(`Arrivate le foto di ${a.t}`); }),
   evPer:() => automatico(() => { const a = dentro().find(x => x.z === "per" && !x.docs["Perizia"] && !FILES.some(f => f.t === x.t && f.tipo === "Perizia")); if (!a) return toast("Nessuna perizia da aspettare"); arrivaFile([norm(a.t) + "_perizia.pdf"]); toast(`Arrivata la perizia di ${a.t}`); }),
   evTrack:() => { if (!inArrivo().filter(haTracking).length) return toast("Nessun pezzo in viaggio con tracking"); avanzaTracking(true); },
   evStrano:() => automatico(() => { arrivaFile(["scansione_" + String(43 + fileN).padStart(4, "0") + ".pdf"]); toast("Arrivato un file senza nome chiaro"); }),
 };
-document.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!e.target.closest("#evMenu, #provaEv") || b?.closest("#evMenu")) $("evMenu").classList.remove("on");
+document.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!e.target.closest("#evMenu, #provaEv") || b?.closest("#evMenu")) menuProva(false);
   if (!b || b.disabled || b.tagName === "SELECT" || b.tagName === "INPUT") return; ATT[b.dataset.act]?.(b.dataset.v, b); });
 document.addEventListener("change", e => { const b = e.target.closest("select[data-act], input[data-act]"); if (b) ATT[b.dataset.act](b.dataset.v, b); });
 $("fileIn").onchange = e => { const n = [...e.target.files].map(f => f.name), t = targaCarica; e.target.value = ""; if (n.length) automatico(() => arrivaFile(n, t ? { t } : {})); };
@@ -1164,12 +1336,14 @@ etichette.forEach((l, i) => { l.style.pointerEvents = "auto"; l.style.cursor = "
 
 // ricerca per targa o modello
 const inp = $("q"), sug = $("sugg");
-inp.addEventListener("input", () => { const q = inp.value.replace(/\s/g, "").toUpperCase(); if (!q) { sug.style.display = "none"; return; }
+const VSUG = { da:"translateY(-6px) scale(.98)", ms:220, mostra:() => { sug.style.display = "block"; }, nascondi:() => { sug.style.display = "none"; } };
+const VPROVA = { da:"translateY(-6px) scale(.96)", ms:220, mostra:() => { $("provaMenu").style.display = "block"; }, nascondi:() => { $("provaMenu").style.display = "none"; } };
+inp.addEventListener("input", () => { const q = inp.value.replace(/\s/g, "").toUpperCase(); if (!q) { vedi(sug, false, VSUG); return; }
   const ris = AUTO.map((a, i) => ({ a, i })).filter(({ a }) => a.t.replace(/\s/g, "").includes(q) || [a.m, a.cli.n, nomeColore(a.col)].some(x => x.toUpperCase().includes(inp.value.trim().toUpperCase())) || a.cli.tel.replace(/\s/g, "").includes(q)).filter(({ a }) => a.z !== "fuori").slice(0, 5);
-  sug.innerHTML = ris.map(({ a, i }) => `<button data-i="${i}"><b>${a.t}</b><small>${a.m} · ${a.cli.n}</small></button>`).join("") || `<div style="padding:10px;color:var(--muted)">Nessuna auto trovata</div>`; sug.style.display = "block";
-  sug.querySelectorAll("button").forEach(b => b.onclick = () => { seleziona(+b.dataset.i, true); inp.value = ""; sug.style.display = "none";  }); });
+  sug.innerHTML = ris.map(({ a, i }) => `<button data-i="${i}"><b>${a.t}</b><small>${a.m} · ${a.cli.n}</small></button>`).join("") || `<div style="padding:10px;color:var(--muted)">Nessuna auto trovata</div>`; vedi(sug, true, VSUG);
+  sug.querySelectorAll("button").forEach(b => b.onclick = () => { seleziona(+b.dataset.i, true); inp.value = ""; vedi(sug, false, VSUG);  }); });
 inp.addEventListener("keydown", e => { if (e.key === "Enter") sug.querySelector("button")?.click(); });
-document.addEventListener("click", e => { if (!$("search").contains(e.target)) sug.style.display = "none"; if (!$("provaMenu").contains(e.target) && e.target !== $("prova")) $("provaMenu").style.display = "none"; });
+document.addEventListener("click", e => { if (!$("search").contains(e.target)) vedi(sug, false, VSUG); if (!$("provaMenu").contains(e.target) && e.target !== $("prova")) vedi($("provaMenu"), false, VPROVA); });
 
 /* ================================================================== FINESTRA 3D: misura, viste, schermo intero */
 function vistaPT(id) { const v = VISTE[id], k = clamp(1.45 / (VW / VH), .8, 2); return { p:v.t.clone().add(v.p.clone().sub(v.t).multiplyScalar(k)), t:v.t.clone() }; }
@@ -1183,7 +1357,7 @@ function adatta() {
   if (vistaAttiva) vai(vistaAttiva, true);
 }
 new ResizeObserver(adatta).observe(stage);
-function setGrande(on) { grande = on; document.body.classList.toggle("fullscreen", on); stage.classList.toggle("big", on); $("espandi").textContent = on ? "Riduci ⤡" : "Ingrandisci ⤢"; modoControlli(); $("provaMenu").style.display = "none"; }
+function setGrande(on) { if (grande === on) return; voloFinestra(() => { grande = on; document.body.classList.toggle("fullscreen", on); stage.classList.toggle("big", on); }); $("espandi").textContent = on ? "Riduci ⤡" : "Ingrandisci ⤢"; modoControlli(); vedi($("provaMenu"), false, VPROVA); }
 $("espandi").onclick = () => setGrande(!grande);
 $("scrim").onclick = () => setGrande(false);
 
@@ -1196,7 +1370,7 @@ $("vTetto").onclick = () => { chiuso = !chiuso; $("vTetto").classList.toggle("on
 // prova meteo: serve per mostrare gli effetti, il meteo vero si aggiorna da solo
 const voci = [["auto", "Meteo vero di Livorno"], ["sole", "☀️ Sole"], ["nuvoloso", "⛅ Nuvoloso"], ["pioggia", "🌧️ Pioggia"], ["temporale", "⛈️ Temporale con fulmini"], ["neve", "❄️ Neve"], ["nebbia", "🌫️ Nebbia"]];
 $("provaMenu").innerHTML = voci.map(([id, t]) => `<button data-m="${id}" class="${id === "auto" ? "on" : ""}">${t}</button>`).join("");
-$("prova").onclick = () => { const m = $("provaMenu"); m.style.display = m.style.display === "block" ? "none" : "block"; };
+$("prova").onclick = () => vedi($("provaMenu"), !$("provaMenu")._on, VPROVA);
 $("provaMenu").querySelectorAll("button").forEach(b => b.onclick = () => { $("provaMenu").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
   manuale = b.dataset.m === "auto" ? null : { p:PRESET[b.dataset.m], n:b.dataset.m, temp:reale?.temp ?? null, day:reale?.day ?? 1, prog:reale?.prog ?? .55 }; applicaMeteo(); });
 
@@ -1213,13 +1387,16 @@ const clock = new THREE.Clock(); let T = 0;
 function ciclo() {
   requestAnimationFrame(ciclo);
   const dt = Math.min(clock.getDelta(), .1); T += dt;
-  if (fly) { fly.k += dt / fly.dur; const e = 1 - Math.pow(1 - Math.min(1, fly.k), 3); camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) fly = null; }
+  if (fly) { fly.k += dt / fly.dur; const k = Math.min(1, fly.k), e = fly.gia ? 1 - Math.pow(1 - k, 3) : k * k * k * (k * (k * 6 - 15) + 10); camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.t0, fly.t1, e); if (fly.k >= 1) fly = null; }
   controls.update();
   aggiornaMeteo(dt, T);
   // tetto e pareti: aperto = si vede dentro, chiuso = capannone vero
   kChiuso = lerp(kChiuso, chiuso ? 1 : 0, 1 - Math.exp(-dt * 4)); muri.scale.y = lerp(.2, 1, kChiuso); tetto.visible = kChiuso > .03; tettoMats.forEach((m, i) => m.opacity = i ? .85 * kChiuso : kChiuso); neon.visible = kChiuso > .5;
   // le auto si spostano da sole quando cambiano fase
-  { const kk = 1 - Math.exp(-dt * 2.2); AUTO.forEach(a => { a.x = lerp(a.x, a.tx, kk); a.zz = lerp(a.zz, a.tz, kk); a.car.position.set(a.x, lerp(a.car.position.y, .07 + a.lift, kk), a.zz); a.car.rotation.y = lerp(a.car.rotation.y, a.ry, kk); a.ring.position.x = a.disco.position.x = a.x; a.ring.position.z = a.disco.position.z = a.zz; }); }
+  // molla smorzata: l'auto parte da ferma, accelera e frena fino al posto, senza strappi né rimbalzi
+  { const w = 2.4, sp = (x, v, t) => { const a = w * w * (t - x) - 2 * w * v; v += a * dt; return [x + v * dt, v]; };
+    AUTO.forEach(a => { [a.x, a.vx] = sp(a.x, a.vx || 0, a.tx); [a.zz, a.vz] = sp(a.zz, a.vz || 0, a.tz); [a.yy, a.vy] = sp(a.yy ?? a.car.position.y, a.vy || 0, .07 + a.lift); [a.rr, a.vr] = sp(a.rr ?? a.car.rotation.y, a.vr || 0, a.ry);
+      a.car.position.set(a.x, a.yy, a.zz); a.car.rotation.y = a.rr; a.ring.position.x = a.disco.position.x = a.x; a.ring.position.z = a.disco.position.z = a.zz; }); }
   // anelli: pulsano se l'auto è ferma
   AUTO.forEach((a, i) => { const p = a.s === "bad" ? .5 + .5 * Math.sin(T * 3.2) : 0, sel = selId === i || hoverId === i; a.ring.material.opacity = (sel ? 1 : .8) + p * .2; a.disco.material.opacity = sel ? .3 : .1 + p * .12; a.ring.scale.setScalar(sel ? 1.08 + Math.sin(T * 4) * .02 : 1); });
   traffico.forEach(c => { c.position.x += c.userData.v * dt; if (c.userData.v > 0 && c.position.x > 90) c.position.x = -90; if (c.userData.v < 0 && c.position.x < -90) c.position.x = 90; });
