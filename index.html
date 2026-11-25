@@ -364,6 +364,8 @@
   .coda { display:flex; align-items:center; gap:8px; padding:3px 4px; } .coda > button:first-child { flex:1; text-align:left; background:none; font-size:13px; } .coda small { display:block; color:var(--muted); font-size:12px; }
   @media (max-width:860px) { .due2 { grid-template-columns:minmax(0,1fr); } .docv { grid-template-columns:18px minmax(0,1fr) auto 26px; } .dtop { flex-direction:column; } .cas .ante { padding:0 4px 0 8px; } #ling { grid-auto-columns:1fr; } .cas .ante .xn { display:none; } }
   @media (max-width:860px) { .car .op { display:none; } }
+
+  .msgl { display:block; margin-top:8px; font-size:12.5px; color:var(--muted); } .msgl textarea { display:block; width:100%; box-sizing:border-box; margin-top:3px; padding:7px 9px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:13.5px; color:var(--ink); resize:vertical; background:#fff; } .msgv { display:block; font-style:italic; margin-top:2px; }
 </style>
 <script type="importmap">
 { "imports": { "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -1013,12 +1015,16 @@ const DEST = {
 const DEST_GR = { perito:["perito"], conti:["commercialista", "cliente"], pratica:[] };
 const mailDi = (d, a) => d === "cliente" ? a.cli.mail : DEST[d].mail;
 const giaMandato = (a, d, nome, tipo, vero) => a.inviati.some(x => x.d === d && (x.nomi.includes(nome) || (x.prima && !vero && x.tipi.includes(tipo))));
-function registraInvio(a, d, docs) { a.inviati.unshift({ d, ora:"oggi " + ora2(), nomi:docs.map(x => x.nome), tipi:[...new Set(docs.map(x => x.tipo))] }); }
+function registraInvio(a, d, docs, msg) { a.inviati.unshift({ d, ora:"oggi " + ora2(), nomi:docs.map(x => x.nome), tipi:[...new Set(docs.map(x => x.tipo))], msg:msg || "" }); }
+// il testo che accompagna ogni invio: preparato dal sistema, il capo lo può cambiare prima di mandare
+const msgBase = (a, d, nomi) => `Buongiorno${d === "cliente" ? " " + a.cli.n.split(" ")[0] : ""}, vi mando per ${a.t} ${a.m}: ${nomi.join(", ")}. Cordiali saluti, Nuova Carrozzeria Accademia`;
+const campoMsg = (d, testo, k = "") => `<label class="msgl">Messaggio${d ? " a " + DEST[d].nome.toLowerCase() : ""} <small>(puoi cambiarlo)</small><textarea class="msgInv" rows="3" data-d="${d || ""}" data-k="${esc(k)}">${esc(testo)}</textarea></label>`;
+const leggiMsg = (k = "") => { const m = {}; document.querySelectorAll("#lbBox .msgInv").forEach(e => { if (e.dataset.k === k) m[e.dataset.d] = e.value.trim(); }); return m; };
 AUTO.forEach(a => { a.inviati = []; a.avvStop = false; a.avvAt = null; const V = (d, tipi) => a.inviati.push({ d, ora:"nei giorni scorsi", nomi:[], tipi, prima:true });
   if (a.docs["Fattura"]) { V("commercialista", ["Fattura"]); V("cliente", ["Fattura"]); } if (a.docs["Preventivo"]) V("perito", ["Preventivo", "Foto danno"]); });
 // auto pronta: il messaggio al cliente parte da solo, con il tempo per fermarlo
 const messaggio = a => `Buongiorno ${a.cli.n.split(" ")[0]}, la sua ${a.m} (${a.t}) è pronta per il ritiro. Nuova Carrozzeria Accademia`;
-function avvisaCliente(a) { a.avv = true; a.avvAt = null; a.inviati.unshift({ d:"cliente", ora:"oggi " + ora2(), nomi:["Avviso: auto pronta"], tipi:[], testo:messaggio(a) }); nota(`${a.t}: avviso "auto pronta" a ${a.cli.n} (${a.cli.tel})`); return `${a.t}: ${a.cli.n} avvisato che l'auto è pronta`; }
+function avvisaCliente(a, msg) { a.avv = true; a.avvAt = null; a.inviati.unshift({ d:"cliente", ora:"oggi " + ora2(), nomi:["Avviso: auto pronta"], tipi:[], testo:msg || messaggio(a) }); nota(`${a.t}: avviso "auto pronta" a ${a.cli.n} (${a.cli.tel})`); return `${a.t}: ${a.cli.n} avvisato che l'auto è pronta`; }
 function programmaClienti() { dentro().forEach(a => { a.avvAt = null; }); }   // il messaggio al cliente non parte mai da solo: lo conferma il capo
 const aperteRic = () => RICH.filter(r => r.ord == null), inArrivo = () => RICH.filter(r => r.ord != null && !r.arr);
 const ora2 = () => new Date().toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit", timeZone:"Europe/Rome" });
@@ -1079,8 +1085,8 @@ function pacchi() { const m = {};
 function programma() { const ps = pacchi();
   ps.forEach(p => { const s = PK[p.k] ||= { at:null, ferma:false }; const auto = p.g === "pratica" && REG.pratica && !p.manca.length && !s.ferma; if (auto && !s.at) s.at = Date.now() + ATTESA_INVIO * 1000; if (!auto) s.at = null; });
   Object.keys(PK).forEach(k => { if (!ps.some(p => p.k === k)) delete PK[k]; }); }
-function invia(k, daSolo) { const p = pacchi().find(x => x.k === k); if (!p) return; const a = A(p.t), n = p.files.length;
-  DEST_GR[p.g].forEach(d => { const nuovi = p.files.filter(f => !giaMandato(a, d, f.n, f.tipo, true)); if (nuovi.length) registraInvio(a, d, nuovi.map(f => ({ nome:f.n, tipo:f.tipo }))); });
+function invia(k, daSolo, msgs = {}) { const p = pacchi().find(x => x.k === k); if (!p) return; const a = A(p.t), n = p.files.length;
+  DEST_GR[p.g].forEach(d => { const nuovi = p.files.filter(f => !giaMandato(a, d, f.n, f.tipo, true)); if (nuovi.length) registraInvio(a, d, nuovi.map(f => ({ nome:f.n, tipo:f.tipo })), msgs[d]); });
   p.files.forEach(f => { f.inviato = ora2(); a.docs[f.tipo] = true; }); delete PK[k];
   const esito = p.g === "pratica" ? `${p.t}: ${n === 1 ? p.files[0].tipo.toLowerCase() + " messa" : n + " file messi"} nella pratica` : `${p.t}: ${n} file a ${GRUPPI[p.g].nome.toLowerCase()}`;
   nota(esito + (daSolo ? " (da solo)" : ""));
@@ -1361,14 +1367,14 @@ function htmlDocumenti(a) { if (docT !== a.t) { docT = a.t; docSel = new Set(); 
   const avv = a.z === "park" ? `<div class="pia avvc ${a.avv ? "fatto" : "parte"}"><div class="g"><b>Cliente</b><small>messaggio "auto pronta"</small></div>${a.avv ? `<span class="ps">✓ avvisato</span>` : `<button class="btn p" data-act="avvisa" data-v="${a.t}">Controlla e manda</button>`}</div>` : "";
   return `<div class="docs due2"><div><div class="dtop">${puo("caricaAuto") ? `<button class="carica" data-drop="${a.t}" data-act="caricaAuto" data-v="${a.t}">Lascia qui un file di <b>${a.t}</b>: si smista da solo. Oppure <b>scegli dal computer</b></button>` : ""}<button class="btn p sec" data-act="cartella" data-v="${a.t}">📁 Cartella dell'auto</button></div>${dub.map(dubbio).join("")}<div class="dgrid">${gruppi}</div></div>
     <div class="lato">${manda ? `<div class="sotto">Manda ${sel.length ? `${sel.length} ${sel.length === 1 ? "documento" : "documenti"}` : ""}</div><div class="manda">${sel.length ? `<small>A chi?</small><div class="chips">${Object.entries(DEST).map(([k, D]) => `<button class="chip2 ${destSel.has(k) ? "on" : ""}" data-act="destDoc" data-v="${k}">${D.nome}${cons.includes(k) ? " ★" : ""}</button>`).join("")}</div>${destSel.size ? `<button class="btn p" data-act="mandaDoc" data-v="${a.t}">Controlla e manda</button>` : `<small>Scegli almeno un destinatario.</small>`}` : `<small>Spunta i documenti a sinistra, poi scegli a chi mandarli. Il nome del gruppo li spunta tutti.</small>`}</div>` : ""}
-    <div class="sotto">Da mandare</div>${avv}${P.map(riga).join("")}${a.inviati.length ? `<div class="sotto">Già mandati</div>${a.inviati.map(x => `<div class="gia"><b>${DEST[x.d].nome}</b> ${esc(x.ora)}<br><small>${esc(x.testo || (x.nomi.length ? x.nomi.join(", ") : x.tipi.join(", ").toLowerCase()))}</small></div>`).join("")}` : ""}</div></div>`; }
+    <div class="sotto">Da mandare</div>${avv}${P.map(riga).join("")}${a.inviati.length ? `<div class="sotto">Già mandati</div>${a.inviati.map(x => `<div class="gia"><b>${DEST[x.d].nome}</b> ${esc(x.ora)}<br><small>${esc(x.testo || (x.nomi.length ? x.nomi.join(", ") : x.tipi.join(", ").toLowerCase()))}</small>${x.msg ? `<small class="msgv">“${esc(x.msg)}”</small>` : ""}</div>`).join("")}` : ""}</div></div>`; }
 // il controllo prima dell'invio: a chi, dove, cosa, e tutto quello che non torna
 let invioPronto = null;
 function controllaInvio(t) { const a = A(t), L = documentiAuto(a), sel = L.filter(d => d.stato !== "Manca" && docSel.has(d.k)), dd = [...destSel]; if (!sel.length || !dd.length) return; invioPronto = { t, sel, dd };
   const blocco = d => { const D = DEST[d], w = [], strani = sel.filter(x => !D.tipi.includes(x.tipo)), gia = sel.filter(x => x.a.includes(d)), ma = D.tipi.filter(tp => !sel.some(x => x.tipo === tp) && !L.some(x => x.tipo === tp && x.a.includes(d)));
     if (strani.length) w.push(`Di solito non va a ${D.nome.toLowerCase()}: ${[...new Set(strani.map(x => x.tipo.toLowerCase()))].join(", ")}`); if (gia.length) w.push(`Già mandato: ${gia.map(x => x.nome).join(", ")}`); if (ma.length) w.push(`Manca per completare: ${ma.join(", ").toLowerCase()}`);
     const alt = sel.filter(x => { const r = riconosci(x.nome).t; return r && r !== t; }); if (alt.length) w.push(`Nel nome c'è un'altra targa: ${alt.map(x => x.nome).join(", ")}`);
-    return `<div class="ctrl"><b>${D.nome}</b> <span>${esc(d === "cliente" ? a.cli.n + ", " : "")}${esc(mailDi(d, a))}</span>${w.length ? w.map(x => `<div class="warn">⚠ ${esc(x)}</div>`).join("") : `<div class="okk">✓ Tutto torna</div>`}</div>`; };
+    return `<div class="ctrl"><b>${D.nome}</b> <span>${esc(d === "cliente" ? a.cli.n + ", " : "")}${esc(mailDi(d, a))}</span>${w.length ? w.map(x => `<div class="warn">⚠ ${esc(x)}</div>`).join("") : `<div class="okk">✓ Tutto torna</div>`}${campoMsg(d, msgBase(a, d, sel.map(x => x.nome)))}</div>`; };
   $("lbBox").innerHTML = `<h3 class="ctit">Controlla prima di mandare</h3><p>${esc(a.t)} ${esc(a.m)}, ${esc(a.cli.n)}</p><ul class="clist">${sel.map(x => `<li>${esc(x.nome)}</li>`).join("")}</ul>${dd.map(blocco).join("")}<small class="nota">Bozza: non parte nessuna mail vera.</small><div class="row" style="margin-top:10px"><button class="btn p sec" data-act="chiudiZoom">Torna indietro</button><button class="btn p" data-act="siManda">Manda</button></div>`; apriD($("lb")); }
 // pacco completo (o incompleto, "Manda lo stesso"): stesso controllo, poi invia() con il pacco intero
 function controllaPacco(k) { const ks = [].concat(k), ps = ks.map(x => pacchi().find(p => p.k === x)).filter(Boolean); if (!ps.length) return; invioPronto = { pk:ps.map(p => p.k) };
@@ -1376,13 +1382,17 @@ function controllaPacco(k) { const ks = [].concat(k), ps = ks.map(x => pacchi().
 function blocchiPacco(p) { const a = A(p.t);
   const blocco = d => { const D = DEST[d], w = [], strani = p.files.filter(f => !D.tipi.includes(f.tipo)), gia = p.files.filter(f => giaMandato(a, d, f.n, f.tipo, true)), alt = p.files.filter(f => { const r = riconosci(f.n).t; return r && r !== p.t; });
     if (p.manca.length) w.push(`Manca per completare: ${p.manca.join(", ").toLowerCase()}`); if (strani.length) w.push(`Di solito non va a ${D.nome.toLowerCase()}: ${[...new Set(strani.map(x => x.tipo.toLowerCase()))].join(", ")}`); if (gia.length) w.push(`Già mandato: ${gia.map(x => x.n).join(", ")}`); if (alt.length) w.push(`Nel nome c'è un'altra targa: ${alt.map(x => x.n).join(", ")}`);
-    return `<div class="ctrl"><b>${D.nome}</b> <span>${esc(d === "cliente" ? a.cli.n + ", " : "")}${esc(mailDi(d, a))}</span>${w.length ? w.map(x => `<div class="warn">⚠ ${esc(x)}</div>`).join("") : `<div class="okk">✓ Tutto torna</div>`}</div>`; };
+    return `<div class="ctrl"><b>${D.nome}</b> <span>${esc(d === "cliente" ? a.cli.n + ", " : "")}${esc(mailDi(d, a))}</span>${w.length ? w.map(x => `<div class="warn">⚠ ${esc(x)}</div>`).join("") : `<div class="okk">✓ Tutto torna</div>`}${campoMsg(d, msgBase(a, d, p.files.map(f => f.n)), p.k)}</div>`; };
   return `<p><b>${esc(a.t)}</b> ${esc(a.m)}, ${esc(a.cli.n)}</p><ul class="clist">${p.files.map(x => `<li>${esc(x.n)}</li>`).join("")}</ul>${DEST_GR[p.g].map(blocco).join("")}`; }
+function controllaSollecito(t) { const a = A(t); invioPronto = { sol:t };
+  const testo = `Buongiorno, siamo la Nuova Carrozzeria Accademia. Vi chiediamo un aggiornamento sulla perizia della ${a.m} targata ${a.t}, intestata a ${a.cli.n} (sinistro ${a.dati.sin}): è stata richiesta ${gg(a.g)} fa e l'auto è ferma in attesa. Grazie, cordiali saluti.`;
+  $("lbBox").innerHTML = `<h3 class="ctit">Sollecita la perizia</h3><p><b>${esc(a.t)}</b> ${esc(a.m)}, ${esc(a.cli.n)}</p><div class="ctrl"><b>${esc(a.dati.ass)}</b> <span>${esc(DEST.assicurazione.mail)}</span></div><label class="msgl">Messaggio <small>(puoi cambiarlo)</small><textarea class="msgInv" rows="5" data-d="assicurazione" data-k="">${esc(testo)}</textarea></label><small class="nota">Bozza: non parte nessuna mail vera.</small><div class="row" style="margin-top:10px"><button class="btn p sec" data-act="chiudiZoom">Torna indietro</button><button class="btn p" data-act="siManda">Manda il sollecito</button></div>`; apriD($("lb")); }
 function controllaCliente(t) { const a = A(t); invioPronto = { cli:t };
-  $("lbBox").innerHTML = `<h3 class="ctit">Controlla prima di mandare</h3><p>${esc(a.t)} ${esc(a.m)}</p><div class="ctrl"><b>Cliente</b> <span>${esc(a.cli.n)}, ${esc(a.cli.tel)}</span><div class="okk">${esc(messaggio(a))}</div></div><small class="nota">Bozza: non parte nessun messaggio vero.</small><div class="row" style="margin-top:10px"><button class="btn p sec" data-act="chiudiZoom">Torna indietro</button><button class="btn p" data-act="siManda">Manda</button></div>`; apriD($("lb")); }
-function mandaAdesso() { if (invioPronto.pk) { const ks = invioPronto.pk; invioPronto = null; return fai("", () => { ks.forEach(k => invia(k)); return ks.length > 1 ? `Mandati ${ks.length} pacchi` : undefined; }); } if (invioPronto.cli) { const t = invioPronto.cli; invioPronto = null; return fai("", () => avvisaCliente(A(t))); }
-  const { t, sel, dd } = invioPronto, a = A(t); invioPronto = null; annullo = null;
-  dd.forEach(d => registraInvio(a, d, sel));
+  $("lbBox").innerHTML = `<h3 class="ctit">Controlla prima di mandare</h3><p>${esc(a.t)} ${esc(a.m)}</p><div class="ctrl"><b>Cliente</b> <span>${esc(a.cli.n)}, ${esc(a.cli.tel)}</span></div><label class="msgl">Messaggio <small>(puoi cambiarlo)</small><textarea class="msgInv" rows="3" data-d="cliente" data-k="">${esc(messaggio(a))}</textarea></label><small class="nota">Bozza: non parte nessun messaggio vero.</small><div class="row" style="margin-top:10px"><button class="btn p sec" data-act="chiudiZoom">Torna indietro</button><button class="btn p" data-act="siManda">Manda</button></div>`; apriD($("lb")); }
+function mandaAdesso() { if (invioPronto.sol) { const t = invioPronto.sol, m = leggiMsg().assicurazione; invioPronto = null; return fai("", () => { const a = A(t); a.sollecito = true; a.inviati.unshift({ d:"assicurazione", ora:"oggi " + ora2(), nomi:["Sollecito perizia"], tipi:[], testo:m }); nota(`${t}: perizia sollecitata a ${a.dati.ass}`); return `Sollecito mandato per ${t}`; }); }
+  if (invioPronto.pk) { const ks = invioPronto.pk; invioPronto = null; return fai("", () => { ks.forEach(k => invia(k, false, leggiMsg(k))); return ks.length > 1 ? `Mandati ${ks.length} pacchi` : undefined; }); } if (invioPronto.cli) { const t = invioPronto.cli, m = leggiMsg().cliente; invioPronto = null; return fai("", () => avvisaCliente(A(t), m)); }
+  const { t, sel, dd } = invioPronto, a = A(t), msgs = leggiMsg(); invioPronto = null; annullo = null;
+  dd.forEach(d => registraInvio(a, d, sel, msgs[d]));
   // un file nuovo esce da "in partenza" solo quando l'hanno avuto tutti i suoi destinatari
   sel.filter(x => x.fid).forEach(x => { const f = Fi(x.fid); if (f && !f.inviato && DEST_GR[gruppoDi(f.tipo)].length && DEST_GR[gruppoDi(f.tipo)].every(d => giaMandato(a, d, f.n, f.tipo, true))) { f.inviato = ora2(); a.docs[f.tipo] = true; } });
   nota(`${t}: ${sel.length} ${sel.length === 1 ? "documento" : "documenti"} a ${dd.map(d => DEST[d].nome.toLowerCase()).join(" e ")}`);
@@ -1416,8 +1426,11 @@ function disDock() { $("dock").className = aperto ? "l2" : "l0"; const p = $("pa
     setAnte("vb" + b, n ? `<div class="g" data-act="cassetto" data-v="${k}"><b>${esc(n.h)}</b><small>${esc(n.s)}</small></div><button class="btn p" data-act="${n.act}" data-v="${n.v}">${n.b}</button><button class="xn" data-act="antVia" data-v="${k}" aria-label="Chiudi la notifica">×</button>` : ""); }); }
 function apriP(k) { aperto = k; agg(); }
 // due lampeggi sull'elemento cercato, quando il pannello ha finito di disegnarsi
-function lampeggia(sel, n = 0) { const e = $("pann").querySelector(sel); if (!e) { if (n < 8) setTimeout(() => lampeggia(sel, n + 1), 150); return; }
-  e.scrollIntoView({ block:"center", behavior:"smooth" }); setTimeout(() => e.animate([{ boxShadow:"0 0 0 0 rgba(245,166,35,0)" }, { boxShadow:"0 0 0 4px rgba(245,166,35,.95)", background:"#fff3d6" }, { boxShadow:"0 0 0 0 rgba(245,166,35,0)" }, { boxShadow:"0 0 0 4px rgba(245,166,35,.95)", background:"#fff3d6" }, { boxShadow:"0 0 0 0 rgba(245,166,35,0)" }], { duration:1300, easing:"ease-in-out" }), 350); }
+function lampeggia(sel, n = 0) { const e = $("pann").querySelector(sel); if (!e || $("pann").clientHeight < 150) { if (n < 25) setTimeout(() => lampeggia(sel, n + 1), 120); return; }   // aspetta che il pannello sia aperto
+  e.scrollIntoView({ block:"center", inline:"nearest", behavior:"instant" });
+  const r = e.getBoundingClientRect(), p = $("pann").getBoundingClientRect(); if (r.top < p.top || r.bottom > p.bottom) e.scrollIntoView({ block:"nearest", behavior:"instant" });
+  const on = { boxShadow:"inset 0 0 0 3px rgba(245,166,35,1), 0 0 0 3px rgba(245,166,35,.9)", background:"#fff0c2" }, off = { boxShadow:"inset 0 0 0 0 rgba(245,166,35,0), 0 0 0 0 rgba(245,166,35,0)" };
+  e.animate([off, on, off, on, off], { duration:1300, easing:"ease-in-out" }); }
 function chiudiP() { if (aperto === "pratica") return deseleziona(); aperto = null; agg(); }
 function battito() { document.querySelectorAll("[data-cd]").forEach(e => { const s = PK[e.dataset.cd]; if (e.dataset.cd.startsWith("avv|")) { const a = A(e.dataset.cd.slice(4)); e.textContent = a?.avvAt ? `parte tra ${Math.max(0, Math.ceil((a.avvAt - Date.now()) / 1000))} s` : ""; return; } e.textContent = s?.at ? `parte tra ${Math.max(0, Math.ceil((s.at - Date.now()) / 1000))} s` : ""; }); }
 setInterval(() => { const ora = Date.now(), sc = Object.keys(PK).filter(k => PK[k].at && PK[k].at <= ora); if (sc.length) automatico(() => toast(sc.map(k => invia(k, true)).filter(Boolean).join(" · "))); const cl = dentro().filter(a => a.avvAt && a.avvAt <= ora); if (cl.length) automatico(() => toast(cl.map(avvisaCliente).join(" · "))); battito(); avanzaTracking(false); disDock(); }, 1000);
@@ -1444,7 +1457,7 @@ const ATT = {
   galVai:v => galPasso(+v), galA:v => { const d = Math.sign(+v - GAL.i); if (d) { GAL.i = +v; disGal(d); } },
   ptab:v => { pTab = v; agg(); },
   // clic sul testo di una voce di attenzione: si va nel punto esatto e lo si fa lampeggiare due volte
-  dove:v => { const [act, id, t] = v.split("|"), pratica = (tab, sel) => { pTab = tab; if (grande) setGrande(false); seleziona(AUTO.indexOf(A(t)), true); lampeggia(sel); };
+  dove:v => { const q = v.split("|"), act = q[0], t = q[q.length - 1], id = q.slice(1, -1).join("|"), pratica = (tab, sel) => { pTab = tab; if (grande) setGrande(false); seleziona(AUTO.indexOf(A(t)), true); lampeggia(sel); };
     if (act === "ordinaRev" || act === "ricOff") { ATT.ric(id); lampeggia(`[data-k="r${id}"]`); }
     else if (act === "sollecita" || act === "proroga") pratica("dati", `[data-act="${act}"][data-v="${t}"]`);
     else if (act === "avvisa") pratica("doc", ".avvc");
@@ -1486,7 +1499,7 @@ const ATT = {
   ordinaTutti:() => sicuro(aperteRic(), () => fai("", () => { const P = aperteRic(); P.forEach(ordina); return `Ordinati ${P.length} ricambi`; })),
   siOrdina:() => { chiudiD($("lb")); const f = sicuroFn; sicuroFn = null; f?.(); },
   arrivato:v => fai("", () => { const r = R(v); arrivato(r); return `${r.t} può ripartire`; }),
-  sollecita:v => fai("", () => { A(v).sollecito = true; nota(`${v}: perizia sollecitata`); return `Sollecito preparato per ${v}`; }),
+  sollecita:v => controllaSollecito(v),
   proroga:v => fai("", () => { const a = A(v); a.prev = a.g + 2; nota(`${v}: verniciatura allungata di 2 giorni`); return `${v}: nuova data, ${tra(2)}`; }),
   avvisa:v => controllaCliente(v), controllaPacco:v => controllaPacco(v),
   chiedi:v => fai("", () => { A(v).chiestoFoto = true; nota(`${v}: chiesto al reparto quello che manca`); return `${v}: chiesto al reparto`; }),
